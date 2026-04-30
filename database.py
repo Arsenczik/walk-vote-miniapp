@@ -1,45 +1,26 @@
-import sqlite3
+# database.py
 
-def init_db():
-    conn = sqlite3.connect('vibe.db')
-    cursor = conn.cursor()
-    
-    # Таблица пользователей и их рейтинга
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            user_id INTEGER PRIMARY KEY,
-            username TEXT,
-            points INTEGER DEFAULT 0,
-            achievements TEXT DEFAULT ''
-        )
-    ''')
-    
-    # Таблица ивентов
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS events (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            date TEXT,
-            location TEXT,
-            creator_id INTEGER
-        )
-    ''')
+events = []
+participants = {}  # event_id -> [usernames]
 
-    # Кто идет на ивент
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS participants (
-            event_id INTEGER,
-            user_id INTEGER,
-            PRIMARY KEY (event_id, user_id)
-        )
-    ''')
-    
-    conn.commit()
-    conn.close()
+def create_event(title, date, location, maps_url):
+    event = {
+        "id": len(events) + 1,
+        "title": title,
+        "date": date,
+        "location": location,
+        "maps_url": maps_url
+    }
+    events.append(event)
+    participants[event["id"]] = []
+    return event
 
-def add_user(user_id, username):
-    conn = sqlite3.connect('vibe.db')
-    cursor = conn.cursor()
-    cursor.execute('INSERT OR IGNORE INTO users (user_id, username) VALUES (?, ?)', (user_id, username))
-    conn.commit()
-    conn.close()
+def get_events():
+    return events
+
+def join_event(event_id, username):
+    if username not in participants[event_id]:
+        participants[event_id].append(username)
+
+def get_participants(event_id):
+    return participants.get(event_id, [])
