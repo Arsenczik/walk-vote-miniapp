@@ -1,6 +1,5 @@
 from uuid import uuid4
 
-# Хранилище
 events_db = []
 users_db = {
     "user1": {"id": "user1", "name": "Арсен"},
@@ -10,7 +9,6 @@ users_db = {
     "user5": {"id": "user5", "name": "Саша"},
 }
 
-# События
 def create_event(name, description, date, creator_id, category='🎉'):
     event = {
         "id": str(uuid4()),
@@ -19,13 +17,12 @@ def create_event(name, description, date, creator_id, category='🎉'):
         "date": date,
         "creator_id": creator_id,
         "category": category,
-        "participants": [creator_id]  # создатель сразу идёт
+        "participants": [creator_id]
     }
     events_db.append(event)
     return event
 
 def get_events():
-    # Добавляем creator_name к каждому событию
     events_with_names = []
     for e in events_db:
         creator = get_user(e.get('creator_id'))
@@ -45,7 +42,6 @@ def get_event(event_id):
             }
     return None
 
-# Участники
 def add_participant(event_id, user_id):
     event = next((e for e in events_db if e['id'] == event_id), None)
     if event and user_id not in event['participants']:
@@ -71,12 +67,10 @@ def get_participants(event_id):
         return participants
     return []
 
-# Пользователи
 def get_user(user_id):
     return users_db.get(user_id)
 
 def get_user_vibe(user_id):
-    """Вычисляет ачивки пользователя"""
     user = get_user(user_id)
     if not user:
         return None
@@ -86,11 +80,9 @@ def get_user_vibe(user_id):
     
     achievements = []
     
-    # Ачивка "Заводила"
     if len(events_created) >= 2:
         achievements.append({"emoji": "📢", "name": "Заводила"})
     
-    # Ачивка по категориям
     cat_count = {}
     for e in events_attended:
         cat = e.get('category', '🫥')
@@ -111,7 +103,6 @@ def get_user_vibe(user_id):
         if favorite_cat in cat_achievements:
             achievements.append(cat_achievements[favorite_cat])
     
-    # Ачивка "Старожил" (ходит на все подряд)
     if len(events_attended) >= 5:
         achievements.append({"emoji": "⭐", "name": "Старожил"})
     
