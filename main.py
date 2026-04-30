@@ -1,14 +1,24 @@
-from flask import Flask
-from api import api
+from flask import Flask, send_from_directory
+from api import api_bp
 import os
 
-app = Flask(__name__, static_folder="static")
-app.register_blueprint(api, url_prefix="/api")
+app = Flask(__name__, static_folder='static', static_url_path='/static')
 
-@app.route("/")
+# Подключаем API
+app.register_blueprint(api_bp)
+
+# Главная страница
+@app.route('/')
 def index():
-    return app.send_static_file("index.html")
+    return send_from_directory('.', 'index.html')
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
-    
+# Статика (на всякий случай)
+@app.route('/<path:path>')
+def static_files(path):
+    if os.path.exists(path):
+        return send_from_directory('.', path)
+    return send_from_directory('.', 'index.html')
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
