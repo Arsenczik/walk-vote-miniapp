@@ -44,4 +44,13 @@ async def vote(poll_id: str, data: VoteCreate):
     await save_vote(poll_id, data.user_id, data.user_name, data.answer)
     return {"ok": True}
 
+@app.delete("/api/polls/{poll_id}")
+async def delete_poll(poll_id: str):
+    async with aiosqlite.connect("votes.db") as db:
+        await db.execute("DELETE FROM votes WHERE poll_id = ?", (poll_id,))
+        await db.execute("DELETE FROM polls WHERE id = ?", (poll_id,))
+        await db.commit()
+    return {"ok": True}
+
+
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
