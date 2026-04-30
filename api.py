@@ -1,22 +1,29 @@
-from fastapi.staticfiles import StaticFiles
-from fastapi import FastAPI
-from pydantic import BaseModel
-import database
+from flask import Blueprint, request, jsonify
+from database import create_event, get_events, join_event, get_participants
 
-app = FastAPI()
-database.init_db()
+api = Blueprint('api', __name__)
 
-@app.get("/api/user/{user_id}")
-async def get_user(user_id: int):
-    # Тут будет логика получения очков и ачивок
-    return {"user_id": user_id, "points": 150, "rank": "Заводила", "achievements": ["🍖", "🌊"]}
+@api.route("/events", methods=["GET"])
+def events():
+    return jsonify(get_events())
 
-@app.get("/api/events")
-async def get_events():
-    # Возвращаем список будущих тусовок
-    return [
-        {"id": 1, "title": "Шашлыки", "date": "15.05", "location": "Pole Mokotowskie"},
-        {"id": 2, "title": "Аквапарк", "date": "20.05", "location": "Suntago"}
-    ]
+@api.route("/events", methods=["POST"])
+def add_event():
+    data = request.json
+    event = create_event(
+        data["title"],
+        data["date"],
+        data["location"],
+        data["maps_url"]
+    )
+    return jsonify(event)
 
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+@api.route("/join", methods=["POST"])
+def join():
+    data = request.json
+    join_event(data["event_id"], data["username"])
+    return jsonify({"status": "ok"})
+
+@api.route("/participants/<int:event_id>")
+def participants(event_id):
+    return jsonify(get_participants(event_id))
