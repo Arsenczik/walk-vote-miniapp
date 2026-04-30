@@ -1,373 +1,43 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Голосовалки</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { background: #0a0a0a; color: #f0f0f0; font-family: 'DM Sans', sans-serif; }
-    ::-webkit-scrollbar { display: none; }
-    .header { padding: 48px 24px 20px; position: sticky; top: 0; background: #0a0a0a; z-index: 10; }
-    .header-top { display: flex; align-items: flex-start; justify-content: space-between; }
-    .header-label { font-size: 11px; font-weight: 700; color: #6366f1; letter-spacing: 2px; margin-bottom: 4px; font-family: 'Unbounded', sans-serif; }
-    .header-title { font-size: 28px; font-weight: 900; color: #f0f0f0; font-family: 'Unbounded', sans-serif; }
-    .header-icon { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; font-size: 18px; }
-    .stats { display: flex; gap: 10px; margin-top: 20px; }
-    .stat { flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 10px 12px; }
-    .stat-value { font-size: 20px; font-weight: 800; font-family: 'Unbounded', sans-serif; }
-    .stat-label { font-size: 10px; color: #555; margin-top: 2px; }
-    .polls { padding: 0 16px 100px; display: flex; flex-direction: column; gap: 12px; overflow-x: hidden; }
-    .card-wrap { position: relative; border-radius: 20px; height: auto; }
-    .delete-reveal { position: absolute; right: 0; top: 0; bottom: 0; width: 110px; background: #e11d48; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; z-index: 1; border-radius: 0 20px 20px 0; padding-left: 20px; }
-    .delete-reveal span:last-child { font-size: 10px; font-weight: 700; color: #fff; font-family: 'Unbounded', sans-serif; }
-    .card { background: #161616; border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 18px 20px; cursor: pointer; position: relative; z-index: 2; transform: translateX(0); will-change: transform; }
-    .card-date { font-size: 13px; color: #666; margin-bottom: 6px; }
-    .card-title { font-size: 17px; font-weight: 700; color: #f0f0f0; margin-bottom: 14px; font-family: 'Unbounded', sans-serif; line-height: 1.3; }
-    .card-footer { display: flex; align-items: center; justify-content: space-between; }
-    .daily-badge { position: absolute; top: 0; right: 0; background: linear-gradient(135deg, #6366f1, #8b5cf6); font-size: 10px; font-weight: 700; color: #fff; padding: 4px 12px; border-bottom-left-radius: 12px; letter-spacing: 1px; font-family: 'Unbounded', sans-serif; }
-    .vote-counts { display: flex; gap: 8px; }
-    .vote-count { display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 8px; font-size: 13px; font-weight: 600; }
-    .fab { position: fixed; bottom: 32px; right: 24px; width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; cursor: pointer; font-size: 32px; color: #fff; box-shadow: 0 8px 32px rgba(99,102,241,0.5); z-index: 999; display: flex; align-items: center; justify-content: center; touch-action: manipulation; }
-    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; display: flex; flex-direction: column; justify-content: flex-end; }
-    .sheet { background: #111; border-radius: 28px 28px 0 0; padding: 28px 24px 40px; border: 1px solid rgba(255,255,255,0.08); animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1); max-height: 90vh; overflow-y: auto; }
-    .sheet-handle { width: 40px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.15); margin: 0 auto 24px; }
-    .sheet-title { font-size: 22px; font-weight: 800; font-family: 'Unbounded', sans-serif; margin-bottom: 6px; }
-    .sheet-date { font-size: 13px; color: #555; margin-bottom: 28px; }
-    .vote-buttons { display: flex; gap: 10px; margin-bottom: 28px; }
-    .vote-btn { flex: 1; padding: 14px 8px; border-radius: 16px; border: 2px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: all 0.2s; touch-action: manipulation; }
-    .vote-btn.active-yes { border-color: #4ade80; background: rgba(74,222,128,0.15); }
-    .vote-btn.active-maybe { border-color: #facc15; background: rgba(250,204,21,0.15); }
-    .vote-btn.active-no { border-color: #f87171; background: rgba(248,113,113,0.15); }
-    .vote-btn-emoji { font-size: 22px; }
-    .vote-btn-label { font-size: 12px; font-weight: 700; font-family: 'Unbounded', sans-serif; color: #666; }
-    .vote-btn-label.yes { color: #4ade80; }
-    .vote-btn-label.maybe { color: #facc15; }
-    .vote-btn-label.no { color: #f87171; }
-    .vote-btn-count { font-size: 16px; font-weight: 800; font-family: 'Unbounded', sans-serif; color: #444; }
-    .vote-btn-count.yes { color: #4ade80; }
-    .vote-btn-count.maybe { color: #facc15; }
-    .vote-btn-count.no { color: #f87171; }
-    .who-section { margin-bottom: 16px; }
-    .who-label { font-size: 11px; font-weight: 700; color: #555; letter-spacing: 1px; margin-bottom: 10px; font-family: 'Unbounded', sans-serif; }
-    .who-list { display: flex; flex-wrap: wrap; gap: 8px; }
-    .who-chip { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.04); padding: 6px 12px 6px 6px; border-radius: 20px; }
-    .who-chip-name { font-size: 13px; color: #ccc; }
-    .avatar { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-family: 'Unbounded', sans-serif; border: 2px solid rgba(255,255,255,0.1); flex-shrink: 0; }
-    .new-presets { display: flex; gap: 10px; margin-bottom: 16px; }
-    .preset-btn { flex: 1; padding: 16px 8px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); cursor: pointer; color: #666; font-size: 13px; font-weight: 700; font-family: 'Unbounded', sans-serif; transition: all 0.2s; line-height: 1.4; touch-action: manipulation; }
-    .preset-btn.active { border-color: #6366f1; background: rgba(99,102,241,0.15); color: #818cf8; }
-    .new-input { width: 100%; padding: 14px 16px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); color: #f0f0f0; font-size: 15px; font-family: 'DM Sans', sans-serif; outline: none; margin-bottom: 16px; }
-    .new-input::placeholder { color: #444; }
-    .create-btn { width: 100%; padding: 16px; border-radius: 16px; border: none; font-size: 15px; font-weight: 700; font-family: 'Unbounded', sans-serif; transition: all 0.2s; touch-action: manipulation; }
-    .create-btn.ready { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; cursor: pointer; }
-    .create-btn.disabled { background: rgba(255,255,255,0.05); color: #444; cursor: default; }
-    .loading { display: flex; align-items: center; justify-content: center; height: 200px; font-size: 14px; color: #555; font-family: 'Unbounded', sans-serif; }
-    @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-  </style>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; color: #333; }
+        .card { background: white; padding: 15px; border-radius: 12px; margin: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .badge { background: #ffd700; padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+        .btn { background: #0088cc; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; }
+    </style>
 </head>
 <body>
-
-<div class="header">
-  <div class="header-top">
-    <div>
-      <div class="header-label" id="headerDate">ЗАГРУЗКА...</div>
-      <div class="header-title">Голосовалки</div>
+    <div id="user-info" class="card">
+        <h3>Привет, <span id="username">Бро</span>!</h3>
+        <p>Твой рейтинг: <b id="points">0</b> 🔥</p>
+        <div id="achievements"></div>
     </div>
-    <div class="header-icon">🚶</div>
-  </div>
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-value" style="color:#4ade80" id="statGoing">—</div>
-      <div class="stat-label">Идут сегодня</div>
-    </div>
-    <div class="stat">
-      <div class="stat-value" style="color:#6366f1" id="statPolls">—</div>
-      <div class="stat-label">Голосований</div>
-    </div>
-    <div class="stat">
-      <div class="stat-value" style="color:#facc15" id="statMembers">—</div>
-      <div class="stat-label">Участников</div>
-    </div>
-  </div>
-</div>
 
-<div class="polls" id="pollsList">
-  <div class="loading">Загрузка...</div>
-</div>
+    <div id="events-list">
+        </div>
 
-<button class="fab" id="fabBtn">+</button>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Разворачиваем на весь экран
 
-<div class="overlay" id="pollModal" style="display:none">
-  <div style="flex:1" id="pollModalBg"></div>
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div id="modalDaily" style="display:none; margin-bottom:12px;">
-      <span style="background:linear-gradient(135deg,#6366f1,#8b5cf6);padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;color:#fff;font-family:'Unbounded',sans-serif;letter-spacing:1px;">DAILY</span>
-    </div>
-    <div class="sheet-title" id="modalTitle"></div>
-    <div class="sheet-date" id="modalDate"></div>
-    <div class="vote-buttons">
-      <button class="vote-btn" id="btnYes"><span class="vote-btn-emoji">👍</span><span class="vote-btn-label" id="labelYes">Да</span><span class="vote-btn-count" id="countYes">0</span></button>
-      <button class="vote-btn" id="btnMaybe"><span class="vote-btn-emoji">🤷</span><span class="vote-btn-label" id="labelMaybe">Может</span><span class="vote-btn-count" id="countMaybe">0</span></button>
-      <button class="vote-btn" id="btnNo"><span class="vote-btn-emoji">👎</span><span class="vote-btn-label" id="labelNo">Нет</span><span class="vote-btn-count" id="countNo">0</span></button>
-    </div>
-    <div id="whoList"></div>
-  </div>
-</div>
+        document.getElementById('username').innerText = tg.initDataUnsafe.user?.first_name || "Аноним";
 
-<div class="overlay" id="newModal" style="display:none">
-  <div style="flex:1" id="newModalBg"></div>
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title" style="margin-bottom:20px;">Новая голосовалка</div>
-    <div class="new-presets">
-      <button class="preset-btn" id="presetCenter">📍 Центр</button>
-      <button class="preset-btn" id="presetBestik">📍 Бестик</button>
-    </div>
-    <input class="new-input" id="newTitle" placeholder="Или напиши свой вариант..." />
-    <button class="create-btn disabled" id="createBtn">Создать голосовалку</button>
-  </div>
-</div>
-
-<script>
-  const tg = window.Telegram?.WebApp;
-  if (tg) tg.ready();
-
-  const API = "";
-  let polls = [];
-  let currentPoll = null;
-  let myUserId = tg?.initDataUnsafe?.user?.id || 99999;
-  let myUserName = tg?.initDataUnsafe?.user?.first_name || "Ты";
-
-  const COLORS = ["#6366f1","#8b5cf6","#ec4899","#14b8a6","#f59e0b","#3b82f6"];
-  function avatarColor(name) { return COLORS[name.charCodeAt(0) % COLORS.length]; }
-  function makeAvatar(name, size) { return '<div class="avatar" style="width:'+size+'px;height:'+size+'px;font-size:'+(size*0.38)+'px;background:'+avatarColor(name)+';">'+name[0]+'</div>'; }
-
-  function formatDate(iso) {
-    const d = new Date(iso), now = new Date(), diff = now - d;
-    if (diff < 60000) return "Только что";
-    if (diff < 3600000) return Math.floor(diff/60000) + " мин назад";
-    if (diff < 86400000) return "Сегодня, " + d.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
-    return "Вчера, " + d.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
-  }
-
-  function getDayLabel() {
-    const days = ["ВОСКРЕСЕНЬЕ","ПОНЕДЕЛЬНИК","ВТОРНИК","СРЕДА","ЧЕТВЕРГ","ПЯТНИЦА","СУББОТА"];
-    const months = ["ЯНВАРЯ","ФЕВРАЛЯ","МАРТА","АПРЕЛЯ","МАЯ","ИЮНЯ","ИЮЛЯ","АВГУСТА","СЕНТЯБРЯ","ОКТЯБРЯ","НОЯБРЯ","ДЕКАБРЯ"];
-    const d = new Date();
-    return days[d.getDay()] + ", " + d.getDate() + " " + months[d.getMonth()];
-  }
-
-  async function loadPolls() {
-    try {
-      const res = await fetch(API + "/api/polls");
-      polls = await res.json();
-      renderPolls();
-      updateStats();
-    } catch(e) {
-      document.getElementById("pollsList").innerHTML = '<div class="loading">Ошибка загрузки</div>';
-    }
-  }
-
-  function updateStats() {
-    const now = new Date();
-    const goingToday = polls.filter(p => new Date(p.created_at).toDateString() === now.toDateString()).reduce((a,p) => a + p.votes.yes.length, 0);
-    const allUsers = new Set();
-    polls.forEach(p => [...p.votes.yes,...p.votes.maybe,...p.votes.no].forEach(v => allUsers.add(v.user_id)));
-    document.getElementById("statGoing").textContent = goingToday;
-    document.getElementById("statPolls").textContent = polls.length;
-    document.getElementById("statMembers").textContent = allUsers.size;
-    document.getElementById("headerDate").textContent = getDayLabel();
-  }
-
-  function getMyAnswer(poll) {
-    if (poll.votes.yes.find(v => v.user_id == myUserId)) return 'yes';
-    if (poll.votes.maybe.find(v => v.user_id == myUserId)) return 'maybe';
-    if (poll.votes.no.find(v => v.user_id == myUserId)) return 'no';
-    return null;
-  }
-
-  async function deletePoll(id) {
-    try {
-      const res = await fetch(API + "/api/polls/" + id, { method: "DELETE" });
-      if (res.ok) { await loadPolls(); }
-      else { alert("Ошибка удаления: " + res.status); }
-    } catch(e) { alert("Ошибка: " + e.message); }
-  }
-
-  function renderPolls() {
-    const container = document.getElementById("pollsList");
-    if (polls.length === 0) { container.innerHTML = '<div class="loading">Пока нет голосований</div>'; return; }
-    const vColors = {yes:"#4ade80",maybe:"#facc15",no:"#f87171"};
-    const vEmojis = {yes:"👍",maybe:"🤷",no:"👎"};
-    container.innerHTML = polls.map((poll,i) => {
-      const myAnswer = getMyAnswer(poll);
-      return '<div class="card-wrap" data-poll-id="'+poll.id+'" style="animation:fadeIn 0.4s ease '+(i*0.05)+'s both;">'
-        + '<div class="delete-reveal"><span>🗑️</span><span>УДАЛИТЬ</span></div>'
-        + '<div class="card" data-id="'+poll.id+'">'
-        + (poll.is_daily ? '<div class="daily-badge">DAILY</div>' : '')
-        + '<div class="card-date">'+formatDate(poll.created_at)+'</div>'
-        + '<div class="card-title" style="padding-right:'+(poll.is_daily?60:0)+'px">'+poll.title+'</div>'
-        + '<div class="card-footer"><div class="vote-counts">'
-        + ['yes','maybe','no'].map(t => '<div class="vote-count" style="background:'+(myAnswer===t?vColors[t]+'26':'transparent')+';color:'+(myAnswer===t?vColors[t]:'#888')+'"><span>'+vEmojis[t]+'</span><span>'+poll.votes[t].length+'</span></div>').join('')
-        + '</div><span style="font-size:11px;color:#555;">'+(poll.votes.yes.length+poll.votes.maybe.length+poll.votes.no.length)+' чел</span></div>'
-        + '</div></div>';
-    }).join('');
-
-    document.querySelectorAll('.card-wrap').forEach(wrap => {
-      const card = wrap.querySelector('.card');
-      const pollId = wrap.dataset.pollId;
-      let startX = 0, currentX = 0, swiping = false, opened = false;
-
-      wrap.addEventListener('touchstart', function(e) {
-        startX = e.touches[0].clientX;
-        currentX = 0;
-        swiping = true;
-        card.style.transition = 'none';
-      }, {passive: true});
-
-      wrap.addEventListener('touchmove', function(e) {
-        if (!swiping) return;
-        const dx = e.touches[0].clientX - startX;
-        if (!opened && dx < 0) {
-          currentX = Math.max(dx, -90);
-          card.style.transform = 'translateX(' + currentX + 'px)';
-        } else if (opened && dx > 0) {
-          currentX = Math.min(dx - 90, 0);
-          card.style.transform = 'translateX(' + currentX + 'px)';
+        // Функция загрузки ивентов (заглушка)
+        async function loadEvents() {
+            const list = document.getElementById('events-list');
+            // Здесь будет fetch('/api/events')
+            list.innerHTML = `
+                <div class="card">
+                    <h4>🍖 Шашлыки на Висле</h4>
+                    <p>15 мая | 18:00</p>
+                    <button class="btn" onclick="alert('Ты в деле!')">Я иду!</button>
+                </div>
+            `;
         }
-      }, {passive: true});
-
-      wrap.addEventListener('touchend', function() {
-        swiping = false;
-        card.style.transition = 'transform 0.3s ease';
-        if (!opened && currentX < -40) {
-          card.style.transform = 'translateX(-90px)';
-          opened = true;
-        } else if (opened && currentX > -40) {
-          card.style.transform = 'translateX(0px)';
-          opened = false;
-        } else if (opened) {
-          card.style.transform = 'translateX(-90px)';
-        } else {
-          card.style.transform = 'translateX(0px)';
-        }
-      });
-
-      card.addEventListener('click', function() {
-        if (opened) {
-          card.style.transition = 'transform 0.3s ease';
-          card.style.transform = 'translateX(0px)';
-          opened = false;
-          return;
-        }
-        openPoll(pollId);
-      });
-
-      wrap.querySelector('.delete-reveal').addEventListener('click', function() {
-        deletePoll(pollId);
-      });
-    });
-  }
-
-  function openPoll(id) {
-    currentPoll = polls.find(p => p.id === id);
-    if (!currentPoll) return;
-    document.getElementById("modalTitle").textContent = currentPoll.title;
-    document.getElementById("modalDate").textContent = formatDate(currentPoll.created_at) + " · " + (currentPoll.votes.yes.length+currentPoll.votes.maybe.length+currentPoll.votes.no.length) + " участников";
-    document.getElementById("modalDaily").style.display = currentPoll.is_daily ? "block" : "none";
-    updateVoteButtons(getMyAnswer(currentPoll));
-    renderWhoList();
-    document.getElementById("pollModal").style.display = "flex";
-  }
-
-  function updateVoteButtons(myAnswer) {
-    if (!currentPoll) return;
-    ['yes','maybe','no'].forEach(type => {
-      const cap = type.charAt(0).toUpperCase()+type.slice(1);
-      document.getElementById('btn'+cap).className = 'vote-btn' + (myAnswer===type?' active-'+type:'');
-      document.getElementById('label'+cap).className = 'vote-btn-label' + (myAnswer===type?' '+type:'');
-      document.getElementById('count'+cap).className = 'vote-btn-count' + (myAnswer===type?' '+type:'');
-      document.getElementById('count'+cap).textContent = currentPoll.votes[type].length;
-    });
-  }
-
-  function renderWhoList() {
-    const labels = {yes:"👍 ДА",maybe:"🤷 МОЖЕТ",no:"👎 НЕТ"};
-    document.getElementById("whoList").innerHTML = ['yes','maybe','no'].map(type => {
-      const users = currentPoll.votes[type];
-      if (!users.length) return '';
-      return '<div class="who-section"><div class="who-label">'+labels[type]+'</div><div class="who-list">'
-        + users.map(u => '<div class="who-chip">'+makeAvatar(u.user_name,24)+'<span class="who-chip-name">'+u.user_name+'</span></div>').join('')
-        + '</div></div>';
-    }).join('');
-  }
-
-  async function vote(type) {
-    if (!currentPoll) return;
-    try {
-      await fetch(API + "/api/polls/" + currentPoll.id + "/vote", {
-        method: "POST", headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({user_id: myUserId, user_name: myUserName, answer: type})
-      });
-      ['yes','maybe','no'].forEach(t => { currentPoll.votes[t] = currentPoll.votes[t].filter(v => v.user_id != myUserId); });
-      currentPoll.votes[type].push({user_id: myUserId, user_name: myUserName});
-      updateVoteButtons(type);
-      renderWhoList();
-      renderPolls();
-      updateStats();
-    } catch(e) { alert("Ошибка при голосовании"); }
-  }
-
-  function closeNew() {
-    document.getElementById("newModal").style.display = "none";
-    document.getElementById("newTitle").value = "";
-    document.getElementById("createBtn").className = "create-btn disabled";
-    document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
-  }
-
-  async function createPoll() {
-    const title = document.getElementById("newTitle").value.trim();
-    if (!title) return;
-    try {
-      await fetch(API + "/api/polls", {
-        method: "POST", headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({title, is_daily: false})
-      });
-      closeNew();
-      await loadPolls();
-    } catch(e) { alert("Ошибка при создании"); }
-  }
-
-  document.getElementById("fabBtn").addEventListener("click", function() { document.getElementById("newModal").style.display = "flex"; });
-  document.getElementById("pollModalBg").addEventListener("click", function() { document.getElementById("pollModal").style.display = "none"; });
-  document.getElementById("newModalBg").addEventListener("click", closeNew);
-  document.getElementById("btnYes").addEventListener("click", function() { vote('yes'); });
-  document.getElementById("btnMaybe").addEventListener("click", function() { vote('maybe'); });
-  document.getElementById("btnNo").addEventListener("click", function() { vote('no'); });
-  document.getElementById("presetCenter").addEventListener("click", function() {
-    document.getElementById("newTitle").value = "Кто будет в центре?";
-    document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
-    this.classList.add("active");
-    document.getElementById("createBtn").className = "create-btn ready";
-  });
-  document.getElementById("presetBestik").addEventListener("click", function() {
-    document.getElementById("newTitle").value = "Кто будет на бестике?";
-    document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
-    this.classList.add("active");
-    document.getElementById("createBtn").className = "create-btn ready";
-  });
-  document.getElementById("newTitle").addEventListener("input", function() {
-    document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
-    document.getElementById("createBtn").className = this.value.trim() ? "create-btn ready" : "create-btn disabled";
-  });
-  document.getElementById("createBtn").addEventListener("click", createPoll);
-
-  loadPolls();
-</script>
+        loadEvents();
+    </script>
 </body>
 </html>
