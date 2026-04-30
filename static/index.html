@@ -6,57 +6,80 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0f0f0f;
-      color: white;
-      padding: 10px;
-    }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Arial;
+  background: #0f0f10;
+  color: #fff;
+}
 
-    h2 {
-      text-align: center;
-    }
+h2 {
+  text-align: center;
+  padding: 12px;
+  font-size: 20px;
+}
 
-    .card {
-      background: #1c1c1c;
-      padding: 15px;
-      border-radius: 15px;
-      margin-bottom: 15px;
-    }
+.container {
+  padding: 10px;
+}
 
-    .title {
-      font-size: 18px;
-      font-weight: bold;
-    }
+.card {
+  background: #1b1c20;
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
 
-    .btn {
-      background: #2ea6ff;
-      border: none;
-      padding: 10px;
-      border-radius: 10px;
-      color: white;
-      cursor: pointer;
-      margin-top: 10px;
-      width: 100%;
-    }
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
 
-    .link {
-      color: #2ea6ff;
-      text-decoration: none;
-    }
+.meta {
+  font-size: 13px;
+  color: #aaa;
+  margin: 4px 0;
+}
 
-    .participants {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #ccc;
-    }
-  </style>
+.btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 12px;
+  background: #2ea6ff;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.link {
+  display: inline-block;
+  margin-top: 8px;
+  color: #2ea6ff;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.participants {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #ccc;
+}
+</style>
 </head>
 
 <body>
 
 <h2>🔥 События</h2>
-<div id="events"></div>
+
+<div class="container" id="events"></div>
 
 <script>
 const tg = window.Telegram.WebApp;
