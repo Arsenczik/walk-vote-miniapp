@@ -196,17 +196,61 @@
     const vEmojis = {yes:"👍",maybe:"🤷",no:"👎"};
     container.innerHTML = polls.map((poll,i) => {
       const myAnswer = getMyAnswer(poll);
-      return '<div class="card" data-id="'+poll.id+'" style="animation:fadeIn 0.4s ease '+(i*0.05)+'s both;">'
+      return '<div style="position:relative;overflow:hidden;border-radius:20px;animation:fadeIn 0.4s ease '+(i*0.05)+'s both;">'
++ '<div class="delete-btn" data-id="'+poll.id+'" style="position:absolute;right:0;top:0;bottom:0;width:80px;background:#f87171;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;opacity:0;border-radius:20px;">🗑️</div>'
++ '<div class="card" data-id="'+poll.id+'" style="position:relative;z-index:1;">'
+
         + (poll.is_daily ? '<div class="daily-badge">DAILY</div>' : '')
         + '<div class="card-date">'+formatDate(poll.created_at)+'</div>'
         + '<div class="card-title" style="padding-right:'+(poll.is_daily?60:0)+'px">'+poll.title+'</div>'
         + '<div class="card-footer"><div class="vote-counts">'
         + ['yes','maybe','no'].map(t => '<div class="vote-count" style="background:'+(myAnswer===t?vColors[t]+'26':'transparent')+';color:'+(myAnswer===t?vColors[t]:'#888')+'"><span>'+vEmojis[t]+'</span><span>'+poll.votes[t].length+'</span></div>').join('')
-        + '</div><span style="font-size:11px;color:#555;">'+(poll.votes.yes.length+poll.votes.maybe.length+poll.votes.no.length)+' чел</span></div></div>';
+        + '</div><span style="font-size:11px;color:#555;">'+(poll.votes.yes.length+poll.votes.maybe.length+poll.votes.no.length)+' чел</span></div></div></div>';
+
     }).join('');
-    document.querySelectorAll('.card').forEach(card => {
-      card.addEventListener('click', function() { openPoll(this.dataset.id); });
+      document.querySelectorAll('.card').forEach(card => {
+    let startX = 0, currentX = 0, swiping = false;
+
+    card.addEventListener('touchstart', function(e) {
+      startX = e.touches[0].clientX;
+      swiping = true;
+      this.style.transition = 'none';
+    }, {passive: true});
+
+    card.addEventListener('touchmove', function(e) {
+      if (!swiping) return;
+      currentX = e.touches[0].clientX - startX;
+      if (currentX < 0) {
+        this.style.transform = 'translateX(' + Math.max(currentX, -80) + 'px)';
+        const del = this.querySelector('.delete-btn');
+        if (del) del.style.opacity = Math.min(Math.abs(currentX) / 80, 1);
+      }
+    }, {passive: true});
+
+    card.addEventListener('touchend', function() {
+      swiping = false;
+      this.style.transition = 'transform 0.3s ease';
+      if (currentX < -50) {
+        this.style.transform = 'translateX(-80px)';
+      } else {
+        this.style.transform = 'translateX(0)';
+        const del = this.querySelector('.delete-btn');
+        if (del) del.style.opacity = 0;
+      }
+      currentX = 0;
     });
+
+    card.addEventListener('click', function(e) {
+      if (this.style.transform && this.style.transform !== 'translateX(0px)') {
+        this.style.transform = 'translateX(0)';
+        const del = this.querySelector('.delete-btn');
+        if (del) del.style.opacity = 0;
+        return;
+      }
+      if (!e.target.closest('.delete-btn')) openPoll(this.dataset.id);
+    });
+  });
+
   }
 
   function openPoll(id) {
@@ -306,6 +350,17 @@
     document.getElementById("createBtn").className = this.value.trim() ? "create-btn ready" : "create-btn disabled";
   });
   document.getElementById("createBtn").addEventListener("click", createPoll);
+
+    document.getElementById("pollsList").addEventListener("click", async function(e) {
+    const del = e.target.closest('.delete-btn');
+    if (!del) return;
+    const id = del.dataset.id;
+    try {
+      await fetch(API + "/api/polls/" + id, { method: "DELETE" });
+      await loadPolls();
+    } catch(e) { alert("Ошибка при удалении"); }
+  });
+
 
   loadPolls();
 </script>
