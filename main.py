@@ -12,7 +12,7 @@ app.register_blueprint(api_bp)
 def index():
     return send_from_directory('.', 'index.html')
 
-# Статика (на всякий случай)
+# Статика
 @app.route('/<path:path>')
 def static_files(path):
     if os.path.exists(path):
