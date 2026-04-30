@@ -1,57 +1,19 @@
-import os
-import aiosqlite
-import uuid
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from database import init_db, create_poll, save_vote, get_polls
+import database
 
 app = FastAPI()
+database.init_db()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+@app.get("/api/user/{user_id}")
+async def get_user(user_id: int):
+    # Тут будет логика получения очков и ачивок
+    return {"user_id": user_id, "points": 150, "rank": "Заводила", "achievements": ["🍖", "🌊"]}
 
-@app.on_event("startup")
-async def startup():
-    await init_db()
-
-@app.get("/api/polls")
-async def polls():
-    return await get_polls()
-
-class PollCreate(BaseModel):
-    title: str
-    is_daily: bool = False
-
-@app.post("/api/polls")
-async def create(data: PollCreate):
-    poll_id = uuid.uuid4().hex[:8]
-    await create_poll(poll_id, data.title, data.is_daily)
-    return {"id": poll_id}
-
-class VoteCreate(BaseModel):
-    user_id: int
-    user_name: str
-    answer: str
-
-@app.post("/api/polls/{poll_id}/vote")
-async def vote(poll_id: str, data: VoteCreate):
-    await save_vote(poll_id, data.user_id, data.user_name, data.answer)
-    return {"ok": True}
-
-@app.delete("/api/polls/{poll_id}")
-async def delete_poll(poll_id: str):
-    async with aiosqlite.connect("votes.db") as db:
-        await db.execute("DELETE FROM votes WHERE poll_id = ?", (poll_id,))
-        await db.execute("DELETE FROM polls WHERE id = ?", (poll_id,))
-        await db.commit()
-    return {"ok": True}
-
-
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+@app.get("/api/events")
+async def get_events():
+    # Возвращаем список будущих тусовок
+    return [
+        {"id": 1, "title": "Шашлыки", "date": "15.05", "location": "Pole Mokotowskie"},
+        {"id": 2, "title": "Аквапарк", "date": "20.05", "location": "Suntago"}
+    ]
