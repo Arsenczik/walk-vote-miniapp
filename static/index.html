@@ -1,143 +1,67 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Walk Vote - Event Manager</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root {
-            --bg-color: #02040a;
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --accent-blue: #007aff;
-            --text-main: #ffffff;
-            --text-secondary: #b0b0b0;
-            --neon-blue: #00d4ff;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            background-image: radial-gradient(circle at center, #0a192f 0%, #02040a 100%);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .event-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 25px;
-            width: 100%;
-            max-width: 350px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
-            margin-bottom: 20px;
-        }
-
-        h1 { font-size: 24px; margin: 0 0 10px 0; color: var(--neon-blue); }
-        .info-row { display: flex; align-items: center; margin-bottom: 12px; font-size: 14px; color: var(--text-secondary); }
-        .info-row span { margin-right: 10px; font-size: 18px; }
-
-        .btn-group { width: 100%; max-width: 350px; display: grid; gap: 10px; }
-
-        .btn {
-            border: none;
-            border-radius: 12px;
-            padding: 15px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
-            color: white;
-        }
-
-        .btn-primary { background: linear-gradient(45deg, #007aff, #00d4ff); box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3); }
-        .btn-secondary { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); }
-        
-        .btn:active { transform: scale(0.98); opacity: 0.8; }
-
-        .participants-section { width: 100%; max-width: 350px; margin-top: 30px; }
-        .participants-title { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 15px; display: block; }
-        
-        .participant-item {
-            display: flex;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.03);
-            padding: 10px 15px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-        }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 12px; background: var(--neon-blue); box-shadow: 0 0 8px var(--neon-blue); }
-    </style>
+  <title>Event Manager</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
-    <div class="event-card">
-        <h1 id="event-title">Космическая прогулка</h1>
-        <div class="info-row"><span>📍</span> <span id="event-loc">Парк Горького, Вход</span></div>
-        <div class="info-row"><span>⏰</span> <span id="event-time">Сегодня, 19:00</span></div>
-    </div>
+<h2>События</h2>
+<div id="events"></div>
 
-    <div class="btn-group">
-        <button class="btn btn-primary" onclick="updateStatus('going')">🚀 Я иду</button>
-        <button class="btn btn-secondary" onclick="updateStatus('maybe')">🤔 Возможно</button>
-    </div>
+<script>
+const tg = window.Telegram.WebApp;
+const user = tg.initDataUnsafe.user;
 
-    <div class="participants-section">
-        <span class="participants-title">Участники (<span id="count">0</span>)</span>
-        <div id="participants-list">
-            </div>
-    </div>
+async function loadEvents() {
+  const res = await fetch("/api/events");
+  const events = await res.json();
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
+  const container = document.getElementById("events");
+  container.innerHTML = "";
 
-        async function updateStatus(status) {
-            const user = tg.initDataUnsafe?.user;
-            if (!user) return tg.showAlert("Открой в Telegram!");
+  for (let e of events) {
+    const div = document.createElement("div");
 
-            const response = await fetch('/api/event/join', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_id: user.id,
-                    username: user.first_name || user.username,
-                    status: status
-                })
-            });
+    div.innerHTML = `
+      <h3>${e.title}</h3>
+      <p>Дата: ${e.date}</p>
+      <p>Место: ${e.location}</p>
+      <a href="${e.maps_url}" target="_blank">Открыть в картах</a>
+      <br><br>
+      <button onclick="join(${e.id})">Иду</button>
+      <div id="p-${e.id}"></div>
+      <hr>
+    `;
 
-            if (response.ok) {
-                tg.HapticFeedback.notificationOccurred('success');
-                loadEventData(); // Обновляем список
-            }
-        }
+    container.appendChild(div);
+    loadParticipants(e.id);
+  }
+}
 
-        async function loadEventData() {
-            const response = await fetch('/api/event');
-            const data = await response.json();
-            
-            document.getElementById('count').innerText = data.participants.length;
-            const list = document.getElementById('participants-list');
-            list.innerHTML = '';
+async function join(event_id) {
+  await fetch("/api/join", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      event_id,
+      username: user.username || user.first_name
+    })
+  });
 
-            data.participants.forEach(p => {
-                const div = document.createElement('div');
-                div.className = 'participant-item';
-                div.innerHTML = `<div class="status-dot"></div> ${p.username} (${p.status == 'going' ? 'Идет' : 'Думает'})`;
-                list.appendChild(div);
-            });
-        }
+  loadParticipants(event_id);
+}
 
-        // Загружаем данные при открытии
-        loadEventData();
-    </script>
+async function loadParticipants(event_id) {
+  const res = await fetch(`/api/participants/${event_id}`);
+  const users = await res.json();
+
+  document.getElementById(`p-${event_id}`).innerText =
+    "Идут: " + users.join(", ");
+}
+
+loadEvents();
+</script>
+
 </body>
 </html>
