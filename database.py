@@ -1,36 +1,25 @@
-# database.py
+def get_user_vibe(user_id):
+    user = get_user(user_id) # твоя функция получения юзера
+    events_created = [e for e in events_db if e['creator_id'] == user_id]
+    events_attended = [e for e in events_db if user_id in e['participants']]
 
-events = [
-    {
-        "id": 1,
-        "title": "Шашлыки",
-        "date": "2026-05-05",
-        "location": "Парк",
-        "maps_url": "https://maps.google.com"
-    }
-]
+    achievements = []
+    if len(events_created) > 2:
+        achievements.append("📢 Заводила")
 
-participants = {1: []}
-participants = {}  # event_id -> [usernames]
+    # Считаем самую частую категорию событий, куда ходил
+    cat_count = {}
+    for e in events_attended:
+        cat = e.get('category', '🫥')
+        cat_count[cat] = cat_count.get(cat, 0) + 1
+    if cat_count:
+        favorite_cat = max(cat_count, key=cat_count.get)
+        cat_achievements = {
+            "🍖": "Король Шашлыка",
+            "🌊": "Водный маг",
+            "🎲": "Повелитель Подземелий"
+        }
+        if favorite_cat in cat_achievements:
+            achievements.append(cat_achievements[favorite_cat])
 
-def create_event(title, date, location, maps_url):
-    event = {
-        "id": len(events) + 1,
-        "title": title,
-        "date": date,
-        "location": location,
-        "maps_url": maps_url
-    }
-    events.append(event)
-    participants[event["id"]] = []
-    return event
-
-def get_events():
-    return events
-
-def join_event(event_id, username):
-    if username not in participants[event_id]:
-        participants[event_id].append(username)
-
-def get_participants(event_id):
-    return participants.get(event_id, [])
+    return {"name": user["name"], "achievements": achievements}
