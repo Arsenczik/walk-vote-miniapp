@@ -8,14 +8,12 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <!-- Пульс комьюнити -->
     <div class="pulse-bar">
         <span class="pulse-icon">⚡</span>
-        <span class="pulse-text" id="pulseText">Загружаем движухи...</span>
+        <span class="pulse-text" id="pulseText">Загружаем...</span>
     </div>
 
     <div class="container">
-        <!-- Шапка -->
         <header>
             <h1>🔥 Тусовки</h1>
             <button class="create-btn" onclick="showCreateForm()">
@@ -23,16 +21,16 @@
             </button>
         </header>
 
-        <!-- Форма создания -->
-        <div class="create-form" id="createForm">
-            <div class="form-card">
+        <!-- ФОРМА СОЗДАНИЯ -->
+        <div class="create-form" id="createForm" style="display: none;">
+            <div class="form-card" onclick="event.stopPropagation();">
                 <h2>Новая движуха</h2>
                 <input type="text" id="eventName" placeholder="Название..." maxlength="40" autocomplete="off">
-                <input type="text" id="eventDesc" placeholder="Описание (опционально)" maxlength="120" autocomplete="off">
+                <input type="text" id="eventDesc" placeholder="Описание" maxlength="120" autocomplete="off">
                 
-                <label style="color: var(--text-secondary); font-size: 14px; margin-bottom: 4px; display: block;">Тип встречи:</label>
+                <label>Тип встречи:</label>
                 <div class="category-picker">
-                    <span class="cat-option active" data-cat="🍖">🍖</span>
+                    <span class="cat-option" data-cat="🍖">🍖</span>
                     <span class="cat-option" data-cat="🎬">🎬</span>
                     <span class="cat-option" data-cat="🌊">🌊</span>
                     <span class="cat-option" data-cat="🍻">🍻</span>
@@ -42,7 +40,7 @@
                     <span class="cat-option" data-cat="🏀">🏀</span>
                 </div>
 
-                <label style="color: var(--text-secondary); font-size: 14px; margin-bottom: 4px; display: block;">Когда:</label>
+                <label>Когда:</label>
                 <input type="datetime-local" id="eventDate">
                 
                 <div class="form-actions">
@@ -52,7 +50,7 @@
             </div>
         </div>
 
-        <!-- Сетка событий -->
+        <!-- СЕТКА СОБЫТИЙ -->
         <div class="events-grid" id="eventsGrid">
             <div class="loading-state">
                 <div class="loading-spinner"></div>
@@ -60,18 +58,17 @@
             </div>
         </div>
 
-        <!-- Модалка события -->
-        <div class="modal-overlay" id="eventModal">
-            <div class="modal-card" id="modalContent"></div>
+        <!-- МОДАЛКА СОБЫТИЯ -->
+        <div class="modal-overlay" id="eventModal" style="display: none;">
+            <div class="modal-card" id="modalContent" onclick="event.stopPropagation();"></div>
         </div>
 
-        <!-- Модалка профиля -->
-        <div class="modal-overlay" id="profileModal">
-            <div class="modal-card" id="profileContent"></div>
+        <!-- МОДАЛКА ПРОФИЛЯ -->
+        <div class="modal-overlay" id="profileModal" style="display: none;">
+            <div class="modal-card" id="profileContent" onclick="event.stopPropagation();"></div>
         </div>
     </div>
 
-    <!-- Кнопка профиля -->
     <button class="profile-fab" onclick="showMyProfile()">👤</button>
 
     <script src="/static/app.js"></script>
