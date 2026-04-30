@@ -1,6 +1,16 @@
 # database.py
 
-events = []
+events = [
+    {
+        "id": 1,
+        "title": "Шашлыки",
+        "date": "2026-05-05",
+        "location": "Парк",
+        "maps_url": "https://maps.google.com"
+    }
+]
+
+participants = {1: []}
 participants = {}  # event_id -> [usernames]
 
 def create_event(title, date, location, maps_url):
