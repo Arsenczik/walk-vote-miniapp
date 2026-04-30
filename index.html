@@ -3,118 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🔥 Тусовки</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Тусовки</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #1a1a1a; color: white; font-family: -apple-system, sans-serif; padding: 20px; min-height: 100vh; }
+        .btn { padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; margin: 6px 0; }
+        .btn-gold { background: #f9ca24; color: #000; }
+        .btn-green { background: #4ecdc4; color: #000; }
+        .btn-red { background: #ff6b6b; color: #fff; }
+        .btn-gray { background: #3a3a3a; color: #fff; }
+        input { width: 100%; padding: 12px; margin: 6px 0; background: #2a2a2a; border: 1px solid #444; border-radius: 10px; color: white; font-size: 16px; }
+        .card { background: #2a2a2a; padding: 16px; border-radius: 16px; margin: 10px 0; }
+        h2 { font-size: 20px; margin-bottom: 10px; }
+    </style>
 </head>
 <body>
-    <div class="pulse-bar">
-        <span class="pulse-icon">⚡</span>
-        <span class="pulse-text" id="pulseText">Загружаем...</span>
-    </div>
 
-    <div class="container">
-        <header>
-            <h1>🔥 Тусовки</h1>
-            <button class="create-btn" onclick="showCreateForm()">
-                <span>+</span>
-            </button>
-        </header>
-
-        <!-- ТЕСТОВА КНОПКА -->
-        <button onclick="testForm()" style="width: 100%; padding: 12px; background: red; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; margin-bottom: 12px;">
-            🧪 ТЕСТ: Показать форму
-        </button>
-
-        <!-- ФОРМА СОЗДАНИЯ -->
-        <div class="create-form" id="createForm" style="display: none;">
-            <div class="form-card" onclick="event.stopPropagation();">
-                <h2>Новая движуха</h2>
-                <input type="text" id="eventName" placeholder="Название..." maxlength="40" autocomplete="off">
-                <input type="text" id="eventDesc" placeholder="Описание" maxlength="120" autocomplete="off">
-                
-                <label>Тип встречи:</label>
-                <div class="category-picker">
-                    <span class="cat-option" data-cat="🍖">🍖</span>
-                    <span class="cat-option" data-cat="🎬">🎬</span>
-                    <span class="cat-option" data-cat="🌊">🌊</span>
-                    <span class="cat-option" data-cat="🍻">🍻</span>
-                    <span class="cat-option" data-cat="🎲">🎲</span>
-                    <span class="cat-option" data-cat="🎂">🎂</span>
-                    <span class="cat-option" data-cat="🎸">🎸</span>
-                    <span class="cat-option" data-cat="🏀">🏀</span>
-                </div>
-
-                <label>Когда:</label>
-                <input type="datetime-local" id="eventDate">
-                
-                <div class="form-actions">
-                    <button onclick="hideCreateForm()" class="cancel-btn">❌ Отмена</button>
-                    <button onclick="createEvent()" class="submit-btn">✅ Создать</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- СЕТКА СОБЫТИЙ -->
-        <div class="events-grid" id="eventsGrid">
-            <div class="loading-state">
-                <div class="loading-spinner"></div>
-                <p>Грузим тусовки...</p>
-            </div>
-        </div>
-
-        <!-- МОДАЛКА СОБЫТИЯ -->
-        <div class="modal-overlay" id="eventModal" style="display: none;">
-            <div class="modal-card" id="modalContent" onclick="event.stopPropagation();"></div>
-        </div>
-
-        <!-- МОДАЛКА ПРОФИЛЯ -->
-        <div class="modal-overlay" id="profileModal" style="display: none;">
-            <div class="modal-card" id="profileContent" onclick="event.stopPropagation();"></div>
+    <h1>🔥 Тусовки</h1>
+    
+    <button class="btn btn-gold" onclick="showForm()">+ Создать событие</button>
+    
+    <div id="formBlock" style="display:none;">
+        <div class="card">
+            <h2>Новая движуха</h2>
+            <input type="text" id="name" placeholder="Название">
+            <input type="text" id="desc" placeholder="Описание">
+            <input type="datetime-local" id="date">
+            <button class="btn btn-green" onclick="create()">✅ Создать</button>
+            <button class="btn btn-gray" onclick="hideForm()">Отмена</button>
         </div>
     </div>
 
-    <button class="profile-fab" onclick="showMyProfile()">👤</button>
+    <div id="eventsList"></div>
+    
+    <button class="btn btn-gray" style="margin-top:20px;" onclick="loadProfile()">👤 Профиль</button>
+    <div id="profileBlock" style="display:none;"></div>
 
     <script>
-        // Тестова функція — гарантовано покаже форму
-        function testForm() {
-            var form = document.getElementById('createForm');
-            if (form) {
-                form.style.display = 'flex';
-                alert('✅ Форма знайдена і показана!');
-            } else {
-                alert('❌ Елемент createForm не знайдено!');
-            }
+        var USER = 'user1';
+        
+        function showForm() {
+            document.getElementById('formBlock').style.display = 'block';
         }
         
-        function showCreateForm() {
-            var form = document.getElementById('createForm');
-            if (form) {
-                form.style.display = 'flex';
-            } else {
-                alert('❌ showCreateForm: createForm не знайдено!');
-            }
+        function hideForm() {
+            document.getElementById('formBlock').style.display = 'none';
         }
         
-        function hideCreateForm() {
-            var form = document.getElementById('createForm');
-            if (form) form.style.display = 'none';
-        }
-        
-        function closeEventModal() {
-            var modal = document.getElementById('eventModal');
-            if (modal) modal.style.display = 'none';
-        }
-        
-        function closeProfileModal() {
-            var modal = document.getElementById('profileModal');
-            if (modal) modal.style.display = 'none';
-        }
-        
-        async function createEvent() {
-            var name = document.getElementById('eventName')?.value?.trim();
-            var date = document.getElementById('eventDate')?.value;
+        async function create() {
+            var name = document.getElementById('name').value.trim();
+            var desc = document.getElementById('desc').value.trim();
+            var date = document.getElementById('date').value;
             
             if (!name || !date) {
                 alert('Заполни название и дату!');
@@ -127,29 +66,71 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         name: name,
-                        description: document.getElementById('eventDesc')?.value?.trim() || '',
+                        description: desc,
                         date: date,
-                        category: '🍖',
-                        creator_id: 'user1'
+                        category: '🎉',
+                        creator_id: USER
                     })
                 });
                 
                 if (res.ok) {
-                    alert('✅ Событие создано!');
-                    hideCreateForm();
-                    document.getElementById('eventName').value = '';
-                    document.getElementById('eventDesc').value = '';
-                    document.getElementById('eventDate').value = '';
-                    location.reload();
+                    alert('✅ СОЗДАНО!');
+                    hideForm();
+                    document.getElementById('name').value = '';
+                    document.getElementById('desc').value = '';
+                    document.getElementById('date').value = '';
+                    loadEvents();
                 } else {
-                    alert('❌ Ошибка создания');
+                    var err = await res.json();
+                    alert('❌ Ошибка: ' + (err.error || 'неизвестно'));
                 }
-            } catch (e) {
-                alert('❌ Ошибка: ' + e.message);
+            } catch(e) {
+                alert('❌ Не могу соединиться с сервером');
             }
         }
+        
+        async function loadEvents() {
+            try {
+                var res = await fetch('/api/events');
+                var events = await res.json();
+                var html = '';
+                
+                if (events.length === 0) {
+                    html = '<p style="color:#999;">Пока событий нет</p>';
+                } else {
+                    events.forEach(function(e) {
+                        html += '<div class="card">';
+                        html += '<h3>' + (e.category || '') + ' ' + (e.name || '') + '</h3>';
+                        html += '<p>' + (e.date || '') + '</p>';
+                        html += '<p>Участников: ' + (e.participants?.length || 0) + '</p>';
+                        html += '</div>';
+                    });
+                }
+                
+                document.getElementById('eventsList').innerHTML = html;
+            } catch(e) {
+                document.getElementById('eventsList').innerHTML = '<p style="color:red;">Ошибка загрузки</p>';
+            }
+        }
+        
+        async function loadProfile() {
+            try {
+                var res = await fetch('/api/profile/' + USER);
+                var data = await res.json();
+                var html = '<div class="card">';
+                html += '<h2>' + data.user.name + '</h2>';
+                html += '<p>Создано: ' + data.stats.created + '</p>';
+                html += '<p>Посещено: ' + data.stats.attended + '</p>';
+                html += '<p>Ачивки: ' + (data.achievements?.length || 0) + '</p>';
+                html += '</div>';
+                document.getElementById('profileBlock').innerHTML = html;
+                document.getElementById('profileBlock').style.display = 'block';
+            } catch(e) {
+                alert('Ошибка загрузки профиля');
+            }
+        }
+        
+        loadEvents();
     </script>
-    
-    <script src="/static/app.js"></script>
 </body>
 </html>
