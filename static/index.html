@@ -1,104 +1,143 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Walk Vote App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Walk Vote - Event Manager</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-    --bg-dark: #000205;
-    --accent-blue: #0047ff;
-    --glow-blue: rgba(0, 71, 255, 0.6);
-    --glass-bg: rgba(255, 255, 255, 0.05);
-    --text-main: #ffffff;
-}
+            --bg-color: #02040a;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --accent-blue: #007aff;
+            --text-main: #ffffff;
+            --text-secondary: #b0b0b0;
+            --neon-blue: #00d4ff;
+        }
 
-body {
-    margin: 0;
-    padding: 20px;
-    background-color: var(--bg-dark);
-    background-image: radial-gradient(circle at center, #001a4d 0%, var(--bg-dark) 70%);
-    color: var(--text-main);
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    min-height: 100vh;
-}
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at center, #0a192f 0%, #02040a 100%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-/* Карточка ивента */
-.event-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: 0 0 20px var(--glow-blue);
-    margin-bottom: 25px;
-}
+        .event-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            max-width: 350px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+            margin-bottom: 20px;
+        }
 
-h1 { font-size: 24px; margin-top: 0; text-shadow: 0 0 10px var(--accent-blue); }
-.info-row { margin: 10px 0; font-size: 14px; opacity: 0.9; }
+        h1 { font-size: 24px; margin: 0 0 10px 0; color: var(--neon-blue); }
+        .info-row { display: flex; align-items: center; margin-bottom: 12px; font-size: 14px; color: var(--text-secondary); }
+        .info-row span { margin-right: 10px; font-size: 18px; }
 
-/* Кнопки */
-.btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.btn {
-    background: linear-gradient(45deg, #002d9c, var(--accent-blue));
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.1s;
-}
-.btn:active { transform: scale(0.95); }
-.btn.maybe { background: rgba(255, 255, 255, 0.1); }
+        .btn-group { width: 100%; max-width: 350px; display: grid; gap: 10px; }
 
-/* Список участников */
-.participants-list {
-    margin-top: 20px;
-}
-.participant-tag {
-    display: inline-block;
-    background: rgba(0, 71, 255, 0.2);
-    padding: 5px 12px;
-    border-radius: 15px;
-    margin: 5px;
-    font-size: 13px;
-    border: 1px solid var(--accent-blue);
-}
+        .btn {
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+            color: white;
+        }
 
+        .btn-primary { background: linear-gradient(45deg, #007aff, #00d4ff); box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3); }
+        .btn-secondary { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); }
+        
+        .btn:active { transform: scale(0.98); opacity: 0.8; }
+
+        .participants-section { width: 100%; max-width: 350px; margin-top: 30px; }
+        .participants-title { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 15px; display: block; }
+        
+        .participant-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 10px 15px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 12px; background: var(--neon-blue); box-shadow: 0 0 8px var(--neon-blue); }
     </style>
 </head>
 <body>
 
-    <div id="user-info" class="user-card">
-        <h2 id="greeting">Привет!</h2>
+    <div class="event-card">
+        <h1 id="event-title">Космическая прогулка</h1>
+        <div class="info-row"><span>📍</span> <span id="event-loc">Парк Горького, Вход</span></div>
+        <div class="info-row"><span>⏰</span> <span id="event-time">Сегодня, 19:00</span></div>
     </div>
 
-    <h3>За что голосуем?</h3>
-    <button class="btn" onclick="sendVote('Вариант А')">Голосовать за А</button>
-    <button class="btn" onclick="sendVote('Вариант Б')">Голосовать за Б</button>
+    <div class="btn-group">
+        <button class="btn btn-primary" onclick="updateStatus('going')">🚀 Я иду</button>
+        <button class="btn btn-secondary" onclick="updateStatus('maybe')">🤔 Возможно</button>
+    </div>
+
+    <div class="participants-section">
+        <span class="participants-title">Участники (<span id="count">0</span>)</span>
+        <div id="participants-list">
+            </div>
+    </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.ready();
-        tg.expand(); // Разворачивает приложение на весь экран
+        tg.expand();
 
-        const user = tg.initDataUnsafe?.user;
-        if (user) {
-            document.getElementById('user-info').style.display = 'block';
-            document.getElementById('greeting').innerText = `Привет, ${user.first_name}! 👋`;
+        async function updateStatus(status) {
+            const user = tg.initDataUnsafe?.user;
+            if (!user) return tg.showAlert("Открой в Telegram!");
+
+            const response = await fetch('/api/event/join', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: user.id,
+                    username: user.first_name || user.username,
+                    status: status
+                })
+            });
+
+            if (response.ok) {
+                tg.HapticFeedback.notificationOccurred('success');
+                loadEventData(); // Обновляем список
+            }
         }
 
-        function sendVote(option) {
-            // Отправляем данные обратно в бота или просто закрываем
-            tg.showConfirm(`Вы выбрали: ${option}. Подтвердить?`, (ok) => {
-                if (ok) {
-                    // Здесь мы можем отправить данные на твой сервер в будущем
-                    tg.sendData(option); // Отправляет строку боту и закрывает Mini App
-                }
+        async function loadEventData() {
+            const response = await fetch('/api/event');
+            const data = await response.json();
+            
+            document.getElementById('count').innerText = data.participants.length;
+            const list = document.getElementById('participants-list');
+            list.innerHTML = '';
+
+            data.participants.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'participant-item';
+                div.innerHTML = `<div class="status-dot"></div> ${p.username} (${p.status == 'going' ? 'Идет' : 'Думает'})`;
+                list.appendChild(div);
             });
         }
+
+        // Загружаем данные при открытии
+        loadEventData();
     </script>
 </body>
 </html>
