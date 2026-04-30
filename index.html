@@ -5,17 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>🔥 Тусовки</title>
     <link rel="stylesheet" href="/static/style.css">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <!-- Пульс комьюнити -->
     <div class="pulse-bar">
         <span class="pulse-icon">⚡</span>
         <span class="pulse-text" id="pulseText">Загружаем движухи...</span>
     </div>
 
     <div class="container">
-        <!-- Шапка -->
         <header>
             <h1>🔥 Тусовки</h1>
             <button class="create-btn" onclick="showCreateForm()">
@@ -23,14 +20,13 @@
             </button>
         </header>
 
-        <!-- Форма создания -->
         <div class="create-form" id="createForm" style="display: none;">
             <div class="form-card">
                 <h2>Новая движуха</h2>
-                <input type="text" id="eventName" placeholder="Название..." maxlength="40" autocomplete="off">
-                <input type="text" id="eventDesc" placeholder="Описание (опционально)" maxlength="120" autocomplete="off">
+                <input type="text" id="eventName" placeholder="Название..." maxlength="40">
+                <input type="text" id="eventDesc" placeholder="Описание" maxlength="120">
                 
-                <label style="color: #a0a0a0; font-size: 14px; margin-bottom: 4px; display: block;">Тип встречи:</label>
+                <label>Тип встречи:</label>
                 <div class="category-picker">
                     <span class="cat-option active" data-cat="🍖">🍖</span>
                     <span class="cat-option" data-cat="🎬">🎬</span>
@@ -42,313 +38,156 @@
                     <span class="cat-option" data-cat="🏀">🏀</span>
                 </div>
 
-                <label style="color: #a0a0a0; font-size: 14px; margin-bottom: 4px; display: block;">Когда:</label>
+                <label>Когда:</label>
                 <input type="datetime-local" id="eventDate">
                 
                 <div class="form-actions">
                     <button onclick="hideCreateForm()" class="cancel-btn">❌ Отмена</button>
-                    <button onclick="createEvent()" class="submit-btn">✅ Создать</button>
+                    <button onclick="submitEvent()" class="submit-btn">✅ Создать</button>
                 </div>
             </div>
         </div>
 
-        <!-- Сетка событий -->
         <div class="events-grid" id="eventsGrid">
-            <div class="loading-state">
-                <div class="loading-spinner"></div>
-                <p>Грузим тусовки...</p>
-            </div>
+            <p>Загрузка...</p>
         </div>
 
-        <!-- Модалка события -->
         <div class="modal-overlay" id="eventModal" style="display: none;">
             <div class="modal-card" id="modalContent"></div>
         </div>
 
-        <!-- Модалка профиля -->
         <div class="modal-overlay" id="profileModal" style="display: none;">
             <div class="modal-card" id="profileContent"></div>
         </div>
     </div>
 
-    <!-- Кнопка профиля -->
     <button class="profile-fab" onclick="showMyProfile()">👤</button>
 
     <script>
-        // ========================================
-        // 🔥 ВСЯ ЛОГИКА ТУТ (рабочая версия)
-        // ========================================
-        
-        const TG = window.Telegram?.WebApp;
-        let currentUser = { id: 'user1', name: 'Арсен' };
-        let events = [];
-        let selectedCategory = '🍖';
+        var USER_ID = 'user1';
+        var userName = 'Арсен';
+        var selectedCategory = '🍖';
 
-        // Инициализация
-        if (TG) {
-            TG.ready();
-            TG.expand();
-        }
-        
-        loadEvents();
-        setInterval(updatePulse, 10000);
-        
-        // Закрытие модалок по клику вне карточки
-        document.getElementById('eventModal').addEventListener('click', function(e) {
-            if (e.target === e.currentTarget) closeEventModal();
-        });
-        document.getElementById('profileModal').addEventListener('click', function(e) {
-            if (e.target === e.currentTarget) closeProfileModal();
-        });
-        
-        // Категории
-        document.querySelectorAll('.cat-option').forEach(function(opt) {
-            opt.addEventListener('click', function() {
+        // === КАТЕГОРИИ ===
+        document.querySelectorAll('.cat-option').forEach(function(el) {
+            el.onclick = function() {
                 document.querySelectorAll('.cat-option').forEach(function(o) { o.classList.remove('active'); });
-                opt.classList.add('active');
-                selectedCategory = opt.dataset.cat;
-            });
+                el.classList.add('active');
+                selectedCategory = el.getAttribute('data-cat');
+            };
         });
 
-        // ========================================
-        // 📡 ЗАГРУЗКА СОБЫТИЙ
-        // ========================================
-        
-        async function loadEvents() {
-            try {
-                var res = await fetch('/api/events');
-                events = await res.json();
-            } catch(e) {
-                events = [];
-            }
-            renderEvents();
-            updatePulse();
-        }
-
-        function renderEvents() {
-            var grid = document.getElementById('eventsGrid');
-            
-            if (!events || events.length === 0) {
-                grid.innerHTML = '<div class="empty-state"><div class="empty-emoji">🦗</div><p>Пока тихо...</p><p style="font-size:13px;color:#666;">Жми на <b>+</b> и создавай движуху!</p></div>';
-                return;
-            }
-            
-            var sorted = events.slice().sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
-            
-            grid.innerHTML = sorted.map(function(event, index) {
-                var isGoing = event.participants && event.participants.indexOf(currentUser.id) >= 0;
-                var count = event.participants ? event.participants.length : 0;
-                var colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7'];
-                
-                var avatars = '';
-                if (event.participants) {
-                    event.participants.slice(0, 3).forEach(function(p, i) {
-                        avatars += '<span class="avatar" style="background-color:' + colors[i] + ';">' + (p[0] || '?').toUpperCase() + '</span>';
-                    });
-                }
-                var more = count > 3 ? '<span class="more">+' + (count - 3) + '</span>' : '';
-                
-                return '<div class="event-card" onclick="openEventModal(\'' + event.id + '\')" style="animation-delay:' + (index * 0.05) + 's;">' +
-                    '<div class="card-emoji">' + (event.category || '🎉') + '</div>' +
-                    '<div class="card-info">' +
-                        '<h3>' + escapeHtml(event.name) + '</h3>' +
-                        '<div class="card-date">' + formatDate(event.date) + ' · ' + escapeHtml(event.creator_name || 'Анон') + '</div>' +
-                        '<div class="participants-preview">' + avatars + more + '</div>' +
-                    '</div>' +
-                    '<button class="rsvp-btn ' + (isGoing ? 'going' : 'not-going') + '" onclick="event.stopPropagation(); quickRSVP(\'' + event.id + '\', ' + isGoing + ')">' + (isGoing ? '✅' : '🔥') + '</button>' +
-                '</div>';
-            }).join('');
-        }
-
-        // ========================================
-        // 🎯 RSVP
-        // ========================================
-        
-        async function quickRSVP(eventId, currentlyGoing) {
-            var endpoint = currentlyGoing ? '/api/leave' : '/api/join';
-            try {
-                var res = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ event_id: eventId, user_id: currentUser.id })
-                });
-                if (res.ok) {
-                    var event = events.find(function(e) { return e.id === eventId; });
-                    if (event) {
-                        if (currentlyGoing) {
-                            event.participants = event.participants.filter(function(p) { return p !== currentUser.id; });
-                        } else {
-                            if (!event.participants) event.participants = [];
-                            event.participants.push(currentUser.id);
-                        }
-                        renderEvents();
-                    }
-                }
-            } catch(e) {}
-        }
-
-        // ========================================
-        // 📅 ФОРМА СОЗДАНИЯ
-        // ========================================
-        
+        // === ПОКАЗАТЬ/СКРЫТЬ ФОРМУ ===
         function showCreateForm() {
             document.getElementById('createForm').style.display = 'flex';
-            // Установка даты по умолчанию
-            var tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            tomorrow.setHours(19, 0, 0, 0);
-            var defaultDate = tomorrow.toISOString().slice(0, 16);
-            if (!document.getElementById('eventDate').value) {
-                document.getElementById('eventDate').value = defaultDate;
-            }
         }
-        
+
         function hideCreateForm() {
             document.getElementById('createForm').style.display = 'none';
         }
-        
-        async function createEvent() {
+
+        // === СОЗДАТЬ СОБЫТИЕ ===
+        async function submitEvent() {
             var name = document.getElementById('eventName').value.trim();
-            var description = document.getElementById('eventDesc').value.trim();
+            var desc = document.getElementById('eventDesc').value.trim();
             var date = document.getElementById('eventDate').value;
-            
+
             if (!name || !date) {
-                alert('Название и дата обязательны!');
+                alert('Заполни название и дату!');
                 return;
             }
-            
+
+            var body = JSON.stringify({
+                name: name,
+                description: desc,
+                date: date,
+                category: selectedCategory,
+                creator_id: USER_ID
+            });
+
             try {
                 var res = await fetch('/api/events', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name: name,
-                        description: description,
-                        date: date,
-                        category: selectedCategory,
-                        creator_id: currentUser.id
-                    })
+                    body: body
                 });
-                
+
                 if (res.ok) {
+                    alert('✅ Событие создано!');
                     hideCreateForm();
                     document.getElementById('eventName').value = '';
                     document.getElementById('eventDesc').value = '';
                     document.getElementById('eventDate').value = '';
-                    await loadEvents();
+                    loadEvents();
                 } else {
                     var err = await res.json();
-                    alert('Ошибка: ' + (err.error || 'неизвестно'));
+                    alert('❌ Ошибка: ' + (err.error || 'неизвестно'));
                 }
             } catch(e) {
-                alert('Ошибка соединения');
+                alert('❌ Ошибка соединения с сервером');
             }
         }
 
-        // ========================================
-        // 🖼️ МОДАЛКИ
-        // ========================================
-        
-        function openEventModal(eventId) {
-            var event = events.find(function(e) { return e.id === eventId; });
-            if (!event) return;
-            
-            var isGoing = event.participants && event.participants.indexOf(currentUser.id) >= 0;
-            var count = event.participants ? event.participants.length : 0;
-            
-            document.getElementById('modalContent').innerHTML = 
-                '<div class="modal-emoji">' + (event.category || '🎉') + '</div>' +
-                '<h2>' + escapeHtml(event.name) + '</h2>' +
-                '<div class="modal-date">📅 ' + formatDateFull(event.date) + '</div>' +
-                '<div class="modal-creator">👤 ' + escapeHtml(event.creator_name || 'Некто') + '</div>' +
-                (event.description ? '<p style="color:#a0a0a0;margin-bottom:16px;">' + escapeHtml(event.description) + '</p>' : '') +
-                '<p style="font-weight:600;">👥 Участники (' + count + ')</p>' +
-                '<div class="modal-actions">' +
-                    '<button class="rsvp-btn ' + (isGoing ? 'going' : 'not-going') + '" onclick="quickRSVP(\'' + event.id + '\', ' + isGoing + '); closeEventModal();" style="flex:2;padding:14px;">' + (isGoing ? '✅ Я ИДУ (отменить)' : '🔥 БУДУ!') + '</button>' +
-                    '<button onclick="closeEventModal()" style="flex:1;padding:14px;background:#3a3a3a;color:white;border:none;border-radius:12px;font-weight:600;">✕</button>' +
-                '</div>';
-            
-            document.getElementById('eventModal').style.display = 'flex';
-        }
-        
-        function closeEventModal() {
-            document.getElementById('eventModal').style.display = 'none';
-            loadEvents();
+        // === ЗАГРУЗИТЬ СОБЫТИЯ ===
+        async function loadEvents() {
+            var grid = document.getElementById('eventsGrid');
+            try {
+                var res = await fetch('/api/events');
+                var events = await res.json();
+
+                if (!events.length) {
+                    grid.innerHTML = '<p style="text-align:center;color:#999;padding:40px;">🦗 Пока тихо...</p>';
+                } else {
+                    grid.innerHTML = events.map(function(e) {
+                        var count = e.participants ? e.participants.length : 0;
+                        return '<div class="event-card">' +
+                            '<div class="card-emoji">' + (e.category || '🎉') + '</div>' +
+                            '<div class="card-info">' +
+                                '<h3>' + (e.name || '') + '</h3>' +
+                                '<p class="card-date">' + (e.date || '') + ' · ' + (e.creator_name || '') + '</p>' +
+                                '<p>👥 ' + count + '</p>' +
+                            '</div>' +
+                        '</div>';
+                    }).join('');
+                }
+            } catch(e) {
+                grid.innerHTML = '<p style="color:red;">Ошибка загрузки</p>';
+            }
         }
 
-        // ========================================
-        // 👤 ПРОФИЛЬ
-        // ========================================
-        
+        // === ПРОФИЛЬ ===
         async function showMyProfile() {
             try {
-                var res = await fetch('/api/profile/' + currentUser.id);
+                var res = await fetch('/api/profile/' + USER_ID);
                 var data = await res.json();
-                
+
+                var html = '';
                 if (data.error) {
-                    document.getElementById('profileContent').innerHTML = '<p>' + data.error + '</p><button onclick="closeProfileModal()" style="width:100%;padding:14px;background:#3a3a3a;color:white;border:none;border-radius:12px;">Закрыть</button>';
+                    html = '<p>' + data.error + '</p>';
                 } else {
-                    var achHtml = data.achievements.map(function(a) {
-                        return '<span class="achievement-badge"><span class="achievement-emoji">' + a.emoji + '</span> ' + a.name + '</span>';
-                    }).join('');
-                    
-                    document.getElementById('profileContent').innerHTML = 
-                        '<div style="text-align:center;"><div style="font-size:64px;">👤</div><h2>' + escapeHtml(data.user.name) + '</h2></div>' +
-                        '<div class="stats-grid">' +
-                            '<div class="stat-card"><div class="stat-value">' + data.stats.created + '</div><div class="stat-label">Создано</div></div>' +
-                            '<div class="stat-card"><div class="stat-value">' + data.stats.attended + '</div><div class="stat-label">Посещено</div></div>' +
-                        '</div>' +
-                        '<p style="font-weight:600;">🏆 Ачивки (' + data.achievements.length + ')</p>' +
-                        '<div class="achievements-list">' + (achHtml || '<p style="color:#999;">Пока нет ачивок</p>') + '</div>' +
-                        '<button onclick="closeProfileModal()" style="width:100%;padding:14px;background:#3a3a3a;color:white;border:none;border-radius:12px;font-weight:600;">Закрыть</button>';
+                    html = '<h2>' + data.user.name + '</h2>';
+                    html += '<p>Создано: ' + data.stats.created + ' | Посещено: ' + data.stats.attended + '</p>';
+                    html += '<p>Ачивки: ' + (data.achievements ? data.achievements.length : 0) + '</p>';
                 }
-                
+                html += '<br><button onclick="document.getElementById(\'profileModal\').style.display=\'none\'" style="width:100%;padding:14px;background:#3a3a3a;color:white;border:none;border-radius:12px;">Закрыть</button>';
+
+                document.getElementById('profileContent').innerHTML = html;
                 document.getElementById('profileModal').style.display = 'flex';
             } catch(e) {
-                alert('Ошибка загрузки профиля');
+                alert('Ошибка профиля');
             }
         }
-        
-        function closeProfileModal() {
-            document.getElementById('profileModal').style.display = 'none';
-        }
 
-        // ========================================
-        // 💓 ПУЛЬС
-        // ========================================
-        
-        function updatePulse() {
-            var pt = document.getElementById('pulseText');
-            if (!pt) return;
-            if (!events || events.length === 0) {
-                pt.textContent = 'Ждём первую движуху... 🎉';
-                return;
-            }
-            var total = events.reduce(function(s, e) { return s + (e.participants ? e.participants.length : 0); }, 0);
-            pt.textContent = 'Всего ' + total + ' участий в ' + events.length + ' движухах! 🔥';
-        }
+        // Закрытие модалок
+        document.getElementById('eventModal').onclick = function(e) {
+            if (e.target === this) this.style.display = 'none';
+        };
+        document.getElementById('profileModal').onclick = function(e) {
+            if (e.target === this) this.style.display = 'none';
+        };
 
-        // ========================================
-        // 🛠️ УТИЛИТЫ
-        // ========================================
-        
-        function formatDate(dateStr) {
-            if (!dateStr) return '';
-            var d = new Date(dateStr);
-            return d.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-        }
-        
-        function formatDateFull(dateStr) {
-            if (!dateStr) return '';
-            var d = new Date(dateStr);
-            return d.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-        }
-        
-        function escapeHtml(text) {
-            var div = document.createElement('div');
-            div.textContent = text || '';
-            return div.innerHTML;
-        }
+        // Старт
+        loadEvents();
     </script>
 </body>
 </html>
