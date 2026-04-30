@@ -17,3 +17,5 @@ async def get_events():
         {"id": 1, "title": "Шашлыки", "date": "15.05", "location": "Pole Mokotowskie"},
         {"id": 2, "title": "Аквапарк", "date": "20.05", "location": "Suntago"}
     ]
+
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
