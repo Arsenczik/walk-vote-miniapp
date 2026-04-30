@@ -234,10 +234,10 @@
         if (!swiping) return;
         const dx = e.touches[0].clientX - startX;
         if (!opened && dx < 0) {
-          currentX = Math.max(dx, -90);
+          currentX = Math.max(dx, -50);
           card.style.transform = 'translateX(' + currentX + 'px)';
         } else if (opened && dx > 0) {
-          currentX = Math.min(dx - 90, 0);
+          currentX = Math.min(dx - 50, 0);
           card.style.transform = 'translateX(' + currentX + 'px)';
         }
       }, {passive: true});
@@ -246,13 +246,13 @@
         swiping = false;
         card.style.transition = 'transform 0.3s ease';
         if (!opened && currentX < -40) {
-          card.style.transform = 'translateX(-90px)';
+          card.style.transform = 'translateX(-50px)';
           opened = true;
         } else if (opened && currentX > -40) {
           card.style.transform = 'translateX(0px)';
           opened = false;
         } else if (opened) {
-          card.style.transform = 'translateX(-90px)';
+          card.style.transform = 'translateX(-50px)';
         } else {
           card.style.transform = 'translateX(0px)';
         }
