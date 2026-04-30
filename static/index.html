@@ -1,17 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Event Manager</title>
+  <meta charset="UTF-8">
+  <title>Events</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
+      color: white;
+      padding: 10px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    .card {
+      background: #1c1c1c;
+      padding: 15px;
+      border-radius: 15px;
+      margin-bottom: 15px;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .btn {
+      background: #2ea6ff;
+      border: none;
+      padding: 10px;
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .link {
+      color: #2ea6ff;
+      text-decoration: none;
+    }
+
+    .participants {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #ccc;
+    }
+  </style>
 </head>
+
 <body>
 
-<h2>События</h2>
+<h2>🔥 События</h2>
 <div id="events"></div>
 
 <script>
 const tg = window.Telegram.WebApp;
-const user = tg.initDataUnsafe.user;
+tg.expand();
+
+const user = tg.initDataUnsafe.user || { first_name: "Anon" };
 
 async function loadEvents() {
   const res = await fetch("/api/events");
@@ -22,16 +73,17 @@ async function loadEvents() {
 
   for (let e of events) {
     const div = document.createElement("div");
+    div.className = "card";
 
     div.innerHTML = `
-      <h3>${e.title}</h3>
-      <p>Дата: ${e.date}</p>
-      <p>Место: ${e.location}</p>
-      <a href="${e.maps_url}" target="_blank">Открыть в картах</a>
-      <br><br>
-      <button onclick="join(${e.id})">Иду</button>
-      <div id="p-${e.id}"></div>
-      <hr>
+      <div class="title">${e.title}</div>
+      <div>📅 ${e.date}</div>
+      <div>📍 ${e.location}</div>
+      <a class="link" href="${e.maps_url}" target="_blank">Открыть в картах</a>
+
+      <button class="btn" onclick="join(${e.id})">Я иду</button>
+
+      <div class="participants" id="p-${e.id}">Загрузка...</div>
     `;
 
     container.appendChild(div);
@@ -57,7 +109,7 @@ async function loadParticipants(event_id) {
   const users = await res.json();
 
   document.getElementById(`p-${event_id}`).innerText =
-    "Идут: " + users.join(", ");
+    "👥 Идут: " + (users.length ? users.join(", ") : "пока никто");
 }
 
 loadEvents();
