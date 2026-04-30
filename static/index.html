@@ -6,27 +6,67 @@
     <title>Walk Vote App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
-            font-family: sans-serif;
-            background-color: var(--tg-theme-bg-color);
-            color: var(--tg-theme-text-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        .user-card { display: none; margin-bottom: 20px; text-align: center; }
-        .btn {
-            padding: 15px 25px;
-            background-color: var(--tg-theme-button-color);
-            color: var(--tg-theme-button-text-color);
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 18px;
-            margin: 10px;
-            width: 100%;
-        }
+        :root {
+    --bg-dark: #000205;
+    --accent-blue: #0047ff;
+    --glow-blue: rgba(0, 71, 255, 0.6);
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --text-main: #ffffff;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    background-color: var(--bg-dark);
+    background-image: radial-gradient(circle at center, #001a4d 0%, var(--bg-dark) 70%);
+    color: var(--text-main);
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+}
+
+/* Карточка ивента */
+.event-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 0 20px var(--glow-blue);
+    margin-bottom: 25px;
+}
+
+h1 { font-size: 24px; margin-top: 0; text-shadow: 0 0 10px var(--accent-blue); }
+.info-row { margin: 10px 0; font-size: 14px; opacity: 0.9; }
+
+/* Кнопки */
+.btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn {
+    background: linear-gradient(45deg, #002d9c, var(--accent-blue));
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+.btn:active { transform: scale(0.95); }
+.btn.maybe { background: rgba(255, 255, 255, 0.1); }
+
+/* Список участников */
+.participants-list {
+    margin-top: 20px;
+}
+.participant-tag {
+    display: inline-block;
+    background: rgba(0, 71, 255, 0.2);
+    padding: 5px 12px;
+    border-radius: 15px;
+    margin: 5px;
+    font-size: 13px;
+    border: 1px solid var(--accent-blue);
+}
+
     </style>
 </head>
 <body>
