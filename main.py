@@ -3,16 +3,12 @@ from api import api_bp
 import os
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
-
-# Подключаем API
 app.register_blueprint(api_bp)
 
-# Главная страница
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
 
-# Статика
 @app.route('/<path:path>')
 def static_files(path):
     if os.path.exists(path):
