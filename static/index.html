@@ -1,43 +1,64 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walk Vote App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background: #f4f4f4; color: #333; }
-        .card { background: white; padding: 15px; border-radius: 12px; margin: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .badge { background: #ffd700; padding: 2px 8px; border-radius: 10px; font-size: 12px; }
-        .btn { background: #0088cc; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; }
+        body {
+            font-family: sans-serif;
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .user-card { display: none; margin-bottom: 20px; text-align: center; }
+        .btn {
+            padding: 15px 25px;
+            background-color: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            margin: 10px;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
-    <div id="user-info" class="card">
-        <h3>Привет, <span id="username">Бро</span>!</h3>
-        <p>Твой рейтинг: <b id="points">0</b> 🔥</p>
-        <div id="achievements"></div>
+
+    <div id="user-info" class="user-card">
+        <h2 id="greeting">Привет!</h2>
     </div>
 
-    <div id="events-list">
-        </div>
+    <h3>За что голосуем?</h3>
+    <button class="btn" onclick="sendVote('Вариант А')">Голосовать за А</button>
+    <button class="btn" onclick="sendVote('Вариант Б')">Голосовать за Б</button>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Разворачиваем на весь экран
+        tg.ready();
+        tg.expand(); // Разворачивает приложение на весь экран
 
-        document.getElementById('username').innerText = tg.initDataUnsafe.user?.first_name || "Аноним";
-
-        // Функция загрузки ивентов (заглушка)
-        async function loadEvents() {
-            const list = document.getElementById('events-list');
-            // Здесь будет fetch('/api/events')
-            list.innerHTML = `
-                <div class="card">
-                    <h4>🍖 Шашлыки на Висле</h4>
-                    <p>15 мая | 18:00</p>
-                    <button class="btn" onclick="alert('Ты в деле!')">Я иду!</button>
-                </div>
-            `;
+        const user = tg.initDataUnsafe?.user;
+        if (user) {
+            document.getElementById('user-info').style.display = 'block';
+            document.getElementById('greeting').innerText = `Привет, ${user.first_name}! 👋`;
         }
-        loadEvents();
+
+        function sendVote(option) {
+            // Отправляем данные обратно в бота или просто закрываем
+            tg.showConfirm(`Вы выбрали: ${option}. Подтвердить?`, (ok) => {
+                if (ok) {
+                    // Здесь мы можем отправить данные на твой сервер в будущем
+                    tg.sendData(option); // Отправляет строку боту и закрывает Mini App
+                }
+            });
+        }
     </script>
 </body>
 </html>
