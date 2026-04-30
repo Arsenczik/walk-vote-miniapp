@@ -3,7 +3,7 @@
 // ========================================
 
 const TG = window.Telegram?.WebApp;
-let currentUser = { id: 'user1', name: 'Арсен' }; // Заглушка, потом из Telegram
+if (window.Telegram?.WebApp?.initDataUnsafe?.user) {     const tgUser = window.Telegram.WebApp.initDataUnsafe.user;     currentUser = { id: tgUser.id.toString(), name: tgUser.first_name }; } // Заглушка, потом из Telegram
 let events = [];
 let selectedCategory = '🍖';
 let isLoading = false;
