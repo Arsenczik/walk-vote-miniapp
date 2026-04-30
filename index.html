@@ -21,6 +21,11 @@
             </button>
         </header>
 
+        <!-- ТЕСТОВА КНОПКА -->
+        <button onclick="testForm()" style="width: 100%; padding: 12px; background: red; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; margin-bottom: 12px;">
+            🧪 ТЕСТ: Показать форму
+        </button>
+
         <!-- ФОРМА СОЗДАНИЯ -->
         <div class="create-form" id="createForm" style="display: none;">
             <div class="form-card" onclick="event.stopPropagation();">
@@ -71,6 +76,80 @@
 
     <button class="profile-fab" onclick="showMyProfile()">👤</button>
 
+    <script>
+        // Тестова функція — гарантовано покаже форму
+        function testForm() {
+            var form = document.getElementById('createForm');
+            if (form) {
+                form.style.display = 'flex';
+                alert('✅ Форма знайдена і показана!');
+            } else {
+                alert('❌ Елемент createForm не знайдено!');
+            }
+        }
+        
+        function showCreateForm() {
+            var form = document.getElementById('createForm');
+            if (form) {
+                form.style.display = 'flex';
+            } else {
+                alert('❌ showCreateForm: createForm не знайдено!');
+            }
+        }
+        
+        function hideCreateForm() {
+            var form = document.getElementById('createForm');
+            if (form) form.style.display = 'none';
+        }
+        
+        function closeEventModal() {
+            var modal = document.getElementById('eventModal');
+            if (modal) modal.style.display = 'none';
+        }
+        
+        function closeProfileModal() {
+            var modal = document.getElementById('profileModal');
+            if (modal) modal.style.display = 'none';
+        }
+        
+        async function createEvent() {
+            var name = document.getElementById('eventName')?.value?.trim();
+            var date = document.getElementById('eventDate')?.value;
+            
+            if (!name || !date) {
+                alert('Заполни название и дату!');
+                return;
+            }
+            
+            try {
+                var res = await fetch('/api/events', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: name,
+                        description: document.getElementById('eventDesc')?.value?.trim() || '',
+                        date: date,
+                        category: '🍖',
+                        creator_id: 'user1'
+                    })
+                });
+                
+                if (res.ok) {
+                    alert('✅ Событие создано!');
+                    hideCreateForm();
+                    document.getElementById('eventName').value = '';
+                    document.getElementById('eventDesc').value = '';
+                    document.getElementById('eventDate').value = '';
+                    location.reload();
+                } else {
+                    alert('❌ Ошибка создания');
+                }
+            } catch (e) {
+                alert('❌ Ошибка: ' + e.message);
+            }
+        }
+    </script>
+    
     <script src="/static/app.js"></script>
 </body>
 </html>
