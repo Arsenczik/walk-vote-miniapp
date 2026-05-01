@@ -254,20 +254,18 @@
             var timeStr = formatDate(event.date);
 
             return '<div class="event-card">' +
-                '<div class="card-emoji">' + (event.category || '🎉') + '</div>' +
-                '<div class="card-info" onclick="openEventModal(\'' + event.id + '\')">' +
-                    '<h3>' + escapeHtml(event.name) + '</h3>' +
-                    '<div class="card-date">' + timeStr + '</div>' +
-                    '<div class="participants-row">' +
-                        '<div class="avatars-stack">' + avatarsHtml + moreHtml + '</div>' +
-                        participantsHtml +
-                        '<span class="count-badge">' + count + '</span>' +
-                    '</div>' +
-                '</div>' +
-                '<button class="rsvp-btn ' + (isGoing ? 'going' : 'not-going') + '" onclick="event.stopPropagation(); toggleRSVP(\'' + event.id + '\', ' + isGoing + ')">' +
-                    (isGoing ? '✕ ОТМЕНА' : '➕ БУДУ') +
-                '</button>' +
-            '</div>';
+    '<div class="card-emoji">' + (event.category || '🎉') + '</div>' +
+    '<div class="card-info" onclick="openEventModal(\'' + event.id + '\')">' +
+        '<h3>' + escapeHtml(event.name) + '</h3>' +
+        '<div class="card-date">' + timeStr + '</div>' +
+        '<div class="participants-row">' +
+            '<div class="avatars-stack">' + avatarsHtml + moreHtml + '</div>' +
+            participantsHtml +
+            '<span class="count-badge">' + count + '</span>' +
+        '</div>' +
+    '</div>' +
+'' +
+'</div>';
         }
 
         // === RSVP ===
