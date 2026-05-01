@@ -83,45 +83,9 @@
         /* === НОВЫЕ СТИЛИ ФОРМЫ === */
 
         /* Заголовок с крестиком */
-.form-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: relative;
-    margin-bottom: 20px;
-}
 
-.form-header h2 {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    margin: 0;
-    font-size: 24px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    white-space: nowrap;
-}
 
-/* Крестик */
-.close-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    border: 1px solid #2a2a2a;
-    background: #1a1a1a;
-    color: #aaa;
-    font-size: 20px;
-    font-weight: 300;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    flex-shrink: 0;
-    z-index: 2;
-    margin-left: auto;  /* прижимаем к правому краю */
-}
+
 
 .close-btn:active {
     background: #fff;
@@ -165,13 +129,59 @@
     color: #555 !important;
     opacity: 1 !important;
 }
-
-/* Центрирование заголовка между левым краем и крестиком */
-.form-header h2 {
-    flex: 1;
-    text-align: center;
-    margin-right: 8px;
+/* Заголовок с крестиком */
+.form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
 }
+
+/* Этот контейнер занимает всё место слева от крестика */
+.header-title-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 8px; /* небольшой отступ до крестика */
+}
+
+/* Сам заголовок */
+.header-title-wrapper h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Крестик закрытия */
+.close-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid #2a2a2a;
+    background: #1a1a1a;
+    color: #aaa;
+    font-size: 20px;
+    font-weight: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.close-btn:active {
+    background: #fff;
+    color: #000;
+    border-color: #fff;
+}
+
     </style>
 </head>
 <body>
@@ -181,10 +191,12 @@
         <div class="create-form" id="createForm" style="display: none;">
             <div class="form-card" id="formCard">
     <!-- Заголовок + крестик -->
-    <div class="form-header">
+   <div class="form-header">
+    <div class="header-title-wrapper">
         <h2>Новое событие</h2>
-        <button class="close-btn" onclick="hideCreateForm()">✕</button>
     </div>
+    <button class="close-btn" onclick="hideCreateForm()">✕</button>
+</div>
     
     <input type="text" id="eventName" placeholder="Название" maxlength="40">
 <input type="text" id="eventDesc" placeholder="Описание" maxlength="120">
