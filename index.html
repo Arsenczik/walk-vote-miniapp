@@ -149,7 +149,6 @@
     white-space: nowrap;
 }
 
-/* Крестик закрытия */
 
 
 }
@@ -267,8 +266,9 @@ button.close-btn {
     line-height: 36px;
     text-align: center;
 }
-/* Стеклянный крестик в форме создания — точно как в модалках */
-.close-btn {
+/* Финальный стеклянный крестик — гарантированно применяется */
+button.close-btn,
+.form-header .close-btn {
     background: #1a1a1a !important;
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
     color: #aaa !important;
@@ -285,7 +285,8 @@ button.close-btn {
     transition: all 0.2s !important;
 }
 
-.close-btn:active {
+button.close-btn:active,
+.form-header .close-btn:active {
     background: #fff !important;
     color: #000 !important;
     border-color: #fff !important;
