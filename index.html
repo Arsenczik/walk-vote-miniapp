@@ -45,11 +45,12 @@
         .create-form { padding: 12px !important; box-sizing: border-box !important; }
         
         .form-card {
-            width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;
-            margin: 0 !important; padding: 20px 16px !important; border-radius: 14px !important;
-            overflow: visible !important;
-        }
-
+    width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;
+    margin: 0 !important; padding: 20px 16px !important; border-radius: 20px !important;  /* было 14px */
+    overflow: visible !important;
+    border: 1px solid #2a2a2a;          /* тонкая рамка */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* мягкая тень */
+}
         
 
         .form-card input,
@@ -98,7 +99,7 @@
             background: #fff;
             color: #000;
             border: none;
-            border-radius: 10px;
+            border-radius: 16px;
             font-size: 16px;
             font-weight: 700;
             text-transform: uppercase;
@@ -159,7 +160,7 @@
 .close-btn {
     width: 36px;
     height: 36px;
-    border-radius: 10px;
+    border-radius: 50%;
     border: 1px solid #2a2a2a;
     background: #1a1a1a;
     color: #aaa;
