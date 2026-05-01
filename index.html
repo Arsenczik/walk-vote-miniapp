@@ -83,44 +83,51 @@
         /* === НОВЫЕ СТИЛИ ФОРМЫ === */
 
         /* Заголовок с крестиком */
-        .form-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
+.form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    margin-bottom: 20px;
+}
 
-        .form-header h2 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+.form-header h2 {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
 
-        /* Крестик закрытия */
-        .close-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            border: 1px solid #2a2a2a;
-            background: #1a1a1a;
-            color: #aaa;
-            font-size: 20px;
-            font-weight: 300;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
+/* Крестик */
+.close-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid #2a2a2a;
+    background: #1a1a1a;
+    color: #aaa;
+    font-size: 20px;
+    font-weight: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    z-index: 2;
+    margin-left: auto;  /* прижимаем к правому краю */
+}
 
-        .close-btn:active {
-            background: #fff;
-            color: #000;
-            border-color: #fff;
-        }
+.close-btn:active {
+    background: #fff;
+    color: #000;
+    border-color: #fff;
+}
 
         /* Кнопка Создать на всю ширину */
         .submit-btn-full {
