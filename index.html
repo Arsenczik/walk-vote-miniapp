@@ -201,6 +201,13 @@ header h1::after {
 header h1 {
     position: relative !important;  /* если ещё не стоит */
 }
+        /* Свечение вокруг карточки события — как у формы */
+.event-card {
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.15), 0 0 40px rgba(255, 255, 255, 0.06) !important;
+    border-radius: 16px !important;  /* чтобы сочеталось с формой */
+    transition: box-shadow 0.2s, border-color 0.2s !important;
+}
     
     </style>
 </head>
