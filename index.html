@@ -176,7 +176,29 @@
     border-color: #fff;
 }
  
+/* Аккуратное свечение нижней границы заголовка */
+header h1::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(to right,
+        transparent 0%,
+        rgba(255, 255, 255, 0.2) 15%,
+        rgba(255, 255, 255, 0.4) 50%,
+        rgba(255, 255, 255, 0.2) 85%,
+        transparent 100%
+    );
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.06);
+    z-index: 0;
+}
 
+header h1 {
+    position: relative !important;  /* если ещё не стоит */
+}
     
     </style>
 </head>
