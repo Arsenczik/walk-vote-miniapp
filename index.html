@@ -284,7 +284,18 @@ header h1 {
     position: relative !important;
     overflow: visible !important;
 }
-    
+
+/* Переопределение для крестиков – гарантированно круглые */
+button.modal-close-btn,
+button.close-btn {
+    border-radius: 50% !important;
+    width: 36px !important;
+    height: 36px !important;
+    padding: 0 !important;
+    line-height: 36px;
+    text-align: center;
+}
+        
     </style>
 </head>
 <body>
