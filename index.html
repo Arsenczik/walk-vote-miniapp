@@ -6,9 +6,45 @@
     <title>🔥 Тусовки</title>
     <link rel="stylesheet" href="/static/style.css">
     <style>
+        /* Убираем верхнюю полоску */
         .pulse-bar {
-            background: #2c3e50 !important;
-            animation: none !important;
+            display: none !important;
+        }
+        
+        /* Жирный широкий заголовок */
+        header h1 {
+            font-size: 36px !important;
+            font-weight: 800 !important;
+            letter-spacing: 2px !important;
+            text-transform: uppercase;
+        }
+        
+        /* Кнопка профиля — серая */
+        .profile-fab {
+            background: #1a1a1a !important;
+            border: 1px solid #2a2a2a !important;
+            width: 44px !important;
+            height: 44px !important;
+        }
+        
+        /* Кнопки RSVP */
+        .rsvp-btn {
+            padding: 8px 12px !important;
+            border-radius: 6px !important;
+            font-size: 11px !important;
+            letter-spacing: 0.5px !important;
+        }
+        
+        .rsvp-btn.not-going {
+            background: #1a1a1a !important;
+            color: #ccc !important;
+            border: 1px solid #333 !important;
+        }
+        
+        .rsvp-btn.going {
+            background: #fff !important;
+            color: #000 !important;
+            border: 1px solid #fff !important;
         }
     </style>
 </head>
@@ -75,7 +111,6 @@
         var selectedCategory = '🍖';
         var eventsList = [];
 
-        // === ЦВЕТА ДЛЯ АВАТАРОК ===
         var avatarColors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#ff9ff3', '#54a0ff', '#5f27cd', '#01a3a4', '#f368e0'];
 
         // === КАТЕГОРИИ ===
@@ -87,7 +122,7 @@
             };
         });
 
-        // === ПОКАЗАТЬ/СКРЫТЬ ФОРМУ ===
+        // === ФОРМА ===
         function showCreateForm() {
             document.getElementById('createForm').style.display = 'flex';
         }
@@ -146,29 +181,25 @@
 
                 if (!eventsList.length) {
                     grid.innerHTML = '<div class="empty-state"><div class="empty-emoji">🦗</div><p>Пока тихо...</p><p style="font-size:13px;color:#666;">Жми на <b>+</b> и создавай движуху!</p></div>';
-                    updatePulse();
                     return;
                 }
 
-                // Сортируем по дате (ближайшие сверху)
                 eventsList.sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
 
                 grid.innerHTML = eventsList.map(function(event, index) {
                     return createEventCard(event, index);
                 }).join('');
 
-                updatePulse();
             } catch(e) {
                 grid.innerHTML = '<p style="color:red;text-align:center;">Ошибка загрузки</p>';
             }
         }
 
-        // === СОЗДАТЬ КАРТОЧКУ СОБЫТИЯ ===
+        // === КАРТОЧКА СОБЫТИЯ ===
         function createEventCard(event, index) {
             var isGoing = event.participants && event.participants.indexOf(USER_ID) >= 0;
             var count = event.participants ? event.participants.length : 0;
 
-            // Генерируем аватарки (максимум 4)
             var avatarsHtml = '';
             if (event.participants && event.participants.length > 0) {
                 var showAvatars = event.participants.slice(0, 4);
@@ -179,13 +210,11 @@
                 });
             }
 
-            // Сколько ещё участников не поместилось
             var moreHtml = '';
             if (count > 4) {
                 moreHtml = '<span class="more-avatars">+' + (count - 4) + '</span>';
             }
 
-            // Если никого нет — показываем подсказку
             var participantsHtml = '';
             if (count === 0) {
                 participantsHtml = '<span style="font-size:12px;color:#888;margin-left:4px;">Будь первым!</span>';
@@ -193,27 +222,24 @@
 
             var timeStr = formatDate(event.date);
 
-            return '<div class="event-card" style="animation-delay:' + (index * 0.05) + 's;">' +
-                // Эмодзи категории
+            return '<div class="event-card">' +
                 '<div class="card-emoji">' + (event.category || '🎉') + '</div>' +
-                // Инфо
                 '<div class="card-info" onclick="openEventModal(\'' + event.id + '\')">' +
                     '<h3>' + escapeHtml(event.name) + '</h3>' +
-                    '<div class="card-date">' + timeStr + ' · ' + escapeHtml(event.creator_name || 'Анон') + '</div>' +
+                    '<div class="card-date">' + timeStr + '</div>' +
                     '<div class="participants-row">' +
                         '<div class="avatars-stack">' + avatarsHtml + moreHtml + '</div>' +
                         participantsHtml +
                         '<span class="count-badge">' + count + '</span>' +
                     '</div>' +
                 '</div>' +
-                // Кнопка Иду/Не иду
                 '<button class="rsvp-btn ' + (isGoing ? 'going' : 'not-going') + '" onclick="event.stopPropagation(); toggleRSVP(\'' + event.id + '\', ' + isGoing + ')">' +
-                    (isGoing ? '✅ ИДУ' : '🔥 БУДУ?') +
+                    (isGoing ? '✕ ОТМЕНА' : '➕ БУДУ') +
                 '</button>' +
             '</div>';
         }
 
-        // === RSVP (записаться/отписаться) ===
+        // === RSVP ===
         async function toggleRSVP(eventId, currentlyGoing) {
             var endpoint = currentlyGoing ? '/api/leave' : '/api/join';
 
@@ -225,7 +251,6 @@
                 });
 
                 if (res.ok) {
-                    // Обновляем локально
                     var event = eventsList.find(function(e) { return e.id === eventId; });
                     if (event) {
                         if (!event.participants) event.participants = [];
@@ -236,12 +261,10 @@
                                 event.participants.push(USER_ID);
                             }
                         }
-                        loadEvents(); // Перерисовываем
+                        loadEvents();
                     }
                 }
-            } catch(e) {
-                // Ничего
-            }
+            } catch(e) {}
         }
 
         // === МОДАЛКА СОБЫТИЯ ===
@@ -252,14 +275,13 @@
             var isGoing = event.participants && event.participants.indexOf(USER_ID) >= 0;
             var count = event.participants ? event.participants.length : 0;
 
-            // Список участников
             var participantsList = '';
             if (event.participants && event.participants.length > 0) {
                 participantsList = event.participants.map(function(userId, i) {
                     var initial = (userId[0] || '?').toUpperCase();
                     var color = avatarColors[i % avatarColors.length];
                     var isMe = userId === USER_ID;
-                    return '<span class="participant-badge" style="' + (isMe ? 'border:2px solid #4ecdc4;' : '') + '">' +
+                    return '<span class="participant-badge" style="' + (isMe ? 'border:2px solid #fff;' : '') + '">' +
                         '<span class="avatar" style="background-color:' + color + ';width:24px;height:24px;font-size:10px;margin-left:0;">' + initial + '</span>' +
                         userId + (isMe ? ' (ты)' : '') +
                         (userId === event.creator_id ? ' 👑' : '') +
@@ -274,14 +296,14 @@
                 '<h2>' + escapeHtml(event.name) + '</h2>' +
                 '<div class="modal-date">📅 ' + formatDateFull(event.date) + '</div>' +
                 '<div class="modal-creator">👤 Организатор: ' + escapeHtml(event.creator_name || 'Некто') + '</div>' +
-                (event.description ? '<p style="color:#a0a0a0;margin-bottom:16px;line-height:1.5;">' + escapeHtml(event.description) + '</p>' : '') +
+                (event.description ? '<p style="color:#888;margin-bottom:16px;line-height:1.5;">' + escapeHtml(event.description) + '</p>' : '') +
                 '<p style="font-weight:600;">👥 Участники (' + count + ')</p>' +
                 '<div class="participants-list">' + participantsList + '</div>' +
                 '<div class="modal-actions">' +
                     '<button class="rsvp-btn ' + (isGoing ? 'going' : 'not-going') + '" onclick="toggleRSVP(\'' + event.id + '\', ' + isGoing + '); document.getElementById(\'eventModal\').style.display=\'none\';" style="flex:2;padding:14px;">' +
-                        (isGoing ? '✅ Я ИДУ (отменить)' : '🔥 БУДУ!') +
+                        (isGoing ? '✕ ОТМЕНИТЬ УЧАСТИЕ' : '➕ БУДУ') +
                     '</button>' +
-                    '<button onclick="document.getElementById(\'eventModal\').style.display=\'none\'" style="flex:1;padding:14px;background:#3a3a3a;color:white;border:none;border-radius:12px;font-weight:600;">✕</button>' +
+                    '<button onclick="document.getElementById(\'eventModal\').style.display=\'none\'" style="flex:1;padding:14px;background:#1a1a1a;color:#fff;border:1px solid #2a2a2a;border-radius:10px;font-weight:500;">✕</button>' +
                 '</div>';
 
             document.getElementById('eventModal').style.display = 'flex';
@@ -312,25 +334,13 @@
                         html += '</div>';
                     }
                 }
-                html += '<button onclick="document.getElementById(\'profileModal\').style.display=\'none\'" style="width:100%;padding:14px;background:#3a3a3a;color:white;border:none;border-radius:12px;font-weight:600;margin-top:12px;">Закрыть</button>';
+                html += '<button onclick="document.getElementById(\'profileModal\').style.display=\'none\'" style="width:100%;padding:14px;background:#1a1a1a;color:#fff;border:1px solid #2a2a2a;border-radius:10px;font-weight:500;margin-top:12px;">Закрыть</button>';
 
                 document.getElementById('profileContent').innerHTML = html;
                 document.getElementById('profileModal').style.display = 'flex';
             } catch(e) {
                 alert('Ошибка профиля');
             }
-        }
-
-        // === ПУЛЬС ===
-        function updatePulse() {
-            var pt = document.getElementById('pulseText');
-            if (!pt) return;
-            if (!eventsList || eventsList.length === 0) {
-                pt.textContent = 'Ждём первую движуху... 🎉';
-                return;
-            }
-            var total = eventsList.reduce(function(s, e) { return s + (e.participants ? e.participants.length : 0); }, 0);
-            pt.textContent = '🔥 ' + eventsList.length + ' событий · ' + total + ' участий';
         }
 
         // === ФОРМАТ ДАТЫ ===
