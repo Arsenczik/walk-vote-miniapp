@@ -68,11 +68,7 @@
             min-width: 0 !important;
         }
 
-        .form-card label {
-            font-size: 11px !important; font-weight: 600 !important; letter-spacing: 2px !important;
-            color: #888 !important; display: block; margin-bottom: 6px;
-        }
-
+        
         .category-picker { padding: 0 !important; margin: 0 0 12px !important; display: flex; flex-wrap: wrap; gap: 6px; }
         .cat-option {
             font-size: 24px !important; padding: 8px !important;
@@ -80,19 +76,83 @@
         }
         .cat-option.active { opacity: 1 !important; border-color: #555 !important; }
 
-        .form-actions { display: flex; gap: 10px; margin-top: 16px; }
-        .cancel-btn {
-            flex: 1; padding: 14px; background: #1a1a1a; color: #ccc;
-            border: 1px solid #333; border-radius: 10px; font-size: 15px; font-weight: 600;
-        }
-        .submit-btn {
-            flex: 1; padding: 14px; background: #fff; color: #000;
-            border: none; border-radius: 10px; font-size: 15px; font-weight: 600;
-        }
-
+        
         .rsvp-btn { padding: 8px 12px !important; border-radius: 6px !important; font-size: 11px !important; letter-spacing: 0.5px !important; }
         .rsvp-btn.not-going { background: #1a1a1a !important; color: #ccc !important; border: 1px solid #333 !important; }
         .rsvp-btn.going { background: #fff !important; color: #000 !important; border: 1px solid #fff !important; }
+        /* === НОВЫЕ СТИЛИ ФОРМЫ === */
+
+        /* Заголовок с крестиком */
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .form-header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Крестик закрытия */
+        .close-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid #2a2a2a;
+            background: #1a1a1a;
+            color: #aaa;
+            font-size: 20px;
+            font-weight: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .close-btn:active {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        /* Кнопка Создать на всю ширину */
+        .submit-btn-full {
+            width: 100%;
+            padding: 14px;
+            margin-top: 20px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .submit-btn-full:active {
+            background: #ccc;
+        }
+
+        /* Единый стиль заголовков полей */
+        .form-card label {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -100,27 +160,35 @@
         <header><h1>События 💭</h1></header>
 
         <div class="create-form" id="createForm" style="display: none;">
-            <div class="form-card">
-                <h2>Новое событие</h2>
-                <input type="text" id="eventName" placeholder="Название..." maxlength="40">
-                <input type="text" id="eventDesc" placeholder="Описание" maxlength="120">
-                <label>ТИП ВСТРЕЧИ:</label>
-                <div class="category-picker">
-                    <span class="cat-option active" data-cat="🍖">🍖</span>
-                    <span class="cat-option" data-cat="🎬">🎬</span>
-                    <span class="cat-option" data-cat="🌊">🌊</span>
-                    <span class="cat-option" data-cat="🍻">🍻</span>
-                    <span class="cat-option" data-cat="🎲">🎲</span>
-                    <span class="cat-option" data-cat="🎂">🎂</span>
-                    <span class="cat-option" data-cat="🎸">🎸</span>
-                    <span class="cat-option" data-cat="🏀">🏀</span>
-                </div>
-                <label>КОГДА:</label>
-                <input type="datetime-local" id="eventDate">
-                <div class="form-actions">
-                    <button onclick="hideCreateForm()" class="cancel-btn">Отмена</button>
-                    <button onclick="submitEvent()" class="submit-btn">Создать</button>
-                </div>
+            <div class="form-card" id="formCard">
+    <!-- Заголовок + крестик -->
+    <div class="form-header">
+        <h2>Новое событие</h2>
+        <button class="close-btn" onclick="hideCreateForm()">✕</button>
+    </div>
+    
+    <input type="text" id="eventName" placeholder="Название..." maxlength="40">
+    <input type="text" id="eventDesc" placeholder="Описание" maxlength="120">
+    
+    <label>Тип встречи</label>
+    <div class="category-picker">
+        <span class="cat-option active" data-cat="🍖">🍖</span>
+        <span class="cat-option" data-cat="🎬">🎬</span>
+        <span class="cat-option" data-cat="🌊">🌊</span>
+        <span class="cat-option" data-cat="🍻">🍻</span>
+        <span class="cat-option" data-cat="🎲">🎲</span>
+        <span class="cat-option" data-cat="🎂">🎂</span>
+        <span class="cat-option" data-cat="🎸">🎸</span>
+        <span class="cat-option" data-cat="🏀">🏀</span>
+    </div>
+
+    <label>КОГДА</label>
+    <input type="datetime-local" id="eventDate">
+    
+    <!-- Кнопка создания на всю ширину -->
+    <button onclick="submitEvent()" class="submit-btn-full">Создать</button>
+</div>
+                
             </div>
         </div>
 
