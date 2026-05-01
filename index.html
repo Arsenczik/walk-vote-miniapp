@@ -45,11 +45,14 @@
         .create-form { padding: 12px !important; box-sizing: border-box !important; }
         
         .form-card {
-    width: 100% !important; max-width: 100% !important; box-sizing: border-box !important;
-    margin: 0 !important; padding: 20px 16px !important; border-radius: 20px !important;  /* было 14px */
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 20px 16px !important;
+    border-radius: 20px !important;
     overflow: visible !important;
-    border: 1px solid #2a2a2a;          /* тонкая рамка */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* мягкая тень */
+    box-shadow: 0 0 24px rgba(255, 255, 255, 0.06), 0 0 48px rgba(255, 255, 255, 0.03) !important;
 }
         
 
@@ -185,17 +188,7 @@
     box-shadow: 0 8px 30px rgba(255, 255, 255, 0.04), 0 2px 8px rgba(255, 255, 255, 0.02) !important;
 }
 
-.form-card::after {
-    content: '' !important;
-    position: absolute !important;
-    bottom: -16px !important;
-    left: 0 !important;
-    right: 0 !important;
-    height: 16px !important;
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.03), transparent) !important;
-    border-radius: 0 0 20px 20px !important;
-    pointer-events: none !important;
-}
+
         /* Тень снизу как у заголовка — только для формы */
 .form-card {
     box-shadow: 0 8px 30px rgba(255, 255, 255, 0.04), 0 2px 8px rgba(255, 255, 255, 0.02) !important;
