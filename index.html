@@ -35,7 +35,7 @@
         header h1::after {
             content: '' !important;
             position: absolute !important;
-            bottom: -16px !important;
+            bottom: -10px !important;
             left: 0 !important;
             right: 0 !important;
             height: 16px !important;
@@ -91,10 +91,81 @@
         
         /* Кнопка профиля */
         .profile-fab {
+            width: 60px !important;
+            height: 60px !important;
+            font-size: 28px !important;
+            border-radius: 16px !important;
             background: #1a1a1a !important;
             border: 1px solid #2a2a2a !important;
-            width: 44px !important;
-            height: 44px !important;
+        }
+        
+        /* ========== ФОРМА СОЗДАНИЯ ========== */
+        
+        /* Заголовок формы */
+        .form-card h2 {
+            font-size: 36px !important;
+            font-weight: 900 !important;
+            letter-spacing: 2px !important;
+            text-align: center !important;
+            margin-bottom: 24px !important;
+        }
+        
+        /* Сама карточка формы — не выходит за края */
+        .form-card {
+            max-width: 100% !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
+        }
+        
+        /* Обёртка формы */
+        .create-form {
+            padding: 12px !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* Поля ввода */
+        .form-card input {
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        /* Заголовки полей */
+        .form-card label {
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            letter-spacing: 2px !important;
+            color: #888 !important;
+        }
+        
+        /* Категории */
+        .cat-option {
+            font-size: 28px !important;
+            padding: 10px 12px !important;
+            filter: grayscale(0%) !important;
+            opacity: 0.5 !important;
+        }
+        
+        .cat-option.active {
+            opacity: 1 !important;
+            border-color: #555 !important;
+        }
+        
+        /* Кнопки */
+        .cancel-btn {
+            background: #1a1a1a !important;
+            color: #ccc !important;
+            border: 1px solid #333 !important;
+            font-size: 15px !important;
+            font-weight: 600 !important;
+        }
+        
+        .submit-btn {
+            background: #fff !important;
+            color: #000 !important;
+            border: none !important;
+            font-size: 15px !important;
+            font-weight: 600 !important;
         }
         
         /* Кнопки RSVP */
@@ -115,12 +186,6 @@
             background: #fff !important;
             color: #000 !important;
             border: 1px solid #fff !important;
-        }
-        .profile-fab {
-            width: 60px !important;
-            height: 60px !important;
-            font-size: 28px !important;
-            border-radius: 16px !important;
         }
     </style>
 </head>
