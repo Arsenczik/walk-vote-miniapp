@@ -157,8 +157,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px
-    position: relative
+    margin-bottom: 20px;
+    position: relative;
 }
 
 /* Этот контейнер занимает всё место слева от крестика */
@@ -638,25 +638,18 @@ if (tg) {
     tg.ready();
     tg.expand();
 
-    // Показываем все данные, которые пришли от Telegram (для отладки)
-    console.log('Telegram InitData:', JSON.stringify(tg.initDataUnsafe, null, 2));
-
     if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
         var tgUser = tg.initDataUnsafe.user;
         USER_ID = tgUser.id ? tgUser.id.toString() : 'user1';
-        
-        // Пытаемся получить username, first_name, last_name в порядке приоритета
+        // Пытаемся получить username, если нет — first_name, затем last_name, иначе "Гость"
         userName = tgUser.username 
                 || tgUser.first_name 
                 || (tgUser.last_name ? tgUser.last_name : null)
                 || 'Гость';
     }
-} else {
-    console.log('Telegram WebApp не доступен (открыто в браузере)');
 }
-var selectedCategory = '🍖';
-var eventsList = [];
-var avatarColors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#ff9ff3', '#54a0ff', '#5f27cd', '#01a3a4', '#f368e0'];
+
+// Сразу обновляем словарь имён, чтобы везде использовалось актуальное имя
 var USER_NAMES = {
     'user1': userName,
     'user2': 'Маша',
@@ -664,6 +657,7 @@ var USER_NAMES = {
     'user4': 'Лена',
     'user5': 'Саша'
 };
+USER_NAMES[USER_ID] = userName; // на случай, если ID не совпадает с 'user1'
         
 document.querySelectorAll('.cat-option').forEach(function(el) {
     el.onclick = function() {
