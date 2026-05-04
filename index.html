@@ -20,11 +20,56 @@
         #onboardingScreen button { width: 100%; max-width: 300px; padding: 16px; background: #fff; color: #000; border: none; border-radius: 14px; font-size: 18px; font-weight: 700; cursor: pointer; }
 
         /* --- Вход --- */
-        #loginScreen { flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; }
-        #loginScreen h1 { font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 30px; }
-        #loginScreen input { width: 100%; padding: 16px; background: #1a1a1a; border: 1px solid #333; border-radius: 14px; color: #fff; font-size: 18px; margin-bottom: 16px; text-align: center; }
-        #loginScreen button { width: 100%; padding: 16px; background: #fff; color: #000; border: none; border-radius: 14px; font-size: 18px; font-weight: 700; cursor: pointer; }
-
+        #loginScreen {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    padding: 16px;
+}
+#loginScreen h1 {
+    font-size: 34px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-align: center;
+    margin-bottom: 40px;
+}
+#loginScreen input {
+    width: 100%;
+    max-width: 360px;                   /* ограничим ширину */
+    padding: 18px 20px;
+    background: #0a0a0a;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    color: #fff;
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 24px;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.03), inset 0 0 16px rgba(0, 0, 0, 0.6);
+    outline: none;
+}
+#loginScreen input::placeholder {
+    color: #666;
+    font-size: 16px;
+}
+#loginScreen button {
+    width: 100%;
+    max-width: 360px;
+    padding: 18px;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 16px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+#loginScreen button:active {
+    background: #ccc;
+    transform: scale(0.98);
+}
         /* --- Меню --- */
         #mainMenu { flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; gap: 20px; position: relative; overflow: hidden; }
         #mainMenu button { width: 100%; max-width: 320px; padding: 20px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; color: #fff; font-size: 20px; font-weight: 600; cursor: pointer; box-shadow: 0 0 30px rgba(255,255,255,0.03); }
@@ -185,10 +230,10 @@
 
     <!-- 2. ЭКРАН ВХОДА -->
     <div id="loginScreen" style="display: none;">
-        <h1>Как твои друзья зовут тебя наичаще?</h1>
-        <input type="text" id="nameInput" placeholder="Например, кабан или тянка" maxlength="30" autocomplete="off">
-        <button onclick="saveName()">Войти</button>
-    </div>
+    <h1>Как чаще всего зовут тебя твои друзья?</h1>
+    <input type="text" id="nameInput" placeholder="Например, кабан или тянка" maxlength="30" autocomplete="off" autofocus>
+    <button onclick="saveName()">Войти</button>
+</div>
 
     <!-- 3. ГЛАВНОЕ МЕНЮ (с салютом) -->
     <div id="mainMenu" style="display: none;">
