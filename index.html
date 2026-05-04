@@ -67,7 +67,7 @@
         .modal-emoji { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; font-size: 36px; flex-shrink: 0; }
         .modal-title-block { flex: 1; min-width: 0; }
         .modal-title-block h2 { font-size: 22px; font-weight: 700; margin: 0 0 6px; text-transform: none; }
-        .modal-creator { font-size: 13px; color: #888; }
+        /* удалён .modal-creator */
         .modal-date-section { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; }
         .modal-date-icon { font-size: 20px; }
         .modal-date-text { font-size: 15px; color: #ccc; }
@@ -93,13 +93,35 @@
         .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: #1a1a1a; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 30px; }
         #profileScreen h1 { font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 30px; }
         #profileScreen input { width: 100%; padding: 14px; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 16px; margin-bottom: 20px; }
-        #profileScreen button { width: 100%; padding: 14px; background: #fff; color: #000; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; }
+        #profileScreen button { width: 100%; padding: 14px; background: #fff; color: #000; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; margin-bottom: 10px; }
+        .logout-btn { background: #1a1a1a !important; color: #ff6b6b !important; border: 1px solid #333 !important; font-weight: 600 !important; letter-spacing: 0.5px; }
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
         .stat-card { background: #0a0a0a; border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 12px; text-align: center; }
         .stat-value { font-size: 28px; font-weight: 300; }
         .stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
         .achievements-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .achievement-badge { display: flex; align-items: center; gap: 6px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.08); padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 500; }
+
+        /* === ПЛАВАЮЩАЯ КНОПКА ПРОФИЛЯ === */
+        .profile-fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 50;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            transition: all 0.2s;
+        }
+        .profile-fab:active { background: #fff; color: #000; border-color: #fff; }
     </style>
 </head>
 <body>
@@ -157,12 +179,17 @@
         <label style="color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Имя</label>
         <input type="text" id="profileNameInput">
         <button onclick="updateProfile()">Сохранить</button>
+        <!-- кнопка выхода -->
+        <button onclick="logout()" class="logout-btn">Выйти</button>
         <div id="profileStats" style="margin-top: 30px;"></div>
     </div>
 
     <!-- МОДАЛКА СОБЫТИЯ -->
     <div class="modal-overlay" id="eventModal"><div class="modal-card" id="modalContent"></div></div>
 </div>
+
+<!-- Плавающая кнопка профиля -->
+<button class="profile-fab" id="profileFab" onclick="showScreen('profileScreen')" style="display: none;">👤</button>
 
 <script>
     // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
@@ -179,6 +206,8 @@
         let target = document.getElementById(screenId);
         if (target) target.style.display = (screenId === 'mainMenu' || screenId === 'loginScreen') ? 'flex' : 'block';
         document.querySelectorAll('.back-btn').forEach(b => b.style.display = (screenId === 'eventsScreen' || screenId === 'profileScreen') ? 'inline-block' : 'none');
+        // плавающая кнопка профиля видна только на экране событий
+        document.getElementById('profileFab').style.display = (screenId === 'eventsScreen') ? 'flex' : 'none';
         if (screenId === 'eventsScreen') loadEvents();
         if (screenId === 'profileScreen') loadProfile();
     }
@@ -191,6 +220,15 @@
         localStorage.setItem('userId', 'u_' + Date.now());
         initUser();
         showScreen('mainMenu');
+    }
+
+    // --- ВЫХОД (показываем экран регистрации) ---
+    function logout() {
+        localStorage.removeItem('userName');
+        localStorage.removeItem('userId');
+        userName = 'Гость';
+        USER_NAMES = {};
+        showScreen('loginScreen');
     }
 
     // --- ИНИЦИАЛИЗАЦИЯ ПОЛЬЗОВАТЕЛЯ ---
@@ -324,13 +362,13 @@
         } else {
             participantsList = '<p class="no-participants">Пока никто не записался</p>';
         }
+        // удалена строка с организатором (modal-creator)
         document.getElementById('modalContent').innerHTML =
             '<button class="modal-close-btn" onclick="document.getElementById(\'eventModal\').style.display=\'none\'">✕</button>' +
             '<div class="modal-header">' +
                 '<div class="modal-emoji">' + (event.category || '🎉') + '</div>' +
                 '<div class="modal-title-block">' +
                     '<h2>' + escapeHtml(event.name) + '</h2>' +
-                    '<div class="modal-creator">👤 ' + escapeHtml(event.creator_name || 'Некто') + '</div>' +
                 '</div>' +
             '</div>' +
             '<div class="modal-date-section">' +
