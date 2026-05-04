@@ -336,7 +336,7 @@ header h1::after {
     align-items: center;
     justify-content: center;
     background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18) !important; 
     border-radius: 14px;
     font-size: 32px;
     flex-shrink: 0;
@@ -496,7 +496,14 @@ var userName = 'Арсен';
 var selectedCategory = '🍖';
 var eventsList = [];
 var avatarColors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#ff9ff3', '#54a0ff', '#5f27cd', '#01a3a4', '#f368e0'];
-
+var USER_NAMES = {
+    'user1': 'Арсен',
+    'user2': 'Маша',
+    'user3': 'Дима',
+    'user4': 'Лена',
+    'user5': 'Саша'
+};
+        
 document.querySelectorAll('.cat-option').forEach(function(el) {
     el.onclick = function() {
         document.querySelectorAll('.cat-option').forEach(function(o) { o.classList.remove('active'); });
@@ -554,7 +561,7 @@ function createEventCard(event, index) {
     var avatarsHtml = '';
     if (event.participants && event.participants.length > 0) {
         event.participants.slice(0, 4).forEach(function(userId, i) {
-            avatarsHtml += '<span class="avatar" style="background-color:' + avatarColors[i % avatarColors.length] + ';">' + (userId[0] || '?').toUpperCase() + '</span>';
+            avatarsHtml += '<span class="avatar">' + (userId[0] || '?').toUpperCase() + '</span>';
         });
     }
     var moreHtml = count > 4 ? '<span class="more-avatars">+' + (count - 4) + '</span>' : '';
@@ -586,7 +593,7 @@ function openEventModal(eventId) {
     var participantsList = '';
     if (event.participants && event.participants.length > 0) {
         participantsList = event.participants.map(function(userId, i) {
-            return '<span class="participant-badge" style="' + (userId === USER_ID ? 'border:2px solid #fff;' : '') + '"><span class="avatar" style="background-color:' + avatarColors[i % avatarColors.length] + ';width:24px;height:24px;font-size:10px;margin-left:0;">' + (userId[0]||'?').toUpperCase() + '</span>' + userId + (userId === USER_ID ? ' (ты)' : '') + (userId === event.creator_id ? ' 👑' : '') + '</span>';
+            return '<span class="participant-badge" style="' + (userId === USER_ID ? 'border:2px solid #fff;' : '') + '"><span class="avatar" style="background-color:' + avatarColors[i % avatarColors.length] + ';width:24px;height:24px;font-size:10px;margin-left:0;">' + (userId[0]||'?').toUpperCase() + '</span>' + (USER_NAMES[userId] || userId) + (userId === USER_ID ? ' (ты)' : '') + (userId === event.creator_id ? ' 👑' : '') + '</span>';
         }).join('');
     } else { participantsList = '<p style="color:#888;">Пока никто не записался</p>'; }
     document.getElementById('modalContent').innerHTML = 
