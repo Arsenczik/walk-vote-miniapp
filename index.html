@@ -630,13 +630,26 @@ header h1::after {
     <button class="profile-fab" onclick="showMyProfile()">👤</button>
 
     <script>
-        var USER_ID = 'user1';
+       // Автоопределение пользователя через Telegram Web App
+var tg = window.Telegram?.WebApp;
+var USER_ID = 'user1';
 var userName = 'Арсен';
+
+if (tg) {
+    tg.ready();
+    tg.expand();
+    
+    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        var tgUser = tg.initDataUnsafe.user;
+        USER_ID = tgUser.id ? tgUser.id.toString() : 'user1';
+        userName = tgUser.first_name || 'Гость';
+    }
+}
 var selectedCategory = '🍖';
 var eventsList = [];
 var avatarColors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#ff9ff3', '#54a0ff', '#5f27cd', '#01a3a4', '#f368e0'];
 var USER_NAMES = {
-    'user1': 'Арсен',
+    'user1': userName,
     'user2': 'Маша',
     'user3': 'Дима',
     'user4': 'Лена',
