@@ -9,7 +9,7 @@ users_db = {
     "user5": {"id": "user5", "name": "Саша"},
 }
 
-def create_event(name, description, date, creator_id, category='🎉'):
+def create_event(name, description, date, creator_id, category='🎉', latitude=None, longitude=None):
     event = {
         "id": str(uuid4()),
         "name": name,
@@ -17,7 +17,9 @@ def create_event(name, description, date, creator_id, category='🎉'):
         "date": date,
         "creator_id": creator_id,
         "category": category,
-        "participants": [creator_id]
+        "participants": [creator_id],
+        "latitude": latitude,
+        "longitude": longitude
     }
     events_db.append(event)
     return event
@@ -36,10 +38,7 @@ def get_event(event_id):
     for e in events_db:
         if e['id'] == event_id:
             creator = get_user(e.get('creator_id'))
-            return {
-                **e,
-                "creator_name": creator['name'] if creator else 'Unknown'
-            }
+            return {**e, "creator_name": creator['name'] if creator else 'Unknown'}
     return None
 
 def add_participant(event_id, user_id):
@@ -74,20 +73,15 @@ def get_user_vibe(user_id):
     user = get_user(user_id)
     if not user:
         return None
-    
     events_created = [e for e in events_db if e.get('creator_id') == user_id]
     events_attended = [e for e in events_db if user_id in e.get('participants', [])]
-    
     achievements = []
-    
     if len(events_created) >= 2:
         achievements.append({"emoji": "📢", "name": "Заводила"})
-    
     cat_count = {}
     for e in events_attended:
         cat = e.get('category', '🫥')
         cat_count[cat] = cat_count.get(cat, 0) + 1
-    
     if cat_count:
         favorite_cat = max(cat_count, key=cat_count.get)
         cat_achievements = {
@@ -102,15 +96,10 @@ def get_user_vibe(user_id):
         }
         if favorite_cat in cat_achievements:
             achievements.append(cat_achievements[favorite_cat])
-    
     if len(events_attended) >= 5:
         achievements.append({"emoji": "⭐", "name": "Старожил"})
-    
     return {
         "user": user,
         "achievements": achievements,
-        "stats": {
-            "created": len(events_created),
-            "attended": len(events_attended)
-        }
+        "stats": {"created": len(events_created), "attended": len(events_attended)}
     }
