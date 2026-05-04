@@ -292,37 +292,35 @@ header h1::after {
         <header><h1>События 💭</h1></header>
 
         <div class="create-form" id="createForm" style="display: none;">
-            <div class="form-card" id="formCard">
-    <!-- Заголовок + крестик -->
-   <div class="form-header">
-    <div class="header-title-wrapper">
-        <h2>Новое событие</h2>
-   
-    
-    <input type="text" id="eventName" placeholder="Название" maxlength="40">
-<input type="text" id="eventDesc" placeholder="Описание" maxlength="120">
-    
-    <label>Тип встречи</label>
-    <div class="category-picker">
-        <span class="cat-option active" data-cat="🍖">🍖</span>
-        <span class="cat-option" data-cat="🎬">🎬</span>
-        <span class="cat-option" data-cat="🌊">🌊</span>
-        <span class="cat-option" data-cat="🍻">🍻</span>
-        <span class="cat-option" data-cat="🎲">🎲</span>
-        <span class="cat-option" data-cat="🎂">🎂</span>
-        <span class="cat-option" data-cat="🎸">🎸</span>
-        <span class="cat-option" data-cat="🏀">🏀</span>
-    </div>
-
-    <label>КОГДА</label>
-    <input type="datetime-local" id="eventDate">
-    
-    <!-- Кнопка создания на всю ширину -->
-    <button onclick="submitEvent()" class="submit-btn-full">Создать</button>
-</div>
-                
+    <div class="form-card" id="formCard">
+        <div class="form-header">
+            <div class="header-title-wrapper">
+                <h2>Новое событие</h2>
             </div>
+            <!-- крестик убран, оставлен пустой div для сохранения структуры -->
         </div>
+        
+        <input type="text" id="eventName" placeholder="Название" maxlength="40">
+        <input type="text" id="eventDesc" placeholder="Описание" maxlength="120">
+        
+        <label>Тип встречи</label>
+        <div class="category-picker">
+            <span class="cat-option active" data-cat="🍖">🍖</span>
+            <span class="cat-option" data-cat="🎬">🎬</span>
+            <span class="cat-option" data-cat="🌊">🌊</span>
+            <span class="cat-option" data-cat="🍻">🍻</span>
+            <span class="cat-option" data-cat="🎲">🎲</span>
+            <span class="cat-option" data-cat="🎂">🎂</span>
+            <span class="cat-option" data-cat="🎸">🎸</span>
+            <span class="cat-option" data-cat="🏀">🏀</span>
+        </div>
+
+        <label>КОГДА</label>
+        <input type="datetime-local" id="eventDate">
+        
+        <button onclick="submitEvent()" class="submit-btn-full">Создать</button>
+    </div>
+</div>
 
         <div class="events-grid" id="eventsGrid"><p>Загрузка...</p></div>
         <button class="add-event-btn" onclick="showCreateForm()"><span class="add-icon">+</span><span>Добавить событие</span></button>
