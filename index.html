@@ -118,7 +118,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: 20px
+    position: relative
 }
 
 /* Этот контейнер занимает всё место слева от крестика */
@@ -298,38 +299,29 @@ header h1::after {
 
         <div class="create-form" id="createForm" style="display: none;">
     <div class="form-card" id="formCard">
-        <div class="form-header" style="position: relative;">
+       <div class="form-header">
     <div class="header-title-wrapper">
         <h2>Новое событие</h2>
     </div>
-    <!-- СТЕКЛЯННЫЙ КРЕСТИК -->
-   <div onclick="hideCreateForm()" style="
-    position: absolute !important;
-    top: 0 !important;
-    right: 0 !important;
-    width: 36px !important;
-    height: 36px !important;
-    border-radius: 50% !important;
-    background: #1a1a1a !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    color: #aaa !important;
-    font-size: 20px !important;
-    font-weight: 300 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.05) !important;
-    transition: all 0.2s ease !important;
-    z-index: 10 !important;
-    line-height: 1 !important;
-    -webkit-tap-highlight-color: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    outline: none !important;
-">
-    ✕
-</div>
+    <div onclick="hideCreateForm()" style="
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        background: #1a1a1a;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #aaa;
+        font-size: 20px; font-weight: 300;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.05);
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+        line-height: 1;
+    " onmousedown="this.style.background='#fff'; this.style.color='#000';"
+       onmouseup="this.style.background='#1a1a1a'; this.style.color='#aaa';"
+       ontouchstart="this.style.background='#fff'; this.style.color='#000';"
+       ontouchend="this.style.background='#1a1a1a'; this.style.color='#aaa';">
+        ✕
+    </div>
 </div>
         
         <input type="text" id="eventName" placeholder="Название" maxlength="40">
