@@ -406,6 +406,8 @@ header h1::after {
     document.getElementById('eventDate').value = defaultDate;
 }
 
+        function hideCreateForm() { document.getElementById('createForm').style.display = 'none'; }
+
         function createEventCard(event, index) {
             var isGoing = event.participants && event.participants.indexOf(USER_ID) >= 0;
             var count = event.participants ? event.participants.length : 0;
