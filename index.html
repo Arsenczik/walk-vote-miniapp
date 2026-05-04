@@ -173,24 +173,7 @@
     margin-bottom: 12px;
 }
 
-/* Кнопки в модалке (RSVP и закрыть) */
-.modal-actions button,
-.modal-card button {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    color: #ccc;
-    border-radius: 12px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    transition: all 0.2s ease;
-}
 
-.modal-actions button:active,
-.modal-card button:active {
-    background: #fff;
-    color: #000;
-    border-color: #fff;
-}
 
 /* Крестик закрытия в модалке (добавим в HTML) */
 .modal-close-btn {
@@ -199,25 +182,29 @@
     right: 16px;
     width: 36px;
     height: 36px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    background: #1a1a1a;
-    color: #aaa;
+    border-radius: 50% !important;
+    background: #1a1a1a !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: #aaa !important;
     font-size: 20px;
+    font-weight: 300;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.05) !important;
     transition: all 0.2s;
     z-index: 10;
+    padding: 0;
+    line-height: 1;
 }
 
 .modal-close-btn:active {
-    background: #fff;
-    color: #000;
-    border-color: #fff;
+    background: #fff !important;
+    color: #000 !important;
+    border-color: #fff !important;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.2) !important;
 }
-
 /* Контейнер модалки чтобы крестик позиционировался */
 .modal-card {
     position: relative !important;
@@ -340,9 +327,7 @@ header h1::after {
     padding: 0 !important;
     margin: 0 !important;
     outline: none !important;
-    -webkit-appearance: none !important;
-    appearance: none !important;
-" onmousedown="this.style.background='#fff'; this.style.color='#000';" onmouseup="this.style.background='#1a1a1a'; this.style.color='#aaa';" ontouchstart="this.style.background='#fff'; this.style.color='#000';" ontouchend="this.style.background='#1a1a1a'; this.style.color='#aaa';">
+">
     ✕
 </div>
 </div>
