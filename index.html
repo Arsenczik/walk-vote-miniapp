@@ -224,42 +224,7 @@
     overflow: visible !important;
 }
 
-/* Переопределение для крестиков – гарантированно круглые */
-button.modal-close-btn,
-button.close-btn {
-    border-radius: 50% !important;
-    width: 36px !important;
-    height: 36px !important;
-    padding: 0 !important;
-    line-height: 36px;
-    text-align: center;
-}
-/* Финальный стеклянный крестик — гарантированно применяется */
-button.close-btn,
-.form-header .close-btn {
-    background: #1a1a1a !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    color: #aaa !important;
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.05) !important;
-    width: 36px !important;
-    height: 36px !important;
-    border-radius: 50% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    font-size: 20px !important;
-    padding: 0 !important;
-    line-height: 1 !important;
-    transition: all 0.2s !important;
-}
 
-button.close-btn:active,
-.form-header .close-btn:active {
-    background: #fff !important;
-    color: #000 !important;
-    border-color: #fff !important;
-    box-shadow: 0 0 12px rgba(255, 255, 255, 0.2) !important;
-}
         /* === ИСПРАВЛЕННЫЙ ЗАГОЛОВОК СО СВЕЧЕНИЕМ === */
 header {
     display: block !important;
@@ -332,9 +297,7 @@ header h1::after {
    <div class="form-header">
     <div class="header-title-wrapper">
         <h2>Новое событие</h2>
-    </div>
-    <button class="close-btn" onclick="hideCreateForm()" style="background: #1a1a1a !important; border: 1px solid rgba(255,255,255,0.3) !important; color: #aaa !important; box-shadow: 0 0 8px rgba(255,255,255,0.05) !important; width: 36px !important; height: 36px !important; border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 20px !important; padding: 0 !important; line-height: 1 !important;">✕</button>
-</div>
+   
     
     <input type="text" id="eventName" placeholder="Название" maxlength="40">
 <input type="text" id="eventDesc" placeholder="Описание" maxlength="120">
