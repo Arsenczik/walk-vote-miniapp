@@ -6,304 +6,373 @@
     <title>События</title>
     <link rel="stylesheet" href="/static/style.css">
     <style>
+        /* общие сбросы */
         .pulse-bar { display: none !important; }
-        .container { padding: 0 12px !important; max-width: 500px; margin: 0 auto; }
+        .container { padding: 0 12px !important; max-width: 500px; margin: 0 auto; position: relative; min-height: 100vh; }
 
-        /* Экран входа */
-        #loginScreen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; }
+        /* экраны */
+        #loginScreen, #mainMenu, #eventsScreen, #profileScreen { display: none; }
+        #loginScreen { flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; }
         #loginScreen input { width: 100%; padding: 16px; background: #1a1a1a; border: 1px solid #333; border-radius: 14px; color: #fff; font-size: 18px; margin-bottom: 16px; text-align: center; }
         #loginScreen button { width: 100%; padding: 16px; background: #fff; color: #000; border: none; border-radius: 14px; font-size: 18px; font-weight: 700; cursor: pointer; }
 
-        /* Главное меню */
-        #mainMenu { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; gap: 20px; }
+        #mainMenu { flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; gap: 20px; }
         #mainMenu button { width: 100%; padding: 20px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; color: #fff; font-size: 20px; font-weight: 600; cursor: pointer; box-shadow: 0 0 30px rgba(255,255,255,0.03); }
 
-        /* Экран событий (старый) */
-        #eventsScreen { display: none; }
-
-        /* Экран профиля */
-        #profileScreen { display: none; }
-
-        /* Кнопка назад */
+        /* кнопка назад */
         .back-btn { background: #1a1a1a; border: 1px solid #333; color: #aaa; padding: 12px 20px; border-radius: 12px; cursor: pointer; font-size: 16px; margin-bottom: 16px; display: none; }
 
-        /* Прочие старые стили */
-        .event-card, .add-event-btn, .profile-fab, .create-form, .form-card, .form-card input, .category-picker, .cat-option, .rsvp-btn, .submit-btn-full, .form-card label, .modal-card, .modal-close-btn, .modal-header, .modal-emoji, .modal-title-block, .modal-date-section, .modal-description, .modal-participants-section, .modal-section-label, .participants-list, .participant-badge, .no-participants, .modal-actions, .avatar, .avatars-stack, .more-avatars, .count-badge, .card-info, .card-emoji, .card-date, .date-day, .date-time { /* сохраняются все старые стили */ }
+        /* карточки событий */
+        .event-card { display: flex; align-items: center; gap: 14px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 16px; box-shadow: 0 0 30px rgba(255,255,255,0.03), inset 0 0 20px rgba(0,0,0,0.4); transition: border-color 0.2s, box-shadow 0.2s; width: 100%; box-sizing: border-box; margin-bottom: 8px; }
+        .event-card:active { border-color: rgba(255,255,255,0.25); box-shadow: 0 0 40px rgba(255,255,255,0.05); }
+        .card-emoji { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; font-size: 32px; flex-shrink: 0; }
+        .card-info { flex: 1; min-width: 0; }
+        .card-info h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; margin: 0 0 4px; color: #fff; }
+        .card-date { font-size: 13px; color: #999; margin-bottom: 6px; display: flex; flex-direction: column; line-height: 1.4; }
+        .card-date .date-day { font-weight: 600; color: #ccc; }
+        .card-date .date-time { font-weight: 400; color: #888; }
+        .participants-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+        .avatars-stack { display: flex; align-items: center; }
+        .avatar { width: 26px; height: 26px; border-radius: 50%; background: #2a2a2a; color: #aaa; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; border: 1px solid #3a3a3a; margin-left: -8px; }
+        .avatar:first-child { margin-left: 0; }
+        .more-avatars { font-size: 12px; color: #888; margin-left: 4px; font-weight: 500; }
+        .count-badge { background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 2px 8px; font-size: 12px; font-weight: 600; color: #ccc; margin-left: auto; }
 
-        /* Подключаем все старые стили из предыдущего файла (я их сюда не вставил ради краткости, но они остаются как есть) */
-        /* ... сюда добавить все стили из предыдущего <style> ... */
+        /* кнопка добавить событие */
+        .add-event-btn { width: 100% !important; box-sizing: border-box !important; padding: 16px; margin-top: 12px; margin-left: 0 !important; margin-right: 0 !important; background: rgba(255,255,255,0.03); border: 1px dashed #333; border-radius: 14px; color: #666; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; letter-spacing: 0.5px; }
+        .add-event-btn:active { background: rgba(255,255,255,0.06); border-color: #555; color: #999; }
+        .add-icon { font-size: 20px; font-weight: 300; line-height: 1; }
+
+        /* форма */
+        .create-form { padding: 12px !important; box-sizing: border-box !important; }
+        .form-card { background: #0a0a0a !important; border: 1px solid rgba(255,255,255,0.3) !important; box-shadow: 0 0 24px rgba(255,255,255,0.12), 0 0 48px rgba(255,255,255,0.04), inset 0 0 24px rgba(0,0,0,0.8) !important; border-radius: 24px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; margin: 0 !important; padding: 20px 16px !important; overflow: visible !important; position: relative !important; }
+        .form-card input, .form-card input[type="text"], .form-card input[type="datetime-local"] { width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; padding: 12px !important; margin-bottom: 10px !important; -webkit-appearance: none !important; appearance: none !important; min-width: 0 !important; }
+        .form-card label { font-size: 12px; font-weight: 700; letter-spacing: 2px; color: #888; text-transform: uppercase; margin-bottom: 8px; display: block; }
+        .category-picker { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .cat-option { font-size: 32px !important; padding: 14px !important; width: calc(25% - 10px) !important; box-sizing: border-box; display: flex; align-items: center; justify-content: center; filter: grayscale(0%) !important; opacity: 0.5 !important; border: 1px solid #2a2a2a !important; border-radius: 12px !important; cursor: pointer; transition: all 0.2s; }
+        .cat-option.active { opacity: 1 !important; border-color: #555 !important; background: rgba(255,255,255,0.05); }
+        .form-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; position: relative; }
+        .header-title-wrapper { flex: 1; display: flex; justify-content: center; align-items: center; margin-right: 8px; }
+        .header-title-wrapper h2 { margin: 0; font-size: 30px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; line-height: 1; text-align: center; white-space: nowrap; }
+        .submit-btn-full { width: 100%; padding: 14px; margin-top: 20px; background: #fff; color: #000; border: none; border-radius: 16px; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
+        .submit-btn-full:active { background: #ccc; }
+
+        /* модалки */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center; padding: 20px; }
+        .modal-card { background: #0a0a0a !important; border: 1px solid rgba(255,255,255,0.3) !important; box-shadow: 0 0 24px rgba(255,255,255,0.12), 0 0 48px rgba(255,255,255,0.04), inset 0 0 24px rgba(0,0,0,0.8) !important; border-radius: 20px !important; position: relative !important; overflow: visible !important; padding: 24px; width: 100%; max-width: 400px; max-height: 85vh; overflow-y: auto; }
+        .modal-close-btn { position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50% !important; background: #1a1a1a !important; border: 1px solid rgba(255,255,255,0.3) !important; color: #aaa !important; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 8px rgba(255,255,255,0.05) !important; transition: all 0.2s; z-index: 10; padding: 0; line-height: 1; }
+        .modal-close-btn:active { background: #fff !important; color: #000 !important; border-color: #fff !important; }
+
+        .modal-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding-top: 10px; }
+        .modal-emoji { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; font-size: 36px; flex-shrink: 0; }
+        .modal-title-block { flex: 1; min-width: 0; }
+        .modal-title-block h2 { font-size: 22px; font-weight: 700; margin: 0 0 6px; text-transform: none; }
+        .modal-creator { font-size: 13px; color: #888; }
+        .modal-date-section { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; }
+        .modal-date-icon { font-size: 20px; }
+        .modal-date-text { font-size: 15px; color: #ccc; }
+        .modal-description { color: #999; font-size: 14px; line-height: 1.6; margin-bottom: 20px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 10px; border-left: 2px solid rgba(255,255,255,0.1); }
+        .modal-participants-section { margin-bottom: 20px; }
+        .modal-section-label { font-size: 13px; font-weight: 600; color: #aaa; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .participants-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .participant-badge { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 8px 14px; border-radius: 12px; font-size: 14px; font-weight: 500; }
+        .participant-badge.is-me { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.06); }
+        .participant-name { color: #ddd; }
+        .crown { font-size: 14px; margin-left: 2px; }
+        .no-participants { color: #666; font-size: 14px; font-style: italic; }
+        .modal-actions { margin-top: 8px; }
+        .modal-actions .rsvp-btn { width: 100%; padding: 16px; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; border-radius: 12px; }
+        .rsvp-btn.not-going { background: #1a1a1a !important; color: #ccc !important; border: 1px solid #333 !important; }
+        .rsvp-btn.going { background: #fff !important; color: #000 !important; border: 1px solid #fff !important; }
+
+        /* заголовок События */
+        header h1 { display: block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 52px; font-weight: 900; letter-spacing: 3px; text-align: center; color: #fff; background: #000; width: 100%; padding: 20px 0; margin: 0 0 20px; border-radius: 0 0 20px 20px; border-bottom: 2px solid #333; box-shadow: 0 4px 12px rgba(255,255,255,0.06), inset 0 -2px 8px rgba(255,255,255,0.08); position: relative; }
+        header h1::after { content: ""; position: absolute; left: 0; bottom: -2px; width: 100%; height: 2px; background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0.15) 80%, transparent 100%); border-radius: 0 0 20px 20px; box-shadow: 0 0 6px rgba(255,255,255,0.1); z-index: 5; display: block; }
+
+        /* профиль */
+        #profileScreen h1 { font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 30px; }
+        #profileScreen input { width: 100%; padding: 14px; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 16px; margin-bottom: 20px; }
+        #profileScreen button { width: 100%; padding: 14px; background: #fff; color: #000; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
+        .stat-card { background: #0a0a0a; border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 12px; text-align: center; }
+        .stat-value { font-size: 28px; font-weight: 300; }
+        .stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .achievements-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .achievement-badge { display: flex; align-items: center; gap: 6px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.08); padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 500; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- ЭКРАН ВХОДА -->
-        <div id="loginScreen">
-            <h1 style="font-size: 42px; font-weight: 900; text-align: center; margin-bottom: 40px;">👋 Привет!</h1>
-            <input type="text" id="nameInput" placeholder="Как тебя зовут?" maxlength="30" autocomplete="off">
-            <button onclick="saveName()">Войти</button>
-        </div>
-
-        <!-- ГЛАВНОЕ МЕНЮ -->
-        <div id="mainMenu">
-            <button onclick="showScreen('eventsScreen')">📅 События</button>
-            <button onclick="showScreen('profileScreen')">👤 Профиль</button>
-        </div>
-
-        <!-- ЭКРАН СОБЫТИЙ -->
-        <div id="eventsScreen">
-            <button class="back-btn" onclick="showScreen('mainMenu')">← Назад</button>
-            <header><h1>События 💭</h1></header>
-            <!-- Старый контент событий -->
-            <div class="create-form" id="createForm" style="display: none;">
-                <div class="form-card" id="formCard">
-                    <div class="form-header">
-                        <div class="header-title-wrapper"><h2>Новое событие</h2></div>
-                        <div onclick="hideCreateForm()" style="width: 36px; height: 36px; border-radius: 50%; background: #1a1a1a; border: 1px solid rgba(255, 255, 255, 0.3); color: #aaa; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 8px rgba(255, 255, 255, 0.05); transition: all 0.2s ease; flex-shrink: 0; line-height: 1;" onmousedown="this.style.background='#fff'; this.style.color='#000';" onmouseup="this.style.background='#1a1a1a'; this.style.color='#aaa';" ontouchstart="this.style.background='#fff'; this.style.color='#000';" ontouchend="this.style.background='#1a1a1a'; this.style.color='#aaa';">✕</div>
-                    </div>
-                    <input type="text" id="eventName" placeholder="Название" maxlength="40">
-                    <input type="text" id="eventDesc" placeholder="Описание" maxlength="120">
-                    <label>Тип встречи</label>
-                    <div class="category-picker">
-                        <span class="cat-option active" data-cat="🍖">🍖</span>
-                        <span class="cat-option" data-cat="🎬">🎬</span>
-                        <span class="cat-option" data-cat="🌊">🌊</span>
-                        <span class="cat-option" data-cat="🍻">🍻</span>
-                        <span class="cat-option" data-cat="🎲">🎲</span>
-                        <span class="cat-option" data-cat="🎂">🎂</span>
-                        <span class="cat-option" data-cat="🎸">🎸</span>
-                        <span class="cat-option" data-cat="🏀">🏀</span>
-                    </div>
-                    <label>КОГДА</label>
-                    <input type="datetime-local" id="eventDate">
-                    <button onclick="submitEvent()" class="submit-btn-full">Создать</button>
-                </div>
-            </div>
-            <div class="events-grid" id="eventsGrid"><p>Загрузка...</p></div>
-            <button class="add-event-btn" onclick="showCreateForm()"><span class="add-icon">+</span><span>Добавить событие</span></button>
-            <div class="modal-overlay" id="eventModal" style="display: none;"><div class="modal-card" id="modalContent"></div></div>
-        </div>
-
-        <!-- ЭКРАН ПРОФИЛЯ -->
-        <div id="profileScreen">
-            <button class="back-btn" onclick="showScreen('mainMenu')">← Назад</button>
-            <h1 style="font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 30px;">Профиль</h1>
-            <div style="text-align: center; margin-bottom: 30px;">
-                <div id="profileAvatar" style="width: 80px; height: 80px; border-radius: 50%; background: #1a1a1a; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto;">👤</div>
-            </div>
-            <label style="color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Имя</label>
-            <input type="text" id="profileNameInput" style="width: 100%; padding: 14px; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 16px; margin-bottom: 20px;">
-            <button onclick="updateProfile()" style="width: 100%; padding: 14px; background: #fff; color: #000; border: none; border-radius: 12px; font-weight: 700; font-size: 16px;">Сохранить</button>
-            <div id="profileStats" style="margin-top: 30px;"></div>
-        </div>
+<div class="container">
+    <!-- ЭКРАН ВХОДА -->
+    <div id="loginScreen" style="display: none;">
+        <h1 style="font-size: 42px; font-weight: 900; text-align: center; margin-bottom: 40px;">👋 Привет!</h1>
+        <input type="text" id="nameInput" placeholder="Как тебя зовут?" maxlength="30" autocomplete="off">
+        <button onclick="saveName()">Войти</button>
     </div>
 
-    <script>
-        // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
-        var USER_ID = 'user1';
-        var userName = 'Гость';
-        var selectedCategory = '🍖';
-        var eventsList = [];
-        var USER_NAMES = {};
-        var avatarColors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#ff9ff3', '#54a0ff', '#5f27cd'];
+    <!-- ГЛАВНОЕ МЕНЮ -->
+    <div id="mainMenu" style="display: none;">
+        <button onclick="showScreen('eventsScreen')">📅 События</button>
+        <button onclick="showScreen('profileScreen')">👤 Профиль</button>
+    </div>
 
-        // --- ЭКРАНЫ ---
-        function showScreen(screenId) {
-            document.querySelectorAll('#loginScreen, #mainMenu, #eventsScreen, #profileScreen').forEach(el => el.style.display = 'none');
-            document.getElementById(screenId).style.display = 'block';
-            if (screenId === 'eventsScreen') {
-                loadEvents();
-            } else if (screenId === 'profileScreen') {
-                loadProfile();
-            }
-            // Показываем кнопку "Назад" на вложенных экранах
-            document.querySelectorAll('.back-btn').forEach(b => b.style.display = (screenId === 'eventsScreen' || screenId === 'profileScreen') ? 'inline-block' : 'none');
-        }
+    <!-- ЭКРАН СОБЫТИЙ -->
+    <div id="eventsScreen" style="display: none;">
+        <button class="back-btn" onclick="showScreen('mainMenu')">← Назад</button>
+        <header><h1>События 💭</h1></header>
+        <div class="create-form" id="createForm" style="display: none;">
+            <div class="form-card">
+                <div class="form-header">
+                    <div class="header-title-wrapper"><h2>Новое событие</h2></div>
+                    <div onclick="hideCreateForm()" style="width: 36px; height: 36px; border-radius: 50%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.3); color: #aaa; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 8px rgba(255,255,255,0.05);" onmousedown="this.style.background='#fff'; this.style.color='#000';" onmouseup="this.style.background='#1a1a1a'; this.style.color='#aaa';" ontouchstart="this.style.background='#fff'; this.style.color='#000';" ontouchend="this.style.background='#1a1a1a'; this.style.color='#aaa';">✕</div>
+                </div>
+                <input type="text" id="eventName" placeholder="Название" maxlength="40">
+                <input type="text" id="eventDesc" placeholder="Описание" maxlength="120">
+                <label>Тип встречи</label>
+                <div class="category-picker">
+                    <span class="cat-option active" data-cat="🍖">🍖</span>
+                    <span class="cat-option" data-cat="🎬">🎬</span>
+                    <span class="cat-option" data-cat="🌊">🌊</span>
+                    <span class="cat-option" data-cat="🍻">🍻</span>
+                    <span class="cat-option" data-cat="🎲">🎲</span>
+                    <span class="cat-option" data-cat="🎂">🎂</span>
+                    <span class="cat-option" data-cat="🎸">🎸</span>
+                    <span class="cat-option" data-cat="🏀">🏀</span>
+                </div>
+                <label>КОГДА</label>
+                <input type="datetime-local" id="eventDate">
+                <button onclick="submitEvent()" class="submit-btn-full">Создать</button>
+            </div>
+        </div>
+        <div class="events-grid" id="eventsGrid"><p>Загрузка...</p></div>
+        <button class="add-event-btn" onclick="showCreateForm()"><span class="add-icon">+</span><span>Добавить событие</span></button>
+    </div>
 
-        // --- ЭКРАН ВХОДА ---
-        function saveName() {
-            var name = document.getElementById('nameInput').value.trim();
-            if (!name) return alert('Введи имя!');
-            localStorage.setItem('userName', name);
-            localStorage.setItem('userId', 'u_' + Date.now());
-            initUser();
-            showScreen('mainMenu');
-        }
+    <!-- ЭКРАН ПРОФИЛЯ -->
+    <div id="profileScreen" style="display: none;">
+        <button class="back-btn" onclick="showScreen('mainMenu')">← Назад</button>
+        <h1>Профиль</h1>
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div id="profileAvatar" style="width: 80px; height: 80px; border-radius: 50%; background: #1a1a1a; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto;">👤</div>
+        </div>
+        <label style="color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Имя</label>
+        <input type="text" id="profileNameInput">
+        <button onclick="updateProfile()">Сохранить</button>
+        <div id="profileStats" style="margin-top: 30px;"></div>
+    </div>
 
-        // --- ИНИЦИАЛИЗАЦИЯ ПОЛЬЗОВАТЕЛЯ ---
-        function initUser() {
-            var savedName = localStorage.getItem('userName');
-            if (savedName) {
-                userName = savedName;
-                USER_ID = localStorage.getItem('userId') || 'user1';
-            } else {
-                return showScreen('loginScreen');
-            }
-            USER_NAMES[USER_ID] = userName;
-            document.getElementById('profileNameInput').value = userName;
-        }
+    <!-- МОДАЛКИ -->
+    <div class="modal-overlay" id="eventModal"><div class="modal-card" id="modalContent"></div></div>
+</div>
 
-        // --- ОБНОВЛЕНИЕ ПРОФИЛЯ ---
-        function updateProfile() {
-            var newName = document.getElementById('profileNameInput').value.trim();
-            if (!newName) return alert('Имя не может быть пустым!');
-            localStorage.setItem('userName', newName);
-            userName = newName;
-            USER_NAMES[USER_ID] = newName;
-            alert('Имя обновлено!');
-            loadProfile();
-        }
+<script>
+    // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
+    var USER_ID = 'user1';
+    var userName = 'Гость';
+    var selectedCategory = '🍖';
+    var eventsList = [];
+    var USER_NAMES = {};
+    var avatarColors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#ff9ff3', '#54a0ff', '#5f27cd'];
 
-        // --- ЗАГРУЗКА ПРОФИЛЯ ---
-        async function loadProfile() {
-            document.getElementById('profileNameInput').value = userName;
-            try {
-                var res = await fetch('/api/profile/' + USER_ID);
-                var data = await res.json();
-                var statsHtml = '<div class="stats-grid">' +
-                    '<div class="stat-card"><div class="stat-value">' + data.stats.created + '</div><div class="stat-label">Создано</div></div>' +
-                    '<div class="stat-card"><div class="stat-value">' + data.stats.attended + '</div><div class="stat-label">Посещено</div></div>' +
-                    '</div>';
-                if (data.achievements && data.achievements.length) {
-                    statsHtml += '<p style="font-weight:600;">🏆 Ачивки</p><div class="achievements-list">' +
-                        data.achievements.map(a => '<span class="achievement-badge"><span class="achievement-emoji">' + a.emoji + '</span> ' + a.name + '</span>').join('') + '</div>';
-                }
-                document.getElementById('profileStats').innerHTML = statsHtml;
-            } catch (e) {}
-        }
+    // --- ЭКРАНЫ ---
+    function showScreen(screenId) {
+        document.querySelectorAll('#loginScreen, #mainMenu, #eventsScreen, #profileScreen').forEach(el => el.style.display = 'none');
+        let target = document.getElementById(screenId);
+        if (target) target.style.display = (screenId === 'mainMenu' || screenId === 'loginScreen') ? 'flex' : 'block';
+        document.querySelectorAll('.back-btn').forEach(b => b.style.display = (screenId === 'eventsScreen' || screenId === 'profileScreen') ? 'inline-block' : 'none');
+        if (screenId === 'eventsScreen') loadEvents();
+        if (screenId === 'profileScreen') loadProfile();
+    }
 
-        // --- СТАРЫЙ КОД (создание, отображение событий, модалки) без изменений ---
-        function showCreateForm() { document.getElementById('createForm').style.display = 'flex'; }
-        function hideCreateForm() { document.getElementById('createForm').style.display = 'none'; }
-
-        async function submitEvent() {
-            var name = document.getElementById('eventName').value.trim();
-            var desc = document.getElementById('eventDesc').value.trim();
-            var date = document.getElementById('eventDate').value;
-            if (!name || !date) { alert('Заполни название и дату!'); return; }
-            var body = JSON.stringify({ name: name, description: desc, date: date, category: selectedCategory, creator_id: USER_ID });
-            try {
-                var res = await fetch('/api/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body });
-                if (res.ok) {
-                    hideCreateForm();
-                    document.getElementById('eventName').value = '';
-                    document.getElementById('eventDesc').value = '';
-                    document.getElementById('eventDate').value = '';
-                    loadEvents();
-                } else { var err = await res.json(); alert('❌ Ошибка: ' + (err.error || 'неизвестно')); }
-            } catch(e) { alert('❌ Ошибка соединения'); }
-        }
-
-        async function loadEvents() {
-            var grid = document.getElementById('eventsGrid');
-            try {
-                var res = await fetch('/api/events');
-                eventsList = await res.json();
-                if (!eventsList.length) { grid.innerHTML = '<div class="empty-state"><div class="empty-emoji">🦗</div><p>Пока тихо...</p><p style="font-size:13px;color:#666;">Жми на <b>+</b> и создавай движуху!</p></div>'; return; }
-                eventsList.sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
-                grid.innerHTML = eventsList.map(function(event, index) { return createEventCard(event, index); }).join('');
-            } catch(e) { grid.innerHTML = '<p style="color:red;text-align:center;">Ошибка загрузки</p>'; }
-        }
-
-        function createEventCard(event, index) {
-            var isGoing = event.participants && event.participants.indexOf(USER_ID) >= 0;
-            var count = event.participants ? event.participants.length : 0;
-            var avatarsHtml = '';
-            if (event.participants && event.participants.length > 0) {
-                event.participants.slice(0, 4).forEach(function(userId, i) {
-                    var name = USER_NAMES[userId] || userId;
-                    var initial = (name[0] || '?').toUpperCase();
-                    avatarsHtml += '<span class="avatar">' + initial + '</span>';
-                });
-            }
-            var moreHtml = count > 4 ? '<span class="more-avatars">+' + (count - 4) + '</span>' : '';
-            var participantsHtml = count === 0 ? '<span style="font-size:12px;color:#888;margin-left:4px;">Будь первым!</span>' : '';
-            return '<div class="event-card"><div class="card-emoji">' + (event.category || '🎉') + '</div><div class="card-info" onclick="openEventModal(\'' + event.id + '\')"><h3>' + escapeHtml(event.name) + '</h3><div class="card-date"><span class="date-day">' + formatDateDay(event.date) + '</span><span class="date-time">' + formatDateTime(event.date) + '</span></div><div class="participants-row"><div class="avatars-stack">' + avatarsHtml + moreHtml + '</div>' + participantsHtml + '<span class="count-badge">' + count + '</span></div></div></div>';
-        }
-
-        async function toggleRSVP(eventId, currentlyGoing) {
-            var endpoint = currentlyGoing ? '/api/leave' : '/api/join';
-            try {
-                var res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event_id: eventId, user_id: USER_ID }) });
-                if (res.ok) {
-                    var event = eventsList.find(function(e) { return e.id === eventId; });
-                    if (event) {
-                        if (!event.participants) event.participants = [];
-                        if (currentlyGoing) { event.participants = event.participants.filter(function(id) { return id !== USER_ID; }); }
-                        else if (event.participants.indexOf(USER_ID) === -1) { event.participants.push(USER_ID); }
-                        loadEvents();
-                    }
-                }
-            } catch(e) {}
-        }
-
-        function openEventModal(eventId) {
-            var event = eventsList.find(function(e) { return e.id === eventId; });
-            if (!event) return;
-            var isGoing = event.participants && event.participants.indexOf(USER_ID) >= 0;
-            var count = event.participants ? event.participants.length : 0;
-            var participantsList = '';
-            if (event.participants && event.participants.length > 0) {
-                participantsList = event.participants.map(function(userId, i) {
-                    var name = USER_NAMES[userId] || userId;
-                    var initial = (name[0] || '?').toUpperCase();
-                    var isMe = (userId === USER_ID);
-                    var isCreator = (userId === event.creator_id);
-                    return '<span class="participant-badge' + (isMe ? ' is-me' : '') + '">' +
-                        '<span class="avatar" style="width:28px;height:28px;font-size:12px;margin-left:0;">' + initial + '</span>' +
-                        '<span class="participant-name">' + name + (isMe ? ' (ты)' : '') + '</span>' +
-                        (isCreator ? ' <span class="crown">👑</span>' : '') +
-                    '</span>';
-                }).join('');
-            } else {
-                participantsList = '<p class="no-participants">Пока никто не записался</p>';
-            }
-            document.getElementById('modalContent').innerHTML = 
-                '<button class="modal-close-btn" onclick="document.getElementById(\'eventModal\').style.display=\'none\'">✕</button>' +
-                '<div class="modal-header">' +
-                    '<div class="modal-emoji">' + (event.category || '🎉') + '</div>' +
-                    '<div class="modal-title-block">' +
-                        '<h2>' + escapeHtml(event.name) + '</h2>' +
-                        '<div class="modal-creator">👤 ' + escapeHtml(event.creator_name || 'Некто') + '</div>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="modal-date-section">' +
-                    '<div class="modal-date-icon">📅</div>' +
-                    '<div class="modal-date-text">' + formatDateFull(event.date) + '</div>' +
-                '</div>' +
-                (event.description ? '<p class="modal-description">' + escapeHtml(event.description) + '</p>' : '') +
-                '<div class="modal-participants-section">' +
-                    '<div class="modal-section-label">👥 Участники (' + count + ')</div>' +
-                    '<div class="participants-list">' + participantsList + '</div>' +
-                '</div>' +
-                '<div class="modal-actions">' +
-                    '<button class="rsvp-btn ' + (isGoing ? 'going' : 'not-going') + '" onclick="toggleRSVP(\'' + event.id + '\', ' + isGoing + '); document.getElementById(\'eventModal\').style.display=\'none\';">' +
-                        (isGoing ? '✕ ОТМЕНИТЬ УЧАСТИЕ' : '➕ БУДУ') +
-                    '</button>' +
-                '</div>';
-            document.getElementById('eventModal').style.display = 'flex';
-        }
-
-        // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
-        function formatDate(d) { if(!d) return ''; var date=new Date(d), now=new Date(), t=date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}); if(date.toDateString()===now.toDateString()) return 'Сегодня · '+t; var tom=new Date(now); tom.setDate(tom.getDate()+1); if(date.toDateString()===tom.toDateString()) return 'Завтра · '+t; return date.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'})+' · '+t; }
-        function formatDateFull(d) { if(!d) return ''; var date=new Date(d); return date.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}); }
-        function formatDateDay(d) { if(!d) return ''; var date=new Date(d); var now=new Date(); if(date.toDateString()===now.toDateString()) return 'Сегодня'; var tom=new Date(now); tom.setDate(tom.getDate()+1); if(date.toDateString()===tom.toDateString()) return 'Завтра'; return date.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'}); }
-        function formatDateTime(d) { if(!d) return ''; var date=new Date(d); return date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}); }
-        function escapeHtml(t) { var div=document.createElement('div'); div.textContent=t||''; return div.innerHTML; }
-
-        // --- ЗАПУСК ---
+    // --- ЭКРАН ВХОДА ---
+    function saveName() {
+        let name = document.getElementById('nameInput').value.trim();
+        if (!name) return alert('Введи имя!');
+        localStorage.setItem('userName', name);
+        localStorage.setItem('userId', 'u_' + Date.now());
         initUser();
-        if (!localStorage.getItem('userName')) {
-            showScreen('loginScreen');
-        } else {
-            showScreen('mainMenu');
-        }
+        showScreen('mainMenu');
+    }
 
-        document.getElementById('eventModal').onclick = function(e) { if(e.target===this) this.style.display='none'; };
-        document.querySelectorAll('.cat-option').forEach(el => el.onclick = function() {
-            document.querySelectorAll('.cat-option').forEach(o => o.classList.remove('active'));
-            this.classList.add('active');
-            selectedCategory = this.getAttribute('data-cat');
-        });
-    </script>
+    // --- ИНИЦИАЛИЗАЦИЯ ПОЛЬЗОВАТЕЛЯ ---
+    function initUser() {
+        let savedName = localStorage.getItem('userName');
+        if (savedName) {
+            userName = savedName;
+            USER_ID = localStorage.getItem('userId') || 'user1';
+        } else {
+            showScreen('loginScreen');
+            return;
+        }
+        USER_NAMES[USER_ID] = userName;
+        if (document.getElementById('profileNameInput')) document.getElementById('profileNameInput').value = userName;
+    }
+
+    // --- ОБНОВЛЕНИЕ ПРОФИЛЯ ---
+    function updateProfile() {
+        let newName = document.getElementById('profileNameInput').value.trim();
+        if (!newName) return alert('Имя не может быть пустым!');
+        localStorage.setItem('userName', newName);
+        userName = newName;
+        USER_NAMES[USER_ID] = newName;
+        // обновляем аватар (первая буква)
+        let avatarEl = document.getElementById('profileAvatar');
+        if (avatarEl) avatarEl.textContent = newName.charAt(0).toUpperCase();
+        loadProfile();
+    }
+
+    // --- ЗАГРУЗКА ПРОФИЛЯ ---
+    async function loadProfile() {
+        document.getElementById('profileNameInput').value = userName;
+        try {
+            let res = await fetch('/api/profile/' + USER_ID);
+            let data = await res.json();
+            let html = '<div class="stats-grid">' +
+                '<div class="stat-card"><div class="stat-value">' + data.stats.created + '</div><div class="stat-label">Создано</div></div>' +
+                '<div class="stat-card"><div class="stat-value">' + data.stats.attended + '</div><div class="stat-label">Посещено</div></div>' +
+                '</div>';
+            if (data.achievements && data.achievements.length) {
+                html += '<p style="font-weight:600; margin-top:20px;">🏆 Ачивки</p><div class="achievements-list">' +
+                    data.achievements.map(a => '<span class="achievement-badge"><span class="achievement-emoji">' + a.emoji + '</span> ' + a.name + '</span>').join('') +
+                    '</div>';
+            }
+            document.getElementById('profileStats').innerHTML = html;
+        } catch(e) {}
+    }
+
+    // --- СОБЫТИЯ (старый код) ---
+    function showCreateForm() { document.getElementById('createForm').style.display = 'flex'; }
+    function hideCreateForm() { document.getElementById('createForm').style.display = 'none'; }
+
+    async function submitEvent() {
+        let name = document.getElementById('eventName').value.trim();
+        let desc = document.getElementById('eventDesc').value.trim();
+        let date = document.getElementById('eventDate').value;
+        if (!name || !date) { alert('Заполни название и дату!'); return; }
+        let body = JSON.stringify({ name, description: desc, date, category: selectedCategory, creator_id: USER_ID });
+        try {
+            let res = await fetch('/api/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
+            if (res.ok) {
+                hideCreateForm();
+                document.getElementById('eventName').value = '';
+                document.getElementById('eventDesc').value = '';
+                document.getElementById('eventDate').value = '';
+                loadEvents();
+            } else { let err = await res.json(); alert('❌ Ошибка: ' + (err.error || 'неизвестно')); }
+        } catch(e) { alert('❌ Ошибка соединения'); }
+    }
+
+    async function loadEvents() {
+        let grid = document.getElementById('eventsGrid');
+        try {
+            let res = await fetch('/api/events');
+            eventsList = await res.json();
+            if (!eventsList.length) { grid.innerHTML = '<div class="empty-state"><div class="empty-emoji">🦗</div><p>Пока тихо...</p><p style="font-size:13px;color:#666;">Жми на <b>+</b> и создавай движуху!</p></div>'; return; }
+            eventsList.sort((a,b) => new Date(a.date) - new Date(b.date));
+            grid.innerHTML = eventsList.map((event, idx) => createEventCard(event, idx)).join('');
+        } catch(e) { grid.innerHTML = '<p style="color:red;text-align:center;">Ошибка загрузки</p>'; }
+    }
+
+    function createEventCard(event, index) {
+        let isGoing = event.participants && event.participants.includes(USER_ID);
+        let count = event.participants ? event.participants.length : 0;
+        let avatarsHtml = '';
+        if (event.participants && event.participants.length > 0) {
+            event.participants.slice(0,4).forEach(userId => {
+                let nm = USER_NAMES[userId] || userId;
+                let ini = (nm[0] || '?').toUpperCase();
+                avatarsHtml += '<span class="avatar">' + ini + '</span>';
+            });
+        }
+        let moreHtml = count > 4 ? '<span class="more-avatars">+' + (count - 4) + '</span>' : '';
+        let participantsHtml = count === 0 ? '<span style="font-size:12px;color:#888;margin-left:4px;">Будь первым!</span>' : '';
+        return '<div class="event-card"><div class="card-emoji">' + (event.category || '🎉') + '</div><div class="card-info" onclick="openEventModal(\'' + event.id + '\')"><h3>' + escapeHtml(event.name) + '</h3><div class="card-date"><span class="date-day">' + formatDateDay(event.date) + '</span><span class="date-time">' + formatDateTime(event.date) + '</span></div><div class="participants-row"><div class="avatars-stack">' + avatarsHtml + moreHtml + '</div>' + participantsHtml + '<span class="count-badge">' + count + '</span></div></div></div>';
+    }
+
+    async function toggleRSVP(eventId, currentlyGoing) {
+        let endpoint = currentlyGoing ? '/api/leave' : '/api/join';
+        try {
+            let res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event_id: eventId, user_id: USER_ID }) });
+            if (res.ok) {
+                let event = eventsList.find(e => e.id === eventId);
+                if (event) {
+                    if (!event.participants) event.participants = [];
+                    if (currentlyGoing) event.participants = event.participants.filter(id => id !== USER_ID);
+                    else if (!event.participants.includes(USER_ID)) event.participants.push(USER_ID);
+                    loadEvents();
+                }
+            }
+        } catch(e) {}
+    }
+
+    function openEventModal(eventId) {
+        let event = eventsList.find(e => e.id === eventId);
+        if (!event) return;
+        let isGoing = event.participants && event.participants.includes(USER_ID);
+        let count = event.participants ? event.participants.length : 0;
+        let participantsList = '';
+        if (event.participants && event.participants.length > 0) {
+            participantsList = event.participants.map(userId => {
+                let nm = USER_NAMES[userId] || userId;
+                let ini = (nm[0] || '?').toUpperCase();
+                let isMe = userId === USER_ID;
+                let isCreator = userId === event.creator_id;
+                return '<span class="participant-badge' + (isMe ? ' is-me' : '') + '">' +
+                    '<span class="avatar" style="width:28px;height:28px;font-size:12px;margin-left:0;">' + ini + '</span>' +
+                    '<span class="participant-name">' + nm + (isMe ? ' (ты)' : '') + '</span>' +
+                    (isCreator ? ' <span class="crown">👑</span>' : '') +
+                '</span>';
+            }).join('');
+        } else {
+            participantsList = '<p class="no-participants">Пока никто не записался</p>';
+        }
+        document.getElementById('modalContent').innerHTML =
+            '<button class="modal-close-btn" onclick="document.getElementById(\'eventModal\').style.display=\'none\'">✕</button>' +
+            '<div class="modal-header">' +
+                '<div class="modal-emoji">' + (event.category || '🎉') + '</div>' +
+                '<div class="modal-title-block">' +
+                    '<h2>' + escapeHtml(event.name) + '</h2>' +
+                    '<div class="modal-creator">👤 ' + escapeHtml(event.creator_name || 'Некто') + '</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="modal-date-section">' +
+                '<div class="modal-date-icon">📅</div>' +
+                '<div class="modal-date-text">' + formatDateFull(event.date) + '</div>' +
+            '</div>' +
+            (event.description ? '<p class="modal-description">' + escapeHtml(event.description) + '</p>' : '') +
+            '<div class="modal-participants-section">' +
+                '<div class="modal-section-label">👥 Участники (' + count + ')</div>' +
+                '<div class="participants-list">' + participantsList + '</div>' +
+            '</div>' +
+            '<div class="modal-actions">' +
+                '<button class="rsvp-btn ' + (isGoing ? 'going' : 'not-going') + '" onclick="toggleRSVP(\'' + event.id + '\', ' + isGoing + '); document.getElementById(\'eventModal\').style.display=\'none\';">' +
+                    (isGoing ? '✕ ОТМЕНИТЬ УЧАСТИЕ' : '➕ БУДУ') +
+                '</button>' +
+            '</div>';
+        document.getElementById('eventModal').style.display = 'flex';
+    }
+
+    // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
+    function formatDate(d) { if(!d) return ''; let date=new Date(d), now=new Date(), t=date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}); if(date.toDateString()===now.toDateString()) return 'Сегодня · '+t; let tom=new Date(now); tom.setDate(tom.getDate()+1); if(date.toDateString()===tom.toDateString()) return 'Завтра · '+t; return date.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'})+' · '+t; }
+    function formatDateFull(d) { if(!d) return ''; let date=new Date(d); return date.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}); }
+    function formatDateDay(d) { if(!d) return ''; let date=new Date(d), now=new Date(); if(date.toDateString()===now.toDateString()) return 'Сегодня'; let tom=new Date(now); tom.setDate(tom.getDate()+1); if(date.toDateString()===tom.toDateString()) return 'Завтра'; return date.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'}); }
+    function formatDateTime(d) { if(!d) return ''; let date=new Date(d); return date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}); }
+    function escapeHtml(t) { let div=document.createElement('div'); div.textContent=t||''; return div.innerHTML; }
+
+    // --- ЗАПУСК ---
+    initUser();
+    if (!localStorage.getItem('userName')) {
+        showScreen('loginScreen');
+    } else {
+        showScreen('mainMenu');
+    }
+
+    document.getElementById('eventModal').onclick = function(e) { if(e.target===this) this.style.display='none'; };
+    document.querySelectorAll('.cat-option').forEach(el => el.onclick = function() {
+        document.querySelectorAll('.cat-option').forEach(o => o.classList.remove('active'));
+        this.classList.add('active');
+        selectedCategory = this.getAttribute('data-cat');
+    });
+</script>
 </body>
 </html>
