@@ -19,64 +19,83 @@
         #onboardingScreen p { color: #aaa; font-size: 16px; margin-bottom: 40px; line-height: 1.5; }
         #onboardingScreen button { width: 100%; max-width: 300px; padding: 16px; background: #fff; color: #000; border: none; border-radius: 14px; font-size: 18px; font-weight: 700; cursor: pointer; }
 
-        /* --- Вход --- */
+        /* --- Вход (улучшенный) --- */
         #loginScreen {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 80vh;
-    padding: 16px;
-}
-#loginScreen h1 {
-    font-size: 34px;
-    font-weight: 900;
-    letter-spacing: 1px;
-    text-align: center;
-    margin-bottom: 40px;
-}
-#loginScreen input {
-    width: 100%;
-    max-width: 360px;                   /* ограничим ширину */
-    padding: 18px 20px;
-    background: #0a0a0a;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 16px;
-    color: #fff;
-    font-size: 18px;
-    text-align: center;
-    margin-bottom: 24px;
-    box-shadow: 0 0 12px rgba(255, 255, 255, 0.03), inset 0 0 16px rgba(0, 0, 0, 0.6);
-    outline: none;
-}
-#loginScreen input::placeholder {
-    color: #666;
-    font-size: 16px;
-}
-#loginScreen button {
-    width: 100%;
-    max-width: 360px;
-    padding: 18px;
-    background: #fff;
-    color: #000;
-    border: none;
-    border-radius: 16px;
-    font-size: 18px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-}
-#loginScreen button:active {
-    background: #ccc;
-    transform: scale(0.98);
-}
-        /* --- Меню --- */
-        #mainMenu { flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; gap: 20px; position: relative; overflow: hidden; }
-        #mainMenu button { width: 100%; max-width: 320px; padding: 20px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; color: #fff; font-size: 20px; font-weight: 600; cursor: pointer; box-shadow: 0 0 30px rgba(255,255,255,0.03); }
-        #mainMenu canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-        #mainMenu > button { position: relative; z-index: 1; }
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        #loginScreen h1 {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-align: center;
+            margin-bottom: 40px;
+            line-height: 1.3;
+        }
+        #loginScreen input {
+            width: 100%;
+            max-width: 360px;
+            padding: 18px 20px;
+            background: #0a0a0a;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            color: #fff;
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 24px;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.03), inset 0 0 16px rgba(0, 0, 0, 0.6);
+            outline: none;
+            position: relative;
+            z-index: 2;
+        }
+        #loginScreen input::placeholder {
+            color: #666;
+            font-size: 16px;
+        }
+        #loginScreen button {
+            width: 100%;
+            max-width: 360px;
+            padding: 18px;
+            background: #fff;
+            color: #000;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 2;
+        }
+        #loginScreen button:active {
+            background: #ccc;
+            transform: scale(0.98);
+        }
 
-        /* --- Стрелка назад (общая) --- */
+        /* Падающие эмодзи */
+        .falling-emoji {
+            position: fixed;
+            top: -60px;
+            font-size: 28px;
+            opacity: 0.25;
+            pointer-events: none;
+            z-index: 1;
+            user-select: none;
+            transition: none;
+        }
+
+        /* --- Меню (с салютом) --- */
+        #mainMenu { flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; gap: 20px; position: relative; overflow: hidden; }
+        #mainMenu button { width: 100%; max-width: 320px; padding: 20px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; color: #fff; font-size: 20px; font-weight: 600; cursor: pointer; box-shadow: 0 0 30px rgba(255,255,255,0.03); position: relative; z-index: 1; }
+        #mainMenu canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+
+        /* --- Стрелка назад --- */
         .back-arrow {
             position: absolute;
             top: 20px;
@@ -91,13 +110,10 @@
             line-height: 1;
         }
 
-        /* --- Заголовок событий (уменьшенный, с отступом под стрелку) --- */
+        /* --- Заголовок событий --- */
         #eventsHeader {
-            margin-left: 40px;
-            margin-right: 0;
-            font-size: 36px;
-            font-weight: 900;
-            letter-spacing: 2px;
+            margin-left: 40px; margin-right: 0;
+            font-size: 36px; font-weight: 900; letter-spacing: 2px;
             padding: 16px 0 12px 0;
             border-bottom: 2px solid #333;
             border-radius: 0 0 20px 20px;
@@ -116,22 +132,17 @@
             z-index: 5;
         }
 
-        /* --- Кнопка статистики (📊) в углу событий --- */
+        /* --- Кнопка статистики --- */
         .stats-fab {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
-            width: 52px;
-            height: 52px;
+            bottom: 24px; right: 24px;
+            width: 52px; height: 52px;
             border-radius: 16px;
             background: #1a1a1a;
             border: 1px solid rgba(255,255,255,0.25);
             box-shadow: 0 0 20px rgba(255,255,255,0.06);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; cursor: pointer;
             z-index: 50;
             transition: all 0.2s;
         }
@@ -228,14 +239,14 @@
         <button onclick="startRegistration()">Зарегистрироваться</button>
     </div>
 
-    <!-- 2. ЭКРАН ВХОДА -->
+    <!-- 2. ЭКРАН ВХОДА (с падающими эмодзи) -->
     <div id="loginScreen" style="display: none;">
-    <h1>Как чаще всего зовут тебя твои друзья?</h1>
-    <input type="text" id="nameInput" placeholder="Например, кабан или тянка" maxlength="30" autocomplete="off" autofocus>
-    <button onclick="saveName()">Войти</button>
-</div>
+        <h1>Как чаще всего зовут тебя твои друзья?</h1>
+        <input type="text" id="nameInput" placeholder="" maxlength="30" autocomplete="off" autofocus>
+        <button onclick="saveName()">Войти</button>
+    </div>
 
-    <!-- 3. ГЛАВНОЕ МЕНЮ (с салютом) -->
+    <!-- 3. ГЛАВНОЕ МЕНЮ -->
     <div id="mainMenu" style="display: none;">
         <canvas id="fireworksCanvas"></canvas>
         <button onclick="showScreen('eventsScreen')">📅 События</button>
@@ -297,7 +308,6 @@
     <div class="modal-overlay" id="emojiPicker" onclick="this.style.display='none'"><div class="modal-card" id="emojiList"></div></div>
 </div>
 
-<!-- Плавающая кнопка статистики в событиях -->
 <button class="stats-fab" id="statsFab" onclick="showScreen('statsScreen')" style="display: none;">📊</button>
 
 <script>
@@ -309,6 +319,17 @@
     let eventsList = [];
     let USER_NAMES = {};
     let fireworksActive = false;
+    let fallingEmojis = [];     // массив для падающих эмодзи
+    let loginEmojiInterval = null;
+
+    // --- СЛУЧАЙНЫЙ ПЛЕЙСХОЛДЕР ---
+    const placeholders = ['тянка', 'кабан', 'семен', 'воздухан'];
+    function setRandomPlaceholder() {
+        let input = document.getElementById('nameInput');
+        if (input) {
+            input.placeholder = placeholders[Math.floor(Math.random() * placeholders.length)];
+        }
+    }
 
     // --- НАВИГАЦИЯ ---
     function showScreen(id) {
@@ -327,13 +348,108 @@
             stopFireworks();
         }
 
+        // Управление падающими эмодзи на экране входа
+        if (id === 'loginScreen') {
+            startFallingEmojis();
+            setRandomPlaceholder();
+        } else {
+            stopFallingEmojis();
+        }
+
         // Кнопка статистики видна только в событиях
         document.getElementById('statsFab').style.display = (id === 'eventsScreen') ? 'flex' : 'none';
 
-        // Подгрузка данных
         if (id === 'eventsScreen') loadEvents();
         if (id === 'profileScreen') loadProfileEdit();
         if (id === 'statsScreen') loadStatistics();
+    }
+
+    // --- ПАДАЮЩИЕ ЭМОДЗИ ---
+    const emojiCandidates = ['😎','🥸','🥳','🥵','🫠','🤪','🤣','🥴'];
+
+    function createFallingEmoji() {
+        const el = document.createElement('div');
+        el.className = 'falling-emoji';
+        el.textContent = emojiCandidates[Math.floor(Math.random() * emojiCandidates.length)];
+        el.style.left = Math.random() * 100 + '%';
+        el.style.top = '-50px';
+        document.body.appendChild(el);
+
+        let x = parseFloat(el.style.left);
+        let y = -50;
+        let speedY = 1.2 + Math.random() * 2.5; // пикселей на кадр
+        let speedX = (Math.random() - 0.5) * 1.5;
+        let opacity = 0.25;
+
+        const emojiObj = { el, x, y, speedY, speedX, opacity };
+        fallingEmojis.push(emojiObj);
+    }
+
+    function startFallingEmojis() {
+        stopFallingEmojis();
+        loginEmojiInterval = setInterval(() => {
+            if (fallingEmojis.length < 15) createFallingEmoji();
+        }, 400);
+        requestAnimationFrame(updateFallingEmojis);
+    }
+
+    function stopFallingEmojis() {
+        if (loginEmojiInterval) {
+            clearInterval(loginEmojiInterval);
+            loginEmojiInterval = null;
+        }
+        // удаляем все элементы
+        fallingEmojis.forEach(e => e.el.remove());
+        fallingEmojis = [];
+    }
+
+    function updateFallingEmojis() {
+        if (!document.getElementById('loginScreen')?.style.display === 'flex') {
+            // если экран не активен, чистим
+            fallingEmojis.forEach(e => e.el.remove());
+            fallingEmojis = [];
+            return;
+        }
+        let inputEl = document.getElementById('nameInput');
+        let buttonEl = document.querySelector('#loginScreen button');
+        let inputRect = inputEl?.getBoundingClientRect();
+        let buttonRect = buttonEl?.getBoundingClientRect();
+
+        for (let i = fallingEmojis.length - 1; i >= 0; i--) {
+            let obj = fallingEmojis[i];
+            obj.y += obj.speedY;
+            obj.x += obj.speedX;
+
+            // отскок от поля ввода
+            if (inputRect && obj.y + 20 > inputRect.top && obj.y - 20 < inputRect.bottom &&
+                obj.x > 0 && obj.x < window.innerWidth) {
+                // упрощаем: если рядом, меняем горизонтальное направление
+                let emojiCenterX = parseFloat(obj.el.style.left) + 14; // примерно центр
+                if (emojiCenterX > inputRect.left && emojiCenterX < inputRect.right &&
+                    obj.y + 20 > inputRect.top && obj.y - 20 < inputRect.top + 40) {
+                    obj.speedX = -obj.speedX * 0.6;
+                    obj.speedY = Math.abs(obj.speedY) * 0.5 + 0.3;
+                }
+            }
+
+            // затухание после кнопки
+            if (buttonRect && obj.y > buttonRect.bottom) {
+                obj.opacity -= 0.015;
+                if (obj.opacity < 0.05) obj.opacity = 0.05;
+            }
+
+            // выход за экран
+            if (obj.y > window.innerHeight + 50 || obj.opacity <= 0.05) {
+                obj.el.remove();
+                fallingEmojis.splice(i,1);
+                continue;
+            }
+
+            obj.el.style.top = obj.y + 'px';
+            obj.el.style.left = (obj.x % 100) + '%';
+            obj.el.style.opacity = obj.opacity;
+        }
+        requestAnimationFrame(updateFallingEmojis);
     }
 
     // --- ОНБОРДИНГ ---
@@ -445,7 +561,7 @@
         }
     }
 
-    // --- СОБЫТИЯ (старые функции) ---
+    // --- СОБЫТИЯ ---
     function showCreateForm() { document.getElementById('createForm').style.display = 'flex'; }
     function hideCreateForm() { document.getElementById('createForm').style.display = 'none'; }
 
@@ -568,7 +684,7 @@
         document.getElementById('eventModal').style.display = 'flex';
     }
 
-    // --- САЛЮТ (canvas) ---
+    // --- САЛЮТ ---
     function startFireworks() {
         if (fireworksActive) return;
         fireworksActive = true;
@@ -655,6 +771,11 @@
         this.classList.add('active');
         selectedCategory = this.getAttribute('data-cat');
     });
+
+    // Если экран входа активен при загрузке, запустим эмодзи
+    if (document.getElementById('loginScreen').style.display === 'flex') {
+        startFallingEmojis();
+    }
 </script>
 </body>
 </html>
