@@ -6,8 +6,7 @@ api_bp = Blueprint('api', __name__, url_prefix='/api')
 @api_bp.route('/events', methods=['GET'])
 def get_events():
     try:
-        events = database.get_events()
-        return jsonify(events)
+        return jsonify(database.get_events())
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -17,13 +16,14 @@ def create_event():
         data = request.json
         if not data or 'name' not in data or 'creator_id' not in data:
             return jsonify({"error": "name and creator_id are required"}), 400
-        
         event = database.create_event(
             name=data['name'],
             description=data.get('description', ''),
             date=data.get('date', ''),
             creator_id=data['creator_id'],
-            category=data.get('category', '🎉')
+            category=data.get('category', '🎉'),
+            latitude=data.get('latitude'),
+            longitude=data.get('longitude')
         )
         return jsonify(event), 201
     except Exception as e:
@@ -45,7 +45,6 @@ def join_event():
         data = request.json
         if not data or 'event_id' not in data or 'user_id' not in data:
             return jsonify({"error": "event_id and user_id are required"}), 400
-        
         success = database.add_participant(data['event_id'], data['user_id'])
         if success:
             return jsonify({"status": "joined"})
@@ -59,7 +58,6 @@ def leave_event():
         data = request.json
         if not data or 'event_id' not in data or 'user_id' not in data:
             return jsonify({"error": "event_id and user_id are required"}), 400
-        
         success = database.remove_participant(data['event_id'], data['user_id'])
         if success:
             return jsonify({"status": "left"})
@@ -70,8 +68,7 @@ def leave_event():
 @api_bp.route('/participants/<event_id>', methods=['GET'])
 def get_participants(event_id):
     try:
-        participants = database.get_participants(event_id)
-        return jsonify(participants)
+        return jsonify(database.get_participants(event_id))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -90,7 +87,6 @@ def get_leaderboard():
     try:
         users = database.users_db.values()
         leaderboard = []
-        
         for user in users:
             vibe = database.get_user_vibe(user['id'])
             if vibe:
@@ -101,7 +97,6 @@ def get_leaderboard():
                     "achievements": len(vibe['achievements']),
                     "stats": vibe['stats']
                 })
-        
         leaderboard.sort(key=lambda x: x['score'], reverse=True)
         return jsonify(leaderboard)
     except Exception as e:
