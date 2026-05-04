@@ -630,7 +630,6 @@ header h1::after {
     <button class="profile-fab" onclick="showMyProfile()">👤</button>
 
     <script>
-       // Автоопределение пользователя через Telegram Web App
 var tg = window.Telegram?.WebApp;
 var USER_ID = 'user1';
 var userName = 'Арсен';
@@ -642,7 +641,8 @@ if (tg) {
     if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
         var tgUser = tg.initDataUnsafe.user;
         USER_ID = tgUser.id ? tgUser.id.toString() : 'user1';
-        userName = tgUser.first_name || 'Гость';
+        // Берём username, если нет — first_name, если и его нет — "Гость"
+        userName = tgUser.username || tgUser.first_name || 'Гость';
     }
 }
 var selectedCategory = '🍖';
