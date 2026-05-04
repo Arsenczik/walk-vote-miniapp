@@ -6,23 +6,24 @@
     <title>События</title>
     <link rel="stylesheet" href="/static/style.css">
     <style>
-        /* общие сбросы */
+        /* === СБРОСЫ И БАЗА === */
         .pulse-bar { display: none !important; }
         .container { padding: 0 12px !important; max-width: 500px; margin: 0 auto; position: relative; min-height: 100vh; }
 
-        /* экраны */
+        /* === ЭКРАНЫ === */
         #loginScreen, #mainMenu, #eventsScreen, #profileScreen { display: none; }
         #loginScreen { flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; }
+        #loginScreen h1 { font-size: 42px; font-weight: 900; text-align: center; margin-bottom: 40px; }
         #loginScreen input { width: 100%; padding: 16px; background: #1a1a1a; border: 1px solid #333; border-radius: 14px; color: #fff; font-size: 18px; margin-bottom: 16px; text-align: center; }
         #loginScreen button { width: 100%; padding: 16px; background: #fff; color: #000; border: none; border-radius: 14px; font-size: 18px; font-weight: 700; cursor: pointer; }
 
         #mainMenu { flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; gap: 20px; }
         #mainMenu button { width: 100%; padding: 20px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; color: #fff; font-size: 20px; font-weight: 600; cursor: pointer; box-shadow: 0 0 30px rgba(255,255,255,0.03); }
 
-        /* кнопка назад */
+        /* === КНОПКА НАЗАД === */
         .back-btn { background: #1a1a1a; border: 1px solid #333; color: #aaa; padding: 12px 20px; border-radius: 12px; cursor: pointer; font-size: 16px; margin-bottom: 16px; display: none; }
 
-        /* карточки событий */
+        /* === КАРТОЧКИ СОБЫТИЙ === */
         .event-card { display: flex; align-items: center; gap: 14px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 16px; box-shadow: 0 0 30px rgba(255,255,255,0.03), inset 0 0 20px rgba(0,0,0,0.4); transition: border-color 0.2s, box-shadow 0.2s; width: 100%; box-sizing: border-box; margin-bottom: 8px; }
         .event-card:active { border-color: rgba(255,255,255,0.25); box-shadow: 0 0 40px rgba(255,255,255,0.05); }
         .card-emoji { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; font-size: 32px; flex-shrink: 0; }
@@ -38,12 +39,12 @@
         .more-avatars { font-size: 12px; color: #888; margin-left: 4px; font-weight: 500; }
         .count-badge { background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 2px 8px; font-size: 12px; font-weight: 600; color: #ccc; margin-left: auto; }
 
-        /* кнопка добавить событие */
+        /* === КНОПКА ДОБАВИТЬ СОБЫТИЕ === */
         .add-event-btn { width: 100% !important; box-sizing: border-box !important; padding: 16px; margin-top: 12px; margin-left: 0 !important; margin-right: 0 !important; background: rgba(255,255,255,0.03); border: 1px dashed #333; border-radius: 14px; color: #666; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; letter-spacing: 0.5px; }
         .add-event-btn:active { background: rgba(255,255,255,0.06); border-color: #555; color: #999; }
         .add-icon { font-size: 20px; font-weight: 300; line-height: 1; }
 
-        /* форма */
+        /* === ФОРМА СОЗДАНИЯ === */
         .create-form { padding: 12px !important; box-sizing: border-box !important; }
         .form-card { background: #0a0a0a !important; border: 1px solid rgba(255,255,255,0.3) !important; box-shadow: 0 0 24px rgba(255,255,255,0.12), 0 0 48px rgba(255,255,255,0.04), inset 0 0 24px rgba(0,0,0,0.8) !important; border-radius: 24px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; margin: 0 !important; padding: 20px 16px !important; overflow: visible !important; position: relative !important; }
         .form-card input, .form-card input[type="text"], .form-card input[type="datetime-local"] { width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; padding: 12px !important; margin-bottom: 10px !important; -webkit-appearance: none !important; appearance: none !important; min-width: 0 !important; }
@@ -57,12 +58,11 @@
         .submit-btn-full { width: 100%; padding: 14px; margin-top: 20px; background: #fff; color: #000; border: none; border-radius: 16px; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
         .submit-btn-full:active { background: #ccc; }
 
-        /* модалки */
+        /* === МОДАЛКИ === */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center; padding: 20px; }
         .modal-card { background: #0a0a0a !important; border: 1px solid rgba(255,255,255,0.3) !important; box-shadow: 0 0 24px rgba(255,255,255,0.12), 0 0 48px rgba(255,255,255,0.04), inset 0 0 24px rgba(0,0,0,0.8) !important; border-radius: 20px !important; position: relative !important; overflow: visible !important; padding: 24px; width: 100%; max-width: 400px; max-height: 85vh; overflow-y: auto; }
         .modal-close-btn { position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50% !important; background: #1a1a1a !important; border: 1px solid rgba(255,255,255,0.3) !important; color: #aaa !important; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 8px rgba(255,255,255,0.05) !important; transition: all 0.2s; z-index: 10; padding: 0; line-height: 1; }
         .modal-close-btn:active { background: #fff !important; color: #000 !important; border-color: #fff !important; }
-
         .modal-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding-top: 10px; }
         .modal-emoji { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; font-size: 36px; flex-shrink: 0; }
         .modal-title-block { flex: 1; min-width: 0; }
@@ -81,22 +81,23 @@
         .crown { font-size: 14px; margin-left: 2px; }
         .no-participants { color: #666; font-size: 14px; font-style: italic; }
         .modal-actions { margin-top: 8px; }
-        .modal-actions .rsvp-btn { width: 100%; padding: 16px; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; border-radius: 12px; }
+        .modal-actions .rsvp-btn { width: 100%; padding: 16px; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; border-radius: 12px; cursor: pointer; }
         .rsvp-btn.not-going { background: #1a1a1a !important; color: #ccc !important; border: 1px solid #333 !important; }
         .rsvp-btn.going { background: #fff !important; color: #000 !important; border: 1px solid #fff !important; }
 
-        /* заголовок События */
+        /* === ЗАГОЛОВОК СОБЫТИЯ === */
         header h1 { display: block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 52px; font-weight: 900; letter-spacing: 3px; text-align: center; color: #fff; background: #000; width: 100%; padding: 20px 0; margin: 0 0 20px; border-radius: 0 0 20px 20px; border-bottom: 2px solid #333; box-shadow: 0 4px 12px rgba(255,255,255,0.06), inset 0 -2px 8px rgba(255,255,255,0.08); position: relative; }
         header h1::after { content: ""; position: absolute; left: 0; bottom: -2px; width: 100%; height: 2px; background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0.15) 80%, transparent 100%); border-radius: 0 0 20px 20px; box-shadow: 0 0 6px rgba(255,255,255,0.1); z-index: 5; display: block; }
 
-        /* профиль */
+        /* === ПРОФИЛЬ === */
+        .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: #1a1a1a; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 30px; }
         #profileScreen h1 { font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 30px; }
         #profileScreen input { width: 100%; padding: 14px; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 16px; margin-bottom: 20px; }
-        #profileScreen button { width: 100%; padding: 14px; background: #fff; color: #000; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; }
+        #profileScreen button { width: 100%; padding: 14px; background: #fff; color: #000; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; }
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
         .stat-card { background: #0a0a0a; border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 12px; text-align: center; }
         .stat-value { font-size: 28px; font-weight: 300; }
-        .stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
         .achievements-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .achievement-badge { display: flex; align-items: center; gap: 6px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.08); padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 500; }
     </style>
@@ -105,7 +106,7 @@
 <div class="container">
     <!-- ЭКРАН ВХОДА -->
     <div id="loginScreen" style="display: none;">
-        <h1 style="font-size: 42px; font-weight: 900; text-align: center; margin-bottom: 40px;">👋 Привет!</h1>
+        <h1>👋 Привет!</h1>
         <input type="text" id="nameInput" placeholder="Как тебя зовут?" maxlength="30" autocomplete="off">
         <button onclick="saveName()">Войти</button>
     </div>
@@ -152,16 +153,14 @@
     <div id="profileScreen" style="display: none;">
         <button class="back-btn" onclick="showScreen('mainMenu')">← Назад</button>
         <h1>Профиль</h1>
-        <div style="text-align: center; margin-bottom: 30px;">
-            <div id="profileAvatar" style="width: 80px; height: 80px; border-radius: 50%; background: #1a1a1a; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto;">👤</div>
-        </div>
+        <div class="profile-avatar" id="profileAvatar">👤</div>
         <label style="color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Имя</label>
         <input type="text" id="profileNameInput">
         <button onclick="updateProfile()">Сохранить</button>
         <div id="profileStats" style="margin-top: 30px;"></div>
     </div>
 
-    <!-- МОДАЛКИ -->
+    <!-- МОДАЛКА СОБЫТИЯ -->
     <div class="modal-overlay" id="eventModal"><div class="modal-card" id="modalContent"></div></div>
 </div>
 
@@ -174,7 +173,7 @@
     var USER_NAMES = {};
     var avatarColors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#ff9ff3', '#54a0ff', '#5f27cd'];
 
-    // --- ЭКРАНЫ ---
+    // --- НАВИГАЦИЯ ---
     function showScreen(screenId) {
         document.querySelectorAll('#loginScreen, #mainMenu, #eventsScreen, #profileScreen').forEach(el => el.style.display = 'none');
         let target = document.getElementById(screenId);
@@ -184,7 +183,7 @@
         if (screenId === 'profileScreen') loadProfile();
     }
 
-    // --- ЭКРАН ВХОДА ---
+    // --- ВХОД ---
     function saveName() {
         let name = document.getElementById('nameInput').value.trim();
         if (!name) return alert('Введи имя!');
@@ -206,6 +205,7 @@
         }
         USER_NAMES[USER_ID] = userName;
         if (document.getElementById('profileNameInput')) document.getElementById('profileNameInput').value = userName;
+        if (document.getElementById('profileAvatar')) document.getElementById('profileAvatar').textContent = (userName[0] || '?').toUpperCase();
     }
 
     // --- ОБНОВЛЕНИЕ ПРОФИЛЯ ---
@@ -215,9 +215,7 @@
         localStorage.setItem('userName', newName);
         userName = newName;
         USER_NAMES[USER_ID] = newName;
-        // обновляем аватар (первая буква)
-        let avatarEl = document.getElementById('profileAvatar');
-        if (avatarEl) avatarEl.textContent = newName.charAt(0).toUpperCase();
+        document.getElementById('profileAvatar').textContent = newName[0].toUpperCase();
         loadProfile();
     }
 
@@ -240,7 +238,7 @@
         } catch(e) {}
     }
 
-    // --- СОБЫТИЯ (старый код) ---
+    // --- СОБЫТИЯ (функционал без изменений) ---
     function showCreateForm() { document.getElementById('createForm').style.display = 'flex'; }
     function hideCreateForm() { document.getElementById('createForm').style.display = 'none'; }
 
