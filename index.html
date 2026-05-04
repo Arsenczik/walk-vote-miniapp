@@ -284,7 +284,25 @@ header h1::after {
     z-index: 5 !important;
     display: block !important;
 }
-        
+        /* Гарантированно круглые модальные крестики */
+.modal-close-btn {
+    border-radius: 50% !important;
+    width: 36px !important;
+    height: 36px !important;
+    padding: 0 !important;
+    line-height: 36px;
+    text-align: center;
+    background: #1a1a1a !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: #aaa !important;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.05) !important;
+}
+
+.modal-close-btn:active {
+    background: #fff !important;
+    color: #000 !important;
+    border-color: #fff !important;
+}
     </style>
 </head>
 <body>
@@ -298,34 +316,35 @@ header h1::after {
         <h2>Новое событие</h2>
     </div>
     <!-- СТЕКЛЯННЫЙ КРЕСТИК -->
-    <div onclick="hideCreateForm()" style="
-        position: absolute;
-        top: 0px;
-        right: 0px;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: #1a1a1a;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        color: #aaa;
-        font-size: 20px;
-        font-weight: 300;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: 0 0 8px rgba(255, 255, 255, 0.05);
-        transition: all 0.2s ease;
-        z-index: 10;
-        line-height: 1;
-        -webkit-tap-highlight-color: transparent;
-    " onmousedown="this.style.background='#fff'; this.style.color='#000'; this.style.borderColor='#fff'; this.style.boxShadow='0 0 12px rgba(255,255,255,0.2)';" 
-       onmouseup="this.style.background='#1a1a1a'; this.style.color='#aaa'; this.style.borderColor='rgba(255,255,255,0.3)'; this.style.boxShadow='0 0 8px rgba(255,255,255,0.05)';" 
-       onmouseleave="this.style.background='#1a1a1a'; this.style.color='#aaa'; this.style.borderColor='rgba(255,255,255,0.3)'; this.style.boxShadow='0 0 8px rgba(255,255,255,0.05)';"
-       ontouchstart="this.style.background='#fff'; this.style.color='#000'; this.style.borderColor='#fff'; this.style.boxShadow='0 0 12px rgba(255,255,255,0.2)';"
-       ontouchend="this.style.background='#1a1a1a'; this.style.color='#aaa'; this.style.borderColor='rgba(255,255,255,0.3)'; this.style.boxShadow='0 0 8px rgba(255,255,255,0.05)';">
-        ✕
-    </div>
+   <div onclick="hideCreateForm()" style="
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    background: #1a1a1a !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: #aaa !important;
+    font-size: 20px !important;
+    font-weight: 300 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.05) !important;
+    transition: all 0.2s ease !important;
+    z-index: 10 !important;
+    line-height: 1 !important;
+    -webkit-tap-highlight-color: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    outline: none !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+" onmousedown="this.style.background='#fff'; this.style.color='#000';" onmouseup="this.style.background='#1a1a1a'; this.style.color='#aaa';" ontouchstart="this.style.background='#fff'; this.style.color='#000';" ontouchend="this.style.background='#1a1a1a'; this.style.color='#aaa';">
+    ✕
+</div>
 </div>
         
         <input type="text" id="eventName" placeholder="Название" maxlength="40">
