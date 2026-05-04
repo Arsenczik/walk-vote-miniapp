@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Караван</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         /* === БАЗА === */
         .pulse-bar { display: none !important; }
@@ -21,73 +22,31 @@
 
         /* --- Вход (улучшенный) --- */
         #loginScreen {
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 80vh;
-            padding: 16px;
-            position: relative;
-            overflow: hidden;
+            flex-direction: column; align-items: center; justify-content: center;
+            min-height: 80vh; padding: 16px; position: relative; overflow: hidden;
         }
-        #loginScreen h1 {
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            text-align: center;
-            margin-bottom: 40px;
-            line-height: 1.3;
-        }
+        #loginScreen h1 { font-size: 28px; font-weight: 800; letter-spacing: 0.5px; text-align: center; margin-bottom: 40px; line-height: 1.3; }
         #loginScreen input {
-            width: 100%;
-            max-width: 360px;
-            padding: 18px 20px;
-            background: #0a0a0a;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 16px;
-            color: #fff;
-            font-size: 18px;
-            text-align: center;
-            margin-bottom: 24px;
+            width: 100%; max-width: 360px; padding: 18px 20px;
+            background: #0a0a0a; border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px; color: #fff; font-size: 18px; text-align: center;
+            margin-bottom: 24px; outline: none;
             box-shadow: 0 0 12px rgba(255, 255, 255, 0.03), inset 0 0 16px rgba(0, 0, 0, 0.6);
-            outline: none;
-            position: relative;
-            z-index: 2;
+            position: relative; z-index: 2;
         }
-        #loginScreen input::placeholder {
-            color: #666;
-            font-size: 16px;
-        }
+        #loginScreen input::placeholder { color: #666; font-size: 16px; }
         #loginScreen button {
-            width: 100%;
-            max-width: 360px;
-            padding: 18px;
-            background: #fff;
-            color: #000;
-            border: none;
-            border-radius: 16px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-            position: relative;
-            z-index: 2;
+            width: 100%; max-width: 360px; padding: 18px; background: #fff; color: #000;
+            border: none; border-radius: 16px; font-size: 18px; font-weight: 700;
+            cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            position: relative; z-index: 2;
         }
-        #loginScreen button:active {
-            background: #ccc;
-            transform: scale(0.98);
-        }
+        #loginScreen button:active { background: #ccc; transform: scale(0.98); }
 
         /* Падающие эмодзи */
         .falling-emoji {
-            position: fixed;
-            top: -60px;
-            font-size: 28px;
-            opacity: 0.25;
-            pointer-events: none;
-            z-index: 1;
-            user-select: none;
-            transition: none;
+            position: fixed; top: -60px; font-size: 28px; opacity: 0.25;
+            pointer-events: none; z-index: 1; user-select: none; transition: none;
         }
 
         /* --- Меню (с салютом) --- */
@@ -97,54 +56,30 @@
 
         /* --- Стрелка назад --- */
         .back-arrow {
-            position: absolute;
-            top: 20px;
-            left: 12px;
-            background: none;
-            border: none;
-            color: #888;
-            font-size: 28px;
-            cursor: pointer;
-            z-index: 10;
-            padding: 0;
-            line-height: 1;
+            position: absolute; top: 20px; left: 12px; background: none; border: none;
+            color: #888; font-size: 28px; cursor: pointer; z-index: 10; padding: 0; line-height: 1;
         }
 
         /* --- Заголовок событий --- */
         #eventsHeader {
-            margin-left: 40px; margin-right: 0;
-            font-size: 36px; font-weight: 900; letter-spacing: 2px;
-            padding: 16px 0 12px 0;
-            border-bottom: 2px solid #333;
-            border-radius: 0 0 20px 20px;
-            background: #000;
-            text-align: center;
+            margin-left: 40px; margin-right: 0; font-size: 36px; font-weight: 900; letter-spacing: 2px;
+            padding: 16px 0 12px 0; border-bottom: 2px solid #333; border-radius: 0 0 20px 20px;
+            background: #000; text-align: center;
             box-shadow: 0 4px 12px rgba(255,255,255,0.06), inset 0 -2px 8px rgba(255,255,255,0.08);
             position: relative;
         }
         #eventsHeader::after {
-            content: "";
-            position: absolute;
-            left: 0; bottom: -2px; width: 100%; height: 2px;
+            content: ""; position: absolute; left: 0; bottom: -2px; width: 100%; height: 2px;
             background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0.15) 80%, transparent 100%);
-            border-radius: 0 0 20px 20px;
-            box-shadow: 0 0 6px rgba(255,255,255,0.1);
-            z-index: 5;
+            border-radius: 0 0 20px 20px; box-shadow: 0 0 6px rgba(255,255,255,0.1); z-index: 5;
         }
 
         /* --- Кнопка статистики --- */
         .stats-fab {
-            position: fixed;
-            bottom: 24px; right: 24px;
-            width: 52px; height: 52px;
-            border-radius: 16px;
-            background: #1a1a1a;
-            border: 1px solid rgba(255,255,255,0.25);
-            box-shadow: 0 0 20px rgba(255,255,255,0.06);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 24px; cursor: pointer;
-            z-index: 50;
-            transition: all 0.2s;
+            position: fixed; bottom: 24px; right: 24px; width: 52px; height: 52px;
+            border-radius: 16px; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.25);
+            box-shadow: 0 0 20px rgba(255,255,255,0.06); display: flex; align-items: center;
+            justify-content: center; font-size: 24px; cursor: pointer; z-index: 50; transition: all 0.2s;
         }
         .stats-fab:active { background: #fff; color: #000; border-color: #fff; }
 
@@ -183,6 +118,15 @@
         .submit-btn-full { width: 100%; padding: 14px; margin-top: 20px; background: #fff; color: #000; border: none; border-radius: 16px; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
         .submit-btn-full:active { background: #ccc; }
 
+        /* --- Геолокация --- */
+        .location-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+        .location-btn { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 10px 16px; color: #ccc; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+        .location-btn:active { background: #fff; color: #000; border-color: #fff; }
+        .location-preview { flex: 1; color: #888; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .static-map-preview { width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        .open-in-maps { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; color: #fff; font-weight: 600; cursor: pointer; width: 100%; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .open-in-maps:active { background: #fff; color: #000; }
+
         /* --- Модалки --- */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center; padding: 20px; }
         .modal-card { background: #0a0a0a !important; border: 1px solid rgba(255,255,255,0.3) !important; box-shadow: 0 0 24px rgba(255,255,255,0.12), 0 0 48px rgba(255,255,255,0.04), inset 0 0 24px rgba(0,0,0,0.8) !important; border-radius: 20px !important; position: relative !important; overflow: visible !important; padding: 24px; width: 100%; max-width: 400px; max-height: 85vh; overflow-y: auto; }
@@ -191,7 +135,7 @@
         .modal-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding-top: 10px; }
         .modal-emoji { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; font-size: 36px; flex-shrink: 0; }
         .modal-title-block h2 { font-size: 22px; font-weight: 700; margin: 0 0 6px; text-transform: none; }
-        .modal-date-section { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; }
+        .modal-date-section { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; flex-wrap: wrap; }
         .modal-date-icon { font-size: 20px; }
         .modal-date-text { font-size: 15px; color: #ccc; }
         .modal-description { color: #999; font-size: 14px; line-height: 1.6; margin-bottom: 20px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 10px; border-left: 2px solid rgba(255,255,255,0.1); }
@@ -209,7 +153,7 @@
         .rsvp-btn.going { background: #fff !important; color: #000 !important; border: 1px solid #fff !important; }
 
         /* --- Профиль --- */
-        .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: #1a1a1a; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 20px; }
+        .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: #1a1a1a; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 20px; cursor: pointer; }
         #profileScreen h1 { font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 30px; }
         #profileScreen input { width: 100%; padding: 14px; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 16px; margin-bottom: 20px; }
         #profileScreen button { width: 100%; padding: 14px; background: #fff; color: #000; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; margin-bottom: 10px; }
@@ -228,6 +172,11 @@
         .toast { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: #1a1a1a; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px 24px; border-radius: 12px; font-weight: 600; z-index: 999; box-shadow: 0 8px 30px rgba(0,0,0,0.5); animation: toastIn 0.3s ease, toastOut 0.3s ease 2.2s forwards; }
         @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
         @keyframes toastOut { from { opacity: 1; transform: translateX(-50%) translateY(0); } to { opacity: 0; transform: translateX(-50%) translateY(-10px); } }
+
+        /* Карта */
+        #mapContainer { width: 100%; height: 60vh; border-radius: 16px; margin-bottom: 16px; }
+        .cross-center { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid #fff; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+        .leaflet-container { background: #0a0a0a; filter: grayscale(100%) invert(92%) hue-rotate(180deg); }
     </style>
 </head>
 <body>
@@ -239,7 +188,7 @@
         <button onclick="startRegistration()">Зарегистрироваться</button>
     </div>
 
-    <!-- 2. ЭКРАН ВХОДА (с падающими эмодзи) -->
+    <!-- 2. ЭКРАН ВХОДА -->
     <div id="loginScreen" style="display: none;">
         <h1>Как чаще всего зовут тебя твои друзья?</h1>
         <input type="text" id="nameInput" placeholder="" maxlength="30" autocomplete="off" autofocus>
@@ -278,6 +227,11 @@
                 </div>
                 <label>КОГДА</label>
                 <input type="datetime-local" id="eventDate">
+                <label style="margin-top: 12px;">МЕСТО ВСТРЕЧИ</label>
+                <div class="location-row">
+                    <button class="location-btn" onclick="openMapModal()">🗺️ Указать</button>
+                    <span class="location-preview" id="locationText">Не выбрано</span>
+                </div>
                 <button onclick="submitEvent()" class="submit-btn-full">Создать</button>
             </div>
         </div>
@@ -306,10 +260,19 @@
     <!-- МОДАЛКИ -->
     <div class="modal-overlay" id="eventModal"><div class="modal-card" id="modalContent"></div></div>
     <div class="modal-overlay" id="emojiPicker" onclick="this.style.display='none'"><div class="modal-card" id="emojiList"></div></div>
+    <div class="modal-overlay" id="mapModal">
+        <div class="modal-card" style="max-width: 95%; padding: 16px;">
+            <button class="modal-close-btn" onclick="closeMapModal()">✕</button>
+            <h2 style="margin-top:0; margin-bottom:12px;">Выбери место</h2>
+            <div id="mapContainer"></div>
+            <button class="submit-btn-full" onclick="selectLocation()">Выбрать</button>
+        </div>
+    </div>
 </div>
 
 <button class="stats-fab" id="statsFab" onclick="showScreen('statsScreen')" style="display: none;">📊</button>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     // --- ГЛОБАЛЬНЫЕ ---
     let USER_ID = 'user1';
@@ -319,16 +282,16 @@
     let eventsList = [];
     let USER_NAMES = {};
     let fireworksActive = false;
-    let fallingEmojis = [];     // массив для падающих эмодзи
+    let fallingEmojis = [];
     let loginEmojiInterval = null;
+    let selectedLat = null, selectedLng = null;
+    let map = null, marker = null;
 
     // --- СЛУЧАЙНЫЙ ПЛЕЙСХОЛДЕР ---
     const placeholders = ['тянка', 'кабан', 'семен', 'воздухан'];
     function setRandomPlaceholder() {
         let input = document.getElementById('nameInput');
-        if (input) {
-            input.placeholder = placeholders[Math.floor(Math.random() * placeholders.length)];
-        }
+        if (input) input.placeholder = placeholders[Math.floor(Math.random() * placeholders.length)];
     }
 
     // --- НАВИГАЦИЯ ---
@@ -341,14 +304,12 @@
         let isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen');
         target.style.display = isFlex ? 'flex' : 'block';
 
-        // Салют в меню
         if (id === 'mainMenu') {
             startFireworks();
         } else {
             stopFireworks();
         }
 
-        // Управление падающими эмодзи на экране входа
         if (id === 'loginScreen') {
             startFallingEmojis();
             setRandomPlaceholder();
@@ -356,7 +317,6 @@
             stopFallingEmojis();
         }
 
-        // Кнопка статистики видна только в событиях
         document.getElementById('statsFab').style.display = (id === 'eventsScreen') ? 'flex' : 'none';
 
         if (id === 'eventsScreen') loadEvents();
@@ -366,25 +326,21 @@
 
     // --- ПАДАЮЩИЕ ЭМОДЗИ ---
     const emojiCandidates = ['😎','🥸','🥳','🥵','🫠','🤪','🤣','🥴'];
-
     function createFallingEmoji() {
         const el = document.createElement('div');
         el.className = 'falling-emoji';
         el.textContent = emojiCandidates[Math.floor(Math.random() * emojiCandidates.length)];
         el.style.left = Math.random() * 100 + '%';
-        el.style.top = '-50px';
         document.body.appendChild(el);
-
-        let x = parseFloat(el.style.left);
-        let y = -50;
-        let speedY = 1.2 + Math.random() * 2.5; // пикселей на кадр
-        let speedX = (Math.random() - 0.5) * 1.5;
-        let opacity = 0.25;
-
-        const emojiObj = { el, x, y, speedY, speedX, opacity };
-        fallingEmojis.push(emojiObj);
+        fallingEmojis.push({
+            el,
+            x: parseFloat(el.style.left),
+            y: -50,
+            speedY: 1.2 + Math.random() * 2.5,
+            speedX: (Math.random() - 0.5) * 1.5,
+            opacity: 0.25
+        });
     }
-
     function startFallingEmojis() {
         stopFallingEmojis();
         loginEmojiInterval = setInterval(() => {
@@ -392,20 +348,13 @@
         }, 400);
         requestAnimationFrame(updateFallingEmojis);
     }
-
     function stopFallingEmojis() {
-        if (loginEmojiInterval) {
-            clearInterval(loginEmojiInterval);
-            loginEmojiInterval = null;
-        }
-        // удаляем все элементы
+        if (loginEmojiInterval) { clearInterval(loginEmojiInterval); loginEmojiInterval = null; }
         fallingEmojis.forEach(e => e.el.remove());
         fallingEmojis = [];
     }
-
     function updateFallingEmojis() {
-        if (!document.getElementById('loginScreen')?.style.display === 'flex') {
-            // если экран не активен, чистим
+        if (document.getElementById('loginScreen')?.style.display !== 'flex') {
             fallingEmojis.forEach(e => e.el.remove());
             fallingEmojis = [];
             return;
@@ -419,32 +368,23 @@
             let obj = fallingEmojis[i];
             obj.y += obj.speedY;
             obj.x += obj.speedX;
-
-            // отскок от поля ввода
-            if (inputRect && obj.y + 20 > inputRect.top && obj.y - 20 < inputRect.bottom &&
-                obj.x > 0 && obj.x < window.innerWidth) {
-                // упрощаем: если рядом, меняем горизонтальное направление
-                let emojiCenterX = parseFloat(obj.el.style.left) + 14; // примерно центр
+            if (inputRect && obj.y + 20 > inputRect.top && obj.y - 20 < inputRect.bottom) {
+                let emojiCenterX = parseFloat(obj.el.style.left) + 14;
                 if (emojiCenterX > inputRect.left && emojiCenterX < inputRect.right &&
                     obj.y + 20 > inputRect.top && obj.y - 20 < inputRect.top + 40) {
                     obj.speedX = -obj.speedX * 0.6;
                     obj.speedY = Math.abs(obj.speedY) * 0.5 + 0.3;
                 }
             }
-
-            // затухание после кнопки
             if (buttonRect && obj.y > buttonRect.bottom) {
                 obj.opacity -= 0.015;
                 if (obj.opacity < 0.05) obj.opacity = 0.05;
             }
-
-            // выход за экран
             if (obj.y > window.innerHeight + 50 || obj.opacity <= 0.05) {
                 obj.el.remove();
                 fallingEmojis.splice(i,1);
                 continue;
             }
-
             obj.el.style.top = obj.y + 'px';
             obj.el.style.left = (obj.x % 100) + '%';
             obj.el.style.opacity = obj.opacity;
@@ -453,9 +393,7 @@
     }
 
     // --- ОНБОРДИНГ ---
-    function startRegistration() {
-        showScreen('loginScreen');
-    }
+    function startRegistration() { showScreen('loginScreen'); }
 
     // --- ВХОД ---
     function saveName() {
@@ -467,14 +405,9 @@
         initUser();
         showScreen('mainMenu');
     }
-
     function logout() {
-        localStorage.removeItem('userName');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('userEmoji');
-        userName = 'Гость';
-        userEmoji = '👤';
-        USER_NAMES = {};
+        ['userName','userId','userEmoji'].forEach(k => localStorage.removeItem(k));
+        userName = 'Гость'; userEmoji = '👤'; USER_NAMES = {};
         showScreen('loginScreen');
     }
 
@@ -492,29 +425,25 @@
         USER_NAMES[USER_ID] = userName;
     }
 
-    // --- ПРОФИЛЬ (редактирование) ---
+    // --- ПРОФИЛЬ ---
     function loadProfileEdit() {
         document.getElementById('profileNameInput').value = userName;
         document.getElementById('profileAvatar').textContent = userEmoji;
     }
-
     function selectEmoji() {
         let picker = document.getElementById('emojiPicker');
         let list = document.getElementById('emojiList');
         let emojis = ['😎','🐱','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🕷','🦂'];
         list.innerHTML = '<button class="modal-close-btn" onclick="document.getElementById(\'emojiPicker\').style.display=\'none\'">✕</button><h2 style="margin-top:0;">Выбери аватар</h2><div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">' +
-            emojis.map(e => `<span style="font-size:32px;cursor:pointer;padding:8px;" onclick="setEmoji('${e}')">${e}</span>`).join('') +
-            '</div>';
+            emojis.map(e => `<span style="font-size:32px;cursor:pointer;padding:8px;" onclick="setEmoji('${e}')">${e}</span>`).join('') + '</div>';
         picker.style.display = 'flex';
     }
-
     function setEmoji(emoji) {
         userEmoji = emoji;
         document.getElementById('profileAvatar').textContent = emoji;
         document.getElementById('emojiPicker').style.display = 'none';
         localStorage.setItem('userEmoji', emoji);
     }
-
     function updateProfile() {
         let newName = document.getElementById('profileNameInput').value.trim();
         if (!newName) return showToast('Имя не может быть пустым!');
@@ -556,13 +485,51 @@
                 html += '</table>';
             }
             content.innerHTML = html;
-        } catch(e) {
-            content.innerHTML = '<p style="color:red;">Ошибка загрузки статистики</p>';
-        }
+        } catch(e) { content.innerHTML = '<p style="color:red;">Ошибка загрузки статистики</p>'; }
     }
 
+    // --- КАРТА ---
+    function openMapModal() {
+        document.getElementById('mapModal').style.display = 'flex';
+        if (!map) {
+            map = L.map('mapContainer', {
+                center: [55.751244, 37.618423],
+                zoom: 13,
+                zoomControl: false,
+                attributionControl: false
+            });
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                maxZoom: 19
+            }).addTo(map);
+            marker = L.marker(map.getCenter(), {
+                icon: L.divIcon({ className: 'cross-center', html: '<div style="position:absolute;top:50%;left:50%;width:20px;height:20px;border:2px solid #fff;border-radius:50%;transform:translate(-50%,-50%);"></div>', iconSize: [20,20], iconAnchor: [10,10] }),
+                interactive: false
+            }).addTo(map);
+            map.on('move', () => {
+                let center = map.getCenter();
+                marker.setLatLng(center);
+                selectedLat = center.lat.toFixed(6);
+                selectedLng = center.lng.toFixed(6);
+                document.getElementById('locationText').textContent = `${selectedLat}, ${selectedLng}`;
+            });
+        } else {
+            map.invalidateSize();
+        }
+        selectedLat = map.getCenter().lat.toFixed(6);
+        selectedLng = map.getCenter().lng.toFixed(6);
+        document.getElementById('locationText').textContent = `${selectedLat}, ${selectedLng}`;
+    }
+    function closeMapModal() { document.getElementById('mapModal').style.display = 'none'; }
+    function selectLocation() { closeMapModal(); }
+
     // --- СОБЫТИЯ ---
-    function showCreateForm() { document.getElementById('createForm').style.display = 'flex'; }
+    function showCreateForm() {
+        document.getElementById('createForm').style.display = 'flex';
+        let tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(16, 0, 0, 0);
+        document.getElementById('eventDate').value = tomorrow.toISOString().slice(0, 16);
+    }
     function hideCreateForm() { document.getElementById('createForm').style.display = 'none'; }
 
     async function submitEvent() {
@@ -570,14 +537,21 @@
         let desc = document.getElementById('eventDesc').value.trim();
         let date = document.getElementById('eventDate').value;
         if (!name || !date) { showToast('Заполни название и дату!'); return; }
-        let body = JSON.stringify({ name, description: desc, date, category: selectedCategory, creator_id: USER_ID });
+        let body = { name, description: desc, date, category: selectedCategory, creator_id: USER_ID };
+        if (selectedLat && selectedLng) { body.latitude = selectedLat; body.longitude = selectedLng; }
         try {
-            let res = await fetch('/api/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
+            let res = await fetch('/api/events', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
             if (res.ok) {
                 hideCreateForm();
                 document.getElementById('eventName').value = '';
                 document.getElementById('eventDesc').value = '';
                 document.getElementById('eventDate').value = '';
+                selectedLat = selectedLng = null;
+                document.getElementById('locationText').textContent = 'Не выбрано';
                 loadEvents();
             } else { let err = await res.json(); showToast('❌ ' + (err.error || 'Ошибка')); }
         } catch(e) { showToast('❌ Ошибка соединения'); }
@@ -627,7 +601,11 @@
     async function toggleRSVP(eventId, currentlyGoing) {
         let endpoint = currentlyGoing ? '/api/leave' : '/api/join';
         try {
-            let res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event_id: eventId, user_id: USER_ID }) });
+            let res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ event_id: eventId, user_id: USER_ID })
+            });
             if (res.ok) {
                 let event = eventsList.find(e => e.id === eventId);
                 if (event) {
@@ -661,6 +639,17 @@
         } else {
             participantsList = '<p class="no-participants">Пока никто не записался</p>';
         }
+        let locationHtml = '';
+        if (event.latitude && event.longitude) {
+            let staticMapUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${event.latitude},${event.longitude}&zoom=15&size=400x200&markers=${event.latitude},${event.longitude},red-pushpin`;
+            locationHtml = `
+                <div class="modal-date-section" style="flex-direction: column; align-items: flex-start;">
+                    <div class="modal-date-icon">📍</div>
+                    <div class="modal-date-text">${event.latitude}, ${event.longitude}</div>
+                    <img src="${staticMapUrl}" class="static-map-preview" alt="Место встречи">
+                    <button class="open-in-maps" onclick="openInMaps(${event.latitude},${event.longitude})">🗺️ Проложить маршрут</button>
+                </div>`;
+        }
         document.getElementById('modalContent').innerHTML = `
             <button class="modal-close-btn" onclick="document.getElementById('eventModal').style.display='none'">✕</button>
             <div class="modal-header">
@@ -671,6 +660,7 @@
                 <div class="modal-date-icon">📅</div>
                 <div class="modal-date-text">${formatDateFull(event.date)}</div>
             </div>
+            ${locationHtml}
             ${event.description ? `<p class="modal-description">${escapeHtml(event.description)}</p>` : ''}
             <div class="modal-participants-section">
                 <div class="modal-section-label">👥 Участники (${count})</div>
@@ -682,6 +672,10 @@
                 </button>
             </div>`;
         document.getElementById('eventModal').style.display = 'flex';
+    }
+
+    function openInMaps(lat, lng) {
+        window.open(`https://maps.apple.com/?ll=${lat},${lng}&q=Точка`, '_blank');
     }
 
     // --- САЛЮТ ---
@@ -719,10 +713,7 @@
         }
         loop();
     }
-
-    function stopFireworks() {
-        fireworksActive = false;
-    }
+    function stopFireworks() { fireworksActive = false; }
 
     // --- TOAST ---
     function showToast(msg) {
@@ -758,8 +749,7 @@
 
     // --- СТАРТ ---
     initUser();
-    let savedName = localStorage.getItem('userName');
-    if (!savedName) {
+    if (!localStorage.getItem('userName')) {
         showScreen('onboardingScreen');
     } else {
         showScreen('mainMenu');
@@ -771,11 +761,6 @@
         this.classList.add('active');
         selectedCategory = this.getAttribute('data-cat');
     });
-
-    // Если экран входа активен при загрузке, запустим эмодзи
-    if (document.getElementById('loginScreen').style.display === 'flex') {
-        startFallingEmojis();
-    }
 </script>
 </body>
 </html>
