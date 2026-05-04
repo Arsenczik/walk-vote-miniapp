@@ -426,6 +426,145 @@ header h1::after {
     color: #ccc;
     margin-left: auto;
 }
+        /* === СТИЛИ МОДАЛКИ СОБЫТИЯ === */
+
+/* Верхняя секция: эмодзи + название горизонтально */
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-top: 10px;
+}
+
+.modal-emoji {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    font-size: 36px;
+    flex-shrink: 0;
+}
+
+.modal-title-block {
+    flex: 1;
+    min-width: 0;
+}
+
+.modal-title-block h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    text-transform: none;
+}
+
+.modal-creator {
+    font-size: 13px;
+    color: #888;
+}
+
+/* Дата */
+.modal-date-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+}
+
+.modal-date-icon {
+    font-size: 20px;
+}
+
+.modal-date-text {
+    font-size: 15px;
+    color: #ccc;
+}
+
+/* Описание */
+.modal-description {
+    color: #999;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+    border-left: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Участники */
+.modal-participants-section {
+    margin-bottom: 20px;
+}
+
+.modal-section-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #aaa;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.participants-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.participant-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.participant-badge.is-me {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.participant-name {
+    color: #ddd;
+}
+
+.crown {
+    font-size: 14px;
+    margin-left: 2px;
+}
+
+.no-participants {
+    color: #666;
+    font-size: 14px;
+    font-style: italic;
+}
+
+/* Кнопка действия */
+.modal-actions {
+    margin-top: 8px;
+}
+
+.modal-actions .rsvp-btn {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
     </style>
 </head>
 <body>
@@ -590,35 +729,63 @@ async function toggleRSVP(eventId, currentlyGoing) {
 function openEventModal(eventId) {
     var event = eventsList.find(function(e) { return e.id === eventId; });
     if (!event) return;
+    
     var isGoing = event.participants && event.participants.indexOf(USER_ID) >= 0;
     var count = event.participants ? event.participants.length : 0;
+    
+    // Участники
     var participantsList = '';
     if (event.participants && event.participants.length > 0) {
         participantsList = event.participants.map(function(userId, i) {
-    var userName = USER_NAMES[userId] || userId;
-    var initial = (userName[0] || '?').toUpperCase();
-    var isMe = (userId === USER_ID);
-    var isCreator = (userId === event.creator_id);
-    return '<span class="participant-badge" style="' + (isMe ? 'border:2px solid #fff;' : '') + '">' +
-        '<span class="avatar" style="width:24px;height:24px;font-size:10px;margin-left:0;">' + initial + '</span>' +
-        userName + (isMe ? ' (ты)' : '') + (isCreator ? ' 👑' : '') +
-    '</span>';
-}).join('');
-    } else { participantsList = '<p style="color:#888;">Пока никто не записался</p>'; }
+            var userName = USER_NAMES[userId] || userId;
+            var initial = (userName[0] || '?').toUpperCase();
+            var isMe = (userId === USER_ID);
+            var isCreator = (userId === event.creator_id);
+            return '<span class="participant-badge' + (isMe ? ' is-me' : '') + '">' +
+                '<span class="avatar" style="width:28px;height:28px;font-size:12px;margin-left:0;">' + initial + '</span>' +
+                '<span class="participant-name">' + userName + (isMe ? ' (ты)' : '') + '</span>' +
+                (isCreator ? ' <span class="crown">👑</span>' : '') +
+            '</span>';
+        }).join('');
+    } else {
+        participantsList = '<p class="no-participants">Пока никто не записался</p>';
+    }
+    
+    // Собираем интерфейс
     document.getElementById('modalContent').innerHTML = 
         '<button class="modal-close-btn" onclick="document.getElementById(\'eventModal\').style.display=\'none\'">✕</button>' +
-        '<div class="modal-emoji">' + (event.category || '🎉') + '</div>' +
-        '<h2>' + escapeHtml(event.name) + '</h2>' +
-        '<div class="modal-date">📅 ' + formatDateFull(event.date) + '</div>' +
-        '<div class="modal-creator">👤 Организатор: ' + escapeHtml(event.creator_name || 'Некто') + '</div>' +
-        (event.description ? '<p style="color:#888;margin-bottom:16px;line-height:1.5;">' + escapeHtml(event.description) + '</p>' : '') +
-        '<p style="font-weight:600;">👥 Участники (' + count + ')</p>' +
-        '<div class="participants-list">' + participantsList + '</div>' +
+        
+        // Верх: эмодзи + заголовок горизонтально
+        '<div class="modal-header">' +
+            '<div class="modal-emoji">' + (event.category || '🎉') + '</div>' +
+            '<div class="modal-title-block">' +
+                '<h2>' + escapeHtml(event.name) + '</h2>' +
+                '<div class="modal-creator">👤 ' + escapeHtml(event.creator_name || 'Некто') + '</div>' +
+            '</div>' +
+        '</div>' +
+        
+        // Дата
+        '<div class="modal-date-section">' +
+            '<div class="modal-date-icon">📅</div>' +
+            '<div class="modal-date-text">' + formatDateFull(event.date) + '</div>' +
+        '</div>' +
+        
+        // Описание
+        (event.description ? '<p class="modal-description">' + escapeHtml(event.description) + '</p>' : '') +
+        
+        // Участники
+        '<div class="modal-participants-section">' +
+            '<div class="modal-section-label">👥 Участники (' + count + ')</div>' +
+            '<div class="participants-list">' + participantsList + '</div>' +
+        '</div>' +
+        
+        // Кнопка
         '<div class="modal-actions">' +
-            '<button class="rsvp-btn ' + (isGoing ? 'going' : 'not-going') + '" onclick="toggleRSVP(\'' + event.id + '\', ' + isGoing + '); document.getElementById(\'eventModal\').style.display=\'none\';" style="flex:1;padding:14px;">' +
-                (isGoing ? '✕ ОТМЕНИТЬ' : '➕ БУДУ') +
+            '<button class="rsvp-btn ' + (isGoing ? 'going' : 'not-going') + '" onclick="toggleRSVP(\'' + event.id + '\', ' + isGoing + '); document.getElementById(\'eventModal\').style.display=\'none\';">' +
+                (isGoing ? '✕ ОТМЕНИТЬ УЧАСТИЕ' : '➕ БУДУ') +
             '</button>' +
         '</div>';
+        
     document.getElementById('eventModal').style.display = 'flex';
 }
 
