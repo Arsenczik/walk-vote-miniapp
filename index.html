@@ -632,18 +632,27 @@ header h1::after {
     <script>
 var tg = window.Telegram?.WebApp;
 var USER_ID = 'user1';
-var userName = 'Арсен';
+var userName = 'Гость';
 
 if (tg) {
     tg.ready();
     tg.expand();
-    
+
+    // Показываем все данные, которые пришли от Telegram (для отладки)
+    console.log('Telegram InitData:', JSON.stringify(tg.initDataUnsafe, null, 2));
+
     if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
         var tgUser = tg.initDataUnsafe.user;
         USER_ID = tgUser.id ? tgUser.id.toString() : 'user1';
-        // Берём username, если нет — first_name, если и его нет — "Гость"
-        userName = tgUser.username || tgUser.first_name || 'Гость';
+        
+        // Пытаемся получить username, first_name, last_name в порядке приоритета
+        userName = tgUser.username 
+                || tgUser.first_name 
+                || (tgUser.last_name ? tgUser.last_name : null)
+                || 'Гость';
     }
+} else {
+    console.log('Telegram WebApp не доступен (открыто в браузере)');
 }
 var selectedCategory = '🍖';
 var eventsList = [];
