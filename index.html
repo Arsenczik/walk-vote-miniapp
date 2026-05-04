@@ -3,27 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>События</title>
+    <title>Караван</title>
     <link rel="stylesheet" href="/static/style.css">
     <style>
-        /* === СБРОСЫ И БАЗА === */
+        /* === БАЗА === */
         .pulse-bar { display: none !important; }
         .container { padding: 0 12px !important; max-width: 500px; margin: 0 auto; position: relative; min-height: 100vh; }
 
         /* === ЭКРАНЫ === */
-        #loginScreen, #mainMenu, #eventsScreen, #profileScreen { display: none; }
+        #onboardingScreen, #loginScreen, #mainMenu, #eventsScreen, #profileScreen, #statsScreen { display: none; }
+
+        /* --- Онбординг --- */
+        #onboardingScreen { flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; text-align: center; }
+        #onboardingScreen h1 { font-size: 42px; font-weight: 900; letter-spacing: 2px; margin-bottom: 20px; }
+        #onboardingScreen p { color: #aaa; font-size: 16px; margin-bottom: 40px; line-height: 1.5; }
+        #onboardingScreen button { width: 100%; max-width: 300px; padding: 16px; background: #fff; color: #000; border: none; border-radius: 14px; font-size: 18px; font-weight: 700; cursor: pointer; }
+
+        /* --- Вход --- */
         #loginScreen { flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; }
-        #loginScreen h1 { font-size: 42px; font-weight: 900; text-align: center; margin-bottom: 40px; }
+        #loginScreen h1 { font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 30px; }
         #loginScreen input { width: 100%; padding: 16px; background: #1a1a1a; border: 1px solid #333; border-radius: 14px; color: #fff; font-size: 18px; margin-bottom: 16px; text-align: center; }
         #loginScreen button { width: 100%; padding: 16px; background: #fff; color: #000; border: none; border-radius: 14px; font-size: 18px; font-weight: 700; cursor: pointer; }
 
-        #mainMenu { flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; gap: 20px; }
-        #mainMenu button { width: 100%; padding: 20px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; color: #fff; font-size: 20px; font-weight: 600; cursor: pointer; box-shadow: 0 0 30px rgba(255,255,255,0.03); }
+        /* --- Меню --- */
+        #mainMenu { flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; gap: 20px; position: relative; overflow: hidden; }
+        #mainMenu button { width: 100%; max-width: 320px; padding: 20px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; color: #fff; font-size: 20px; font-weight: 600; cursor: pointer; box-shadow: 0 0 30px rgba(255,255,255,0.03); }
+        #mainMenu canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        #mainMenu > button { position: relative; z-index: 1; }
 
-        /* === КНОПКА НАЗАД === */
-        .back-btn { background: #1a1a1a; border: 1px solid #333; color: #aaa; padding: 12px 20px; border-radius: 12px; cursor: pointer; font-size: 16px; margin-bottom: 16px; display: none; }
+        /* --- Стрелка назад (общая) --- */
+        .back-arrow {
+            position: absolute;
+            top: 20px;
+            left: 12px;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 28px;
+            cursor: pointer;
+            z-index: 10;
+            padding: 0;
+            line-height: 1;
+        }
 
-        /* === КАРТОЧКИ СОБЫТИЙ === */
+        /* --- Заголовок событий (уменьшенный, с отступом под стрелку) --- */
+        #eventsHeader {
+            margin-left: 40px;
+            margin-right: 0;
+            font-size: 36px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            padding: 16px 0 12px 0;
+            border-bottom: 2px solid #333;
+            border-radius: 0 0 20px 20px;
+            background: #000;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(255,255,255,0.06), inset 0 -2px 8px rgba(255,255,255,0.08);
+            position: relative;
+        }
+        #eventsHeader::after {
+            content: "";
+            position: absolute;
+            left: 0; bottom: -2px; width: 100%; height: 2px;
+            background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0.15) 80%, transparent 100%);
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 0 6px rgba(255,255,255,0.1);
+            z-index: 5;
+        }
+
+        /* --- Кнопка статистики (📊) в углу событий --- */
+        .stats-fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.25);
+            box-shadow: 0 0 20px rgba(255,255,255,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 50;
+            transition: all 0.2s;
+        }
+        .stats-fab:active { background: #fff; color: #000; border-color: #fff; }
+
+        /* --- Карточки событий --- */
         .event-card { display: flex; align-items: center; gap: 14px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 16px; box-shadow: 0 0 30px rgba(255,255,255,0.03), inset 0 0 20px rgba(0,0,0,0.4); transition: border-color 0.2s, box-shadow 0.2s; width: 100%; box-sizing: border-box; margin-bottom: 8px; }
         .event-card:active { border-color: rgba(255,255,255,0.25); box-shadow: 0 0 40px rgba(255,255,255,0.05); }
         .card-emoji { width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; font-size: 32px; flex-shrink: 0; }
@@ -39,12 +108,12 @@
         .more-avatars { font-size: 12px; color: #888; margin-left: 4px; font-weight: 500; }
         .count-badge { background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 2px 8px; font-size: 12px; font-weight: 600; color: #ccc; margin-left: auto; }
 
-        /* === КНОПКА ДОБАВИТЬ СОБЫТИЕ === */
+        /* --- Кнопка добавить событие --- */
         .add-event-btn { width: 100% !important; box-sizing: border-box !important; padding: 16px; margin-top: 12px; margin-left: 0 !important; margin-right: 0 !important; background: rgba(255,255,255,0.03); border: 1px dashed #333; border-radius: 14px; color: #666; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; letter-spacing: 0.5px; }
         .add-event-btn:active { background: rgba(255,255,255,0.06); border-color: #555; color: #999; }
         .add-icon { font-size: 20px; font-weight: 300; line-height: 1; }
 
-        /* === ФОРМА СОЗДАНИЯ === */
+        /* --- Форма создания --- */
         .create-form { padding: 12px !important; box-sizing: border-box !important; }
         .form-card { background: #0a0a0a !important; border: 1px solid rgba(255,255,255,0.3) !important; box-shadow: 0 0 24px rgba(255,255,255,0.12), 0 0 48px rgba(255,255,255,0.04), inset 0 0 24px rgba(0,0,0,0.8) !important; border-radius: 24px !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; margin: 0 !important; padding: 20px 16px !important; overflow: visible !important; position: relative !important; }
         .form-card input, .form-card input[type="text"], .form-card input[type="datetime-local"] { width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; padding: 12px !important; margin-bottom: 10px !important; -webkit-appearance: none !important; appearance: none !important; min-width: 0 !important; }
@@ -58,16 +127,14 @@
         .submit-btn-full { width: 100%; padding: 14px; margin-top: 20px; background: #fff; color: #000; border: none; border-radius: 16px; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
         .submit-btn-full:active { background: #ccc; }
 
-        /* === МОДАЛКИ === */
+        /* --- Модалки --- */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 200; justify-content: center; align-items: center; padding: 20px; }
         .modal-card { background: #0a0a0a !important; border: 1px solid rgba(255,255,255,0.3) !important; box-shadow: 0 0 24px rgba(255,255,255,0.12), 0 0 48px rgba(255,255,255,0.04), inset 0 0 24px rgba(0,0,0,0.8) !important; border-radius: 20px !important; position: relative !important; overflow: visible !important; padding: 24px; width: 100%; max-width: 400px; max-height: 85vh; overflow-y: auto; }
         .modal-close-btn { position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50% !important; background: #1a1a1a !important; border: 1px solid rgba(255,255,255,0.3) !important; color: #aaa !important; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 8px rgba(255,255,255,0.05) !important; transition: all 0.2s; z-index: 10; padding: 0; line-height: 1; }
         .modal-close-btn:active { background: #fff !important; color: #000 !important; border-color: #fff !important; }
         .modal-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding-top: 10px; }
         .modal-emoji { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; font-size: 36px; flex-shrink: 0; }
-        .modal-title-block { flex: 1; min-width: 0; }
         .modal-title-block h2 { font-size: 22px; font-weight: 700; margin: 0 0 6px; text-transform: none; }
-        /* удалён .modal-creator */
         .modal-date-section { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; }
         .modal-date-icon { font-size: 20px; }
         .modal-date-text { font-size: 15px; color: #ccc; }
@@ -85,64 +152,55 @@
         .rsvp-btn.not-going { background: #1a1a1a !important; color: #ccc !important; border: 1px solid #333 !important; }
         .rsvp-btn.going { background: #fff !important; color: #000 !important; border: 1px solid #fff !important; }
 
-        /* === ЗАГОЛОВОК СОБЫТИЯ === */
-        header h1 { display: block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 52px; font-weight: 900; letter-spacing: 3px; text-align: center; color: #fff; background: #000; width: 100%; padding: 20px 0; margin: 0 0 20px; border-radius: 0 0 20px 20px; border-bottom: 2px solid #333; box-shadow: 0 4px 12px rgba(255,255,255,0.06), inset 0 -2px 8px rgba(255,255,255,0.08); position: relative; }
-        header h1::after { content: ""; position: absolute; left: 0; bottom: -2px; width: 100%; height: 2px; background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0.15) 80%, transparent 100%); border-radius: 0 0 20px 20px; box-shadow: 0 0 6px rgba(255,255,255,0.1); z-index: 5; display: block; }
-
-        /* === ПРОФИЛЬ === */
-        .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: #1a1a1a; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 30px; }
+        /* --- Профиль --- */
+        .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: #1a1a1a; border: 1px solid #333; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 20px; }
         #profileScreen h1 { font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 30px; }
         #profileScreen input { width: 100%; padding: 14px; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 16px; margin-bottom: 20px; }
         #profileScreen button { width: 100%; padding: 14px; background: #fff; color: #000; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; margin-bottom: 10px; }
-        .logout-btn { background: #1a1a1a !important; color: #ff6b6b !important; border: 1px solid #333 !important; font-weight: 600 !important; letter-spacing: 0.5px; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
-        .stat-card { background: #0a0a0a; border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 12px; text-align: center; }
-        .stat-value { font-size: 28px; font-weight: 300; }
-        .stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
-        .achievements-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-        .achievement-badge { display: flex; align-items: center; gap: 6px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.08); padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 500; }
+        .logout-btn { background: #1a1a1a !important; color: #ff6b6b !important; border: 1px solid #333 !important; }
 
-        /* === ПЛАВАЮЩАЯ КНОПКА ПРОФИЛЯ === */
-        .profile-fab {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            width: 60px;
-            height: 60px;
-            border-radius: 16px;
-            background: #1a1a1a;
-            border: 1px solid #2a2a2a;
-            font-size: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 50;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-            transition: all 0.2s;
-        }
-        .profile-fab:active { background: #fff; color: #000; border-color: #fff; }
+        /* --- Статистика --- */
+        #statsScreen { padding-top: 20px; }
+        #statsScreen h1 { font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 30px; }
+        .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .leaderboard-table th, .leaderboard-table td { padding: 12px; text-align: left; border-bottom: 1px solid #222; }
+        .leaderboard-table th { color: #aaa; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .leaderboard-table td { color: #ccc; font-size: 15px; }
+        .leaderboard-table .pos { font-weight: 700; }
+
+        /* --- Toast --- */
+        .toast { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); background: #1a1a1a; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px 24px; border-radius: 12px; font-weight: 600; z-index: 999; box-shadow: 0 8px 30px rgba(0,0,0,0.5); animation: toastIn 0.3s ease, toastOut 0.3s ease 2.2s forwards; }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        @keyframes toastOut { from { opacity: 1; transform: translateX(-50%) translateY(0); } to { opacity: 0; transform: translateX(-50%) translateY(-10px); } }
     </style>
 </head>
 <body>
 <div class="container">
-    <!-- ЭКРАН ВХОДА -->
+    <!-- 1. ОНБОРДИНГ -->
+    <div id="onboardingScreen" style="display: none;">
+        <h1>🐪 Я Караван!</h1>
+        <p>Сделаю вашу компанейскую жизнь удобнее<br>и добавлю нотку азарта к вам в группу</p>
+        <button onclick="startRegistration()">Зарегистрироваться</button>
+    </div>
+
+    <!-- 2. ЭКРАН ВХОДА -->
     <div id="loginScreen" style="display: none;">
-        <h1>👋 Привет!</h1>
-        <input type="text" id="nameInput" placeholder="Как тебя зовут?" maxlength="30" autocomplete="off">
+        <h1>Как твои друзья зовут тебя наичаще?</h1>
+        <input type="text" id="nameInput" placeholder="Например, кабан или тянка" maxlength="30" autocomplete="off">
         <button onclick="saveName()">Войти</button>
     </div>
 
-    <!-- ГЛАВНОЕ МЕНЮ -->
+    <!-- 3. ГЛАВНОЕ МЕНЮ (с салютом) -->
     <div id="mainMenu" style="display: none;">
+        <canvas id="fireworksCanvas"></canvas>
         <button onclick="showScreen('eventsScreen')">📅 События</button>
         <button onclick="showScreen('profileScreen')">👤 Профиль</button>
     </div>
 
-    <!-- ЭКРАН СОБЫТИЙ -->
+    <!-- 4. ЭКРАН СОБЫТИЙ -->
     <div id="eventsScreen" style="display: none;">
-        <button class="back-btn" onclick="showScreen('mainMenu')">← Назад</button>
-        <header><h1>События 💭</h1></header>
+        <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
+        <div id="eventsHeader">События 💭</div>
         <div class="create-form" id="createForm" style="display: none;">
             <div class="form-card">
                 <div class="form-header">
@@ -171,112 +229,178 @@
         <button class="add-event-btn" onclick="showCreateForm()"><span class="add-icon">+</span><span>Добавить событие</span></button>
     </div>
 
-    <!-- ЭКРАН ПРОФИЛЯ -->
+    <!-- 5. ЭКРАН ПРОФИЛЯ -->
     <div id="profileScreen" style="display: none;">
-        <button class="back-btn" onclick="showScreen('mainMenu')">← Назад</button>
+        <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
         <h1>Профиль</h1>
-        <div class="profile-avatar" id="profileAvatar">👤</div>
+        <div class="profile-avatar" id="profileAvatar" onclick="selectEmoji()">👤</div>
         <label style="color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Имя</label>
         <input type="text" id="profileNameInput">
         <button onclick="updateProfile()">Сохранить</button>
-        <!-- кнопка выхода -->
         <button onclick="logout()" class="logout-btn">Выйти</button>
-        <div id="profileStats" style="margin-top: 30px;"></div>
     </div>
 
-    <!-- МОДАЛКА СОБЫТИЯ -->
+    <!-- 6. ЭКРАН СТАТИСТИКИ -->
+    <div id="statsScreen" style="display: none;">
+        <button class="back-arrow" onclick="showScreen('eventsScreen')">←</button>
+        <h1>📊 Статистика</h1>
+        <div id="statsContent"></div>
+    </div>
+
+    <!-- МОДАЛКИ -->
     <div class="modal-overlay" id="eventModal"><div class="modal-card" id="modalContent"></div></div>
+    <div class="modal-overlay" id="emojiPicker" onclick="this.style.display='none'"><div class="modal-card" id="emojiList"></div></div>
 </div>
 
-<!-- Плавающая кнопка профиля -->
-<button class="profile-fab" id="profileFab" onclick="showScreen('profileScreen')" style="display: none;">👤</button>
+<!-- Плавающая кнопка статистики в событиях -->
+<button class="stats-fab" id="statsFab" onclick="showScreen('statsScreen')" style="display: none;">📊</button>
 
 <script>
-    // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
-    var USER_ID = 'user1';
-    var userName = 'Гость';
-    var selectedCategory = '🍖';
-    var eventsList = [];
-    var USER_NAMES = {};
-    var avatarColors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#ff9ff3', '#54a0ff', '#5f27cd'];
+    // --- ГЛОБАЛЬНЫЕ ---
+    let USER_ID = 'user1';
+    let userName = 'Гость';
+    let userEmoji = '👤';
+    let selectedCategory = '🍖';
+    let eventsList = [];
+    let USER_NAMES = {};
+    let fireworksActive = false;
 
     // --- НАВИГАЦИЯ ---
-    function showScreen(screenId) {
-        document.querySelectorAll('#loginScreen, #mainMenu, #eventsScreen, #profileScreen').forEach(el => el.style.display = 'none');
-        let target = document.getElementById(screenId);
-        if (target) target.style.display = (screenId === 'mainMenu' || screenId === 'loginScreen') ? 'flex' : 'block';
-        document.querySelectorAll('.back-btn').forEach(b => b.style.display = (screenId === 'eventsScreen' || screenId === 'profileScreen') ? 'inline-block' : 'none');
-        // плавающая кнопка профиля видна только на экране событий
-        document.getElementById('profileFab').style.display = (screenId === 'eventsScreen') ? 'flex' : 'none';
-        if (screenId === 'eventsScreen') loadEvents();
-        if (screenId === 'profileScreen') loadProfile();
+    function showScreen(id) {
+        ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen'].forEach(s => {
+            document.getElementById(s).style.display = 'none';
+        });
+        let target = document.getElementById(id);
+        if (!target) return;
+        let isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen');
+        target.style.display = isFlex ? 'flex' : 'block';
+
+        // Салют в меню
+        if (id === 'mainMenu') {
+            startFireworks();
+        } else {
+            stopFireworks();
+        }
+
+        // Кнопка статистики видна только в событиях
+        document.getElementById('statsFab').style.display = (id === 'eventsScreen') ? 'flex' : 'none';
+
+        // Подгрузка данных
+        if (id === 'eventsScreen') loadEvents();
+        if (id === 'profileScreen') loadProfileEdit();
+        if (id === 'statsScreen') loadStatistics();
+    }
+
+    // --- ОНБОРДИНГ ---
+    function startRegistration() {
+        showScreen('loginScreen');
     }
 
     // --- ВХОД ---
     function saveName() {
         let name = document.getElementById('nameInput').value.trim();
-        if (!name) return alert('Введи имя!');
+        if (!name) return showToast('Введи имя!');
         localStorage.setItem('userName', name);
         localStorage.setItem('userId', 'u_' + Date.now());
+        localStorage.setItem('userEmoji', userEmoji);
         initUser();
         showScreen('mainMenu');
     }
 
-    // --- ВЫХОД (показываем экран регистрации) ---
     function logout() {
         localStorage.removeItem('userName');
         localStorage.removeItem('userId');
+        localStorage.removeItem('userEmoji');
         userName = 'Гость';
+        userEmoji = '👤';
         USER_NAMES = {};
         showScreen('loginScreen');
     }
 
-    // --- ИНИЦИАЛИЗАЦИЯ ПОЛЬЗОВАТЕЛЯ ---
+    // --- ИНИЦИАЛИЗАЦИЯ ---
     function initUser() {
         let savedName = localStorage.getItem('userName');
         if (savedName) {
             userName = savedName;
             USER_ID = localStorage.getItem('userId') || 'user1';
+            userEmoji = localStorage.getItem('userEmoji') || '👤';
         } else {
-            showScreen('loginScreen');
+            showScreen('onboardingScreen');
             return;
         }
         USER_NAMES[USER_ID] = userName;
-        if (document.getElementById('profileNameInput')) document.getElementById('profileNameInput').value = userName;
-        if (document.getElementById('profileAvatar')) document.getElementById('profileAvatar').textContent = (userName[0] || '?').toUpperCase();
     }
 
-    // --- ОБНОВЛЕНИЕ ПРОФИЛЯ ---
+    // --- ПРОФИЛЬ (редактирование) ---
+    function loadProfileEdit() {
+        document.getElementById('profileNameInput').value = userName;
+        document.getElementById('profileAvatar').textContent = userEmoji;
+    }
+
+    function selectEmoji() {
+        let picker = document.getElementById('emojiPicker');
+        let list = document.getElementById('emojiList');
+        let emojis = ['😎','🐱','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🕷','🦂'];
+        list.innerHTML = '<button class="modal-close-btn" onclick="document.getElementById(\'emojiPicker\').style.display=\'none\'">✕</button><h2 style="margin-top:0;">Выбери аватар</h2><div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">' +
+            emojis.map(e => `<span style="font-size:32px;cursor:pointer;padding:8px;" onclick="setEmoji('${e}')">${e}</span>`).join('') +
+            '</div>';
+        picker.style.display = 'flex';
+    }
+
+    function setEmoji(emoji) {
+        userEmoji = emoji;
+        document.getElementById('profileAvatar').textContent = emoji;
+        document.getElementById('emojiPicker').style.display = 'none';
+        localStorage.setItem('userEmoji', emoji);
+    }
+
     function updateProfile() {
         let newName = document.getElementById('profileNameInput').value.trim();
-        if (!newName) return alert('Имя не может быть пустым!');
+        if (!newName) return showToast('Имя не может быть пустым!');
         localStorage.setItem('userName', newName);
+        localStorage.setItem('userEmoji', userEmoji);
         userName = newName;
         USER_NAMES[USER_ID] = newName;
-        document.getElementById('profileAvatar').textContent = newName[0].toUpperCase();
-        loadProfile();
+        document.getElementById('profileAvatar').textContent = userEmoji;
+        showToast('✅ Данные успешно обновлены');
+        setTimeout(() => showScreen('mainMenu'), 500);
     }
 
-    // --- ЗАГРУЗКА ПРОФИЛЯ ---
-    async function loadProfile() {
-        document.getElementById('profileNameInput').value = userName;
+    // --- СТАТИСТИКА ---
+    async function loadStatistics() {
+        let content = document.getElementById('statsContent');
+        content.innerHTML = '<p>Загрузка...</p>';
         try {
-            let res = await fetch('/api/profile/' + USER_ID);
-            let data = await res.json();
+            let [profileRes, leaderboardRes] = await Promise.all([
+                fetch('/api/profile/' + USER_ID),
+                fetch('/api/leaderboard')
+            ]);
+            let profile = await profileRes.json();
+            let leaderboard = await leaderboardRes.json();
             let html = '<div class="stats-grid">' +
-                '<div class="stat-card"><div class="stat-value">' + data.stats.created + '</div><div class="stat-label">Создано</div></div>' +
-                '<div class="stat-card"><div class="stat-value">' + data.stats.attended + '</div><div class="stat-label">Посещено</div></div>' +
+                '<div class="stat-card"><div class="stat-value">' + profile.stats.created + '</div><div class="stat-label">Создано</div></div>' +
+                '<div class="stat-card"><div class="stat-value">' + profile.stats.attended + '</div><div class="stat-label">Посещено</div></div>' +
                 '</div>';
-            if (data.achievements && data.achievements.length) {
+            if (profile.achievements && profile.achievements.length) {
                 html += '<p style="font-weight:600; margin-top:20px;">🏆 Ачивки</p><div class="achievements-list">' +
-                    data.achievements.map(a => '<span class="achievement-badge"><span class="achievement-emoji">' + a.emoji + '</span> ' + a.name + '</span>').join('') +
+                    profile.achievements.map(a => '<span class="achievement-badge"><span class="achievement-emoji">' + a.emoji + '</span> ' + a.name + '</span>').join('') +
                     '</div>';
             }
-            document.getElementById('profileStats').innerHTML = html;
-        } catch(e) {}
+            if (leaderboard.length) {
+                html += '<h3 style="margin-top:30px;">📊 Лидеры</h3>';
+                html += '<table class="leaderboard-table"><tr><th>#</th><th>Имя</th><th>Очки</th><th>Ачивки</th></tr>';
+                leaderboard.slice(0,10).forEach((u,i) => {
+                    html += `<tr><td class="pos">${i+1}</td><td>${escapeHtml(u.user.name)}</td><td>${u.score}</td><td>${u.achievements}</td></tr>`;
+                });
+                html += '</table>';
+            }
+            content.innerHTML = html;
+        } catch(e) {
+            content.innerHTML = '<p style="color:red;">Ошибка загрузки статистики</p>';
+        }
     }
 
-    // --- СОБЫТИЯ (функционал без изменений) ---
+    // --- СОБЫТИЯ (старые функции) ---
     function showCreateForm() { document.getElementById('createForm').style.display = 'flex'; }
     function hideCreateForm() { document.getElementById('createForm').style.display = 'none'; }
 
@@ -284,7 +408,7 @@
         let name = document.getElementById('eventName').value.trim();
         let desc = document.getElementById('eventDesc').value.trim();
         let date = document.getElementById('eventDate').value;
-        if (!name || !date) { alert('Заполни название и дату!'); return; }
+        if (!name || !date) { showToast('Заполни название и дату!'); return; }
         let body = JSON.stringify({ name, description: desc, date, category: selectedCategory, creator_id: USER_ID });
         try {
             let res = await fetch('/api/events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
@@ -294,8 +418,8 @@
                 document.getElementById('eventDesc').value = '';
                 document.getElementById('eventDate').value = '';
                 loadEvents();
-            } else { let err = await res.json(); alert('❌ Ошибка: ' + (err.error || 'неизвестно')); }
-        } catch(e) { alert('❌ Ошибка соединения'); }
+            } else { let err = await res.json(); showToast('❌ ' + (err.error || 'Ошибка')); }
+        } catch(e) { showToast('❌ Ошибка соединения'); }
     }
 
     async function loadEvents() {
@@ -303,26 +427,40 @@
         try {
             let res = await fetch('/api/events');
             eventsList = await res.json();
-            if (!eventsList.length) { grid.innerHTML = '<div class="empty-state"><div class="empty-emoji">🦗</div><p>Пока тихо...</p><p style="font-size:13px;color:#666;">Жми на <b>+</b> и создавай движуху!</p></div>'; return; }
+            if (!eventsList.length) {
+                grid.innerHTML = '<div class="empty-state"><div class="empty-emoji">🦗</div><p>Пока тихо...</p></div>';
+                return;
+            }
             eventsList.sort((a,b) => new Date(a.date) - new Date(b.date));
-            grid.innerHTML = eventsList.map((event, idx) => createEventCard(event, idx)).join('');
-        } catch(e) { grid.innerHTML = '<p style="color:red;text-align:center;">Ошибка загрузки</p>'; }
+            grid.innerHTML = eventsList.map(createEventCard).join('');
+        } catch(e) { grid.innerHTML = '<p style="color:red;">Ошибка загрузки</p>'; }
     }
 
-    function createEventCard(event, index) {
-        let isGoing = event.participants && event.participants.includes(USER_ID);
-        let count = event.participants ? event.participants.length : 0;
+    function createEventCard(event) {
+        let isGoing = event.participants?.includes(USER_ID);
+        let count = event.participants?.length || 0;
         let avatarsHtml = '';
-        if (event.participants && event.participants.length > 0) {
+        if (event.participants) {
             event.participants.slice(0,4).forEach(userId => {
                 let nm = USER_NAMES[userId] || userId;
                 let ini = (nm[0] || '?').toUpperCase();
-                avatarsHtml += '<span class="avatar">' + ini + '</span>';
+                avatarsHtml += `<span class="avatar">${ini}</span>`;
             });
         }
-        let moreHtml = count > 4 ? '<span class="more-avatars">+' + (count - 4) + '</span>' : '';
+        let moreHtml = count > 4 ? `<span class="more-avatars">+${count-4}</span>` : '';
         let participantsHtml = count === 0 ? '<span style="font-size:12px;color:#888;margin-left:4px;">Будь первым!</span>' : '';
-        return '<div class="event-card"><div class="card-emoji">' + (event.category || '🎉') + '</div><div class="card-info" onclick="openEventModal(\'' + event.id + '\')"><h3>' + escapeHtml(event.name) + '</h3><div class="card-date"><span class="date-day">' + formatDateDay(event.date) + '</span><span class="date-time">' + formatDateTime(event.date) + '</span></div><div class="participants-row"><div class="avatars-stack">' + avatarsHtml + moreHtml + '</div>' + participantsHtml + '<span class="count-badge">' + count + '</span></div></div></div>';
+        return `<div class="event-card">
+            <div class="card-emoji">${event.category || '🎉'}</div>
+            <div class="card-info" onclick="openEventModal('${event.id}')">
+                <h3>${escapeHtml(event.name)}</h3>
+                <div class="card-date"><span class="date-day">${formatDateDay(event.date)}</span><span class="date-time">${formatDateTime(event.date)}</span></div>
+                <div class="participants-row">
+                    <div class="avatars-stack">${avatarsHtml}${moreHtml}</div>
+                    ${participantsHtml}
+                    <span class="count-badge">${count}</span>
+                </div>
+            </div>
+        </div>`;
     }
 
     async function toggleRSVP(eventId, currentlyGoing) {
@@ -344,61 +482,124 @@
     function openEventModal(eventId) {
         let event = eventsList.find(e => e.id === eventId);
         if (!event) return;
-        let isGoing = event.participants && event.participants.includes(USER_ID);
-        let count = event.participants ? event.participants.length : 0;
+        let isGoing = event.participants?.includes(USER_ID);
+        let count = event.participants?.length || 0;
         let participantsList = '';
-        if (event.participants && event.participants.length > 0) {
+        if (event.participants?.length) {
             participantsList = event.participants.map(userId => {
                 let nm = USER_NAMES[userId] || userId;
                 let ini = (nm[0] || '?').toUpperCase();
                 let isMe = userId === USER_ID;
                 let isCreator = userId === event.creator_id;
-                return '<span class="participant-badge' + (isMe ? ' is-me' : '') + '">' +
-                    '<span class="avatar" style="width:28px;height:28px;font-size:12px;margin-left:0;">' + ini + '</span>' +
-                    '<span class="participant-name">' + nm + (isMe ? ' (ты)' : '') + '</span>' +
-                    (isCreator ? ' <span class="crown">👑</span>' : '') +
-                '</span>';
+                return `<span class="participant-badge${isMe ? ' is-me' : ''}">
+                    <span class="avatar" style="width:28px;height:28px;font-size:12px;margin-left:0;">${ini}</span>
+                    <span class="participant-name">${nm}${isMe ? ' (ты)' : ''}</span>
+                    ${isCreator ? '<span class="crown">👑</span>' : ''}
+                </span>`;
             }).join('');
         } else {
             participantsList = '<p class="no-participants">Пока никто не записался</p>';
         }
-        // удалена строка с организатором (modal-creator)
-        document.getElementById('modalContent').innerHTML =
-            '<button class="modal-close-btn" onclick="document.getElementById(\'eventModal\').style.display=\'none\'">✕</button>' +
-            '<div class="modal-header">' +
-                '<div class="modal-emoji">' + (event.category || '🎉') + '</div>' +
-                '<div class="modal-title-block">' +
-                    '<h2>' + escapeHtml(event.name) + '</h2>' +
-                '</div>' +
-            '</div>' +
-            '<div class="modal-date-section">' +
-                '<div class="modal-date-icon">📅</div>' +
-                '<div class="modal-date-text">' + formatDateFull(event.date) + '</div>' +
-            '</div>' +
-            (event.description ? '<p class="modal-description">' + escapeHtml(event.description) + '</p>' : '') +
-            '<div class="modal-participants-section">' +
-                '<div class="modal-section-label">👥 Участники (' + count + ')</div>' +
-                '<div class="participants-list">' + participantsList + '</div>' +
-            '</div>' +
-            '<div class="modal-actions">' +
-                '<button class="rsvp-btn ' + (isGoing ? 'going' : 'not-going') + '" onclick="toggleRSVP(\'' + event.id + '\', ' + isGoing + '); document.getElementById(\'eventModal\').style.display=\'none\';">' +
-                    (isGoing ? '✕ ОТМЕНИТЬ УЧАСТИЕ' : '➕ БУДУ') +
-                '</button>' +
-            '</div>';
+        document.getElementById('modalContent').innerHTML = `
+            <button class="modal-close-btn" onclick="document.getElementById('eventModal').style.display='none'">✕</button>
+            <div class="modal-header">
+                <div class="modal-emoji">${event.category || '🎉'}</div>
+                <div class="modal-title-block"><h2>${escapeHtml(event.name)}</h2></div>
+            </div>
+            <div class="modal-date-section">
+                <div class="modal-date-icon">📅</div>
+                <div class="modal-date-text">${formatDateFull(event.date)}</div>
+            </div>
+            ${event.description ? `<p class="modal-description">${escapeHtml(event.description)}</p>` : ''}
+            <div class="modal-participants-section">
+                <div class="modal-section-label">👥 Участники (${count})</div>
+                <div class="participants-list">${participantsList}</div>
+            </div>
+            <div class="modal-actions">
+                <button class="rsvp-btn ${isGoing ? 'going' : 'not-going'}" onclick="toggleRSVP('${event.id}', ${isGoing}); document.getElementById('eventModal').style.display='none'">
+                    ${isGoing ? '✕ ОТМЕНИТЬ УЧАСТИЕ' : '➕ БУДУ'}
+                </button>
+            </div>`;
         document.getElementById('eventModal').style.display = 'flex';
     }
 
-    // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
-    function formatDate(d) { if(!d) return ''; let date=new Date(d), now=new Date(), t=date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}); if(date.toDateString()===now.toDateString()) return 'Сегодня · '+t; let tom=new Date(now); tom.setDate(tom.getDate()+1); if(date.toDateString()===tom.toDateString()) return 'Завтра · '+t; return date.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'})+' · '+t; }
-    function formatDateFull(d) { if(!d) return ''; let date=new Date(d); return date.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}); }
-    function formatDateDay(d) { if(!d) return ''; let date=new Date(d), now=new Date(); if(date.toDateString()===now.toDateString()) return 'Сегодня'; let tom=new Date(now); tom.setDate(tom.getDate()+1); if(date.toDateString()===tom.toDateString()) return 'Завтра'; return date.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'}); }
-    function formatDateTime(d) { if(!d) return ''; let date=new Date(d); return date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}); }
-    function escapeHtml(t) { let div=document.createElement('div'); div.textContent=t||''; return div.innerHTML; }
+    // --- САЛЮТ (canvas) ---
+    function startFireworks() {
+        if (fireworksActive) return;
+        fireworksActive = true;
+        let canvas = document.getElementById('fireworksCanvas');
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        let ctx = canvas.getContext('2d');
+        let particles = [];
+        function createParticle(x, y) {
+            return { x, y, vx: (Math.random()-0.5)*4, vy: (Math.random()-0.5)*4, life: 1, color: `hsl(${Math.random()*360},70%,70%)` };
+        }
+        function explode(x, y) {
+            for (let i=0; i<30; i++) particles.push(createParticle(x,y));
+        }
+        function loop() {
+            if (!fireworksActive) return;
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            if (Math.random() < 0.1) explode(Math.random()*canvas.width, Math.random()*canvas.height*0.5);
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.02;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 2, 0, Math.PI*2);
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life;
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+            requestAnimationFrame(loop);
+        }
+        loop();
+    }
 
-    // --- ЗАПУСК ---
+    function stopFireworks() {
+        fireworksActive = false;
+    }
+
+    // --- TOAST ---
+    function showToast(msg) {
+        let t = document.createElement('div');
+        t.className = 'toast';
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2500);
+    }
+
+    // --- УТИЛИТЫ ---
+    function formatDateDay(d) {
+        if(!d) return '';
+        let date = new Date(d), now = new Date();
+        if(date.toDateString() === now.toDateString()) return 'Сегодня';
+        now.setDate(now.getDate()+1);
+        if(date.toDateString() === now.toDateString()) return 'Завтра';
+        return date.toLocaleDateString('ru-RU', {weekday:'short', day:'numeric', month:'short'});
+    }
+    function formatDateTime(d) {
+        if(!d) return '';
+        return new Date(d).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
+    }
+    function formatDateFull(d) {
+        if(!d) return '';
+        return new Date(d).toLocaleDateString('ru-RU', {weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit'});
+    }
+    function escapeHtml(s) {
+        let div = document.createElement('div');
+        div.textContent = s || '';
+        return div.innerHTML;
+    }
+
+    // --- СТАРТ ---
     initUser();
-    if (!localStorage.getItem('userName')) {
-        showScreen('loginScreen');
+    let savedName = localStorage.getItem('userName');
+    if (!savedName) {
+        showScreen('onboardingScreen');
     } else {
         showScreen('mainMenu');
     }
