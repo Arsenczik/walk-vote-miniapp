@@ -498,7 +498,45 @@
     color: #000 !important;
     border-color: #fff !important;
 }
-  
+  /* Уведомление о новой ачивке */
+.achievement-toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #0a0a0a;
+    border: 1px solid rgba(255, 215, 0, 0.4);   /* золотистая рамка */
+    border-radius: 20px;
+    padding: 20px 28px;
+    z-index: 1000;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.15);
+    text-align: center;
+    animation: achievIn 0.4s ease, achievOut 0.4s ease 2.5s forwards;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+.achievement-toast .achiev-icon {
+    font-size: 48px;
+}
+.achievement-toast .achiev-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+}
+.achievement-toast .achiev-text {
+    font-size: 14px;
+    color: #ccc;
+}
+@keyframes achievIn {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes achievOut {
+    from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    to { opacity: 0; transform: translate(-50%, -55%) scale(0.9); }
+}
     </style>
 </head>
 <body>
@@ -658,24 +696,32 @@ target.style.display = isFlex ? 'flex' : 'block';
 
     // --- ПРОФИЛЬ (Загрузка данных) ---
     async function loadProfileScreen() {
-        document.getElementById('profileNameDisplay').textContent = userName;
-        document.getElementById('profileAvatar').textContent = userEmoji;
-        try {
-            const res = await fetch('/api/profile/' + USER_ID);
-            const data = await res.json();
-            document.getElementById('profileCreated').textContent = data.stats.created;
-            document.getElementById('profileAttended').textContent = data.stats.attended;
-            let achievementsHtml = '';
-            if (data.achievements && data.achievements.length) {
-                data.achievements.forEach(a => {
-                    achievementsHtml += `<div class="achievement-card"><span class="ach-emoji">${a.emoji}</span><span class="ach-name">${a.name}</span></div>`;
-                });
-            } else {
-                achievementsHtml = '<p style="color:#666;">Пока нет ачивок. Участвуй в движухах!</p>';
-            }
-            document.getElementById('achievementsList').innerHTML = achievementsHtml;
-        } catch(e) {}
-    }
+    document.getElementById('profileNameDisplay').textContent = userName;
+    document.getElementById('profileAvatar').textContent = userEmoji;
+    try {
+        const res = await fetch('/api/profile/' + USER_ID);
+        const data = await res.json();
+        document.getElementById('profileCreated').textContent = data.stats.created;
+        document.getElementById('profileAttended').textContent = data.stats.attended;
+
+        // Собираем ачивки
+        let achievements = data.achievements || [];
+        // Если есть флаг приветственной ачивки, но её нет в списке с сервера – добавляем
+        if (localStorage.getItem('achievement_welcome_shown') && !achievements.some(a => a.emoji === '🐪')) {
+            achievements.unshift({ emoji: '🐪', name: 'Организованный верблюд' });
+        }
+
+        let achievementsHtml = '';
+        if (achievements.length) {
+            achievements.forEach(a => {
+                achievementsHtml += `<div class="achievement-card"><span class="ach-emoji">${a.emoji}</span><span class="ach-name">${a.name}</span></div>`;
+            });
+        } else {
+            achievementsHtml = '<p style="color:#666;">Пока нет ачивок. Участвуй в движухах!</p>';
+        }
+        document.getElementById('achievementsList').innerHTML = achievementsHtml;
+    } catch(e) {}
+}
 
     function editProfile() {
         let newName = prompt('Новое имя', userName);
@@ -691,14 +737,31 @@ target.style.display = isFlex ? 'flex' : 'block';
     // --- ВХОД / РЕГИСТРАЦИЯ ---
     function startRegistration() { showScreen('loginScreen'); }
     function saveName() {
-        let name = document.getElementById('nameInput').value.trim();
-        if (!name) return showToast('Введи имя!');
-        localStorage.setItem('userName', name);
-        localStorage.setItem('userId', 'u_' + Date.now());
-        localStorage.setItem('userEmoji', userEmoji);
-        initUser();
-        showScreen('mainMenu');
+    let name = document.getElementById('nameInput').value.trim();
+    if (!name) return showToast('Введи имя!');
+    localStorage.setItem('userName', name);
+    localStorage.setItem('userId', 'u_' + Date.now());
+    localStorage.setItem('userEmoji', userEmoji);
+    initUser();
+
+    // Проверяем, первый ли это вход
+    if (!localStorage.getItem('achievement_welcome_shown')) {
+        // Показываем красивое уведомление
+        const toast = document.createElement('div');
+        toast.className = 'achievement-toast';
+        toast.innerHTML = `
+            <div class="achiev-icon">🐪</div>
+            <div class="achiev-title">Новая ачивка!</div>
+            <div class="achiev-text">«Организованный верблюд»</div>
+        `;
+        document.body.appendChild(toast);
+        localStorage.setItem('achievement_welcome_shown', '1');
+        // Удаляем уведомление после анимации (через 3 секунды)
+        setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
     }
+
+    showScreen('mainMenu');
+}
     function logout() {
         ['userName','userId','userEmoji'].forEach(k => localStorage.removeItem(k));
         userName = 'Гость'; userEmoji = '👤'; USER_NAMES = {};
