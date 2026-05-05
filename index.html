@@ -137,33 +137,7 @@
         .open-in-maps:active { background: #fff; color: #000; }
 
         /* --- Профиль (ЭЛИТНЫЙ UI) --- */
-        /* Экран профиля — полноценная страница */
-#profileScreen {
-    display: flex !important;
-    flex-direction: column !important;
-    height: 100vh !important;           /* весь экран */
-    padding: 12px !important;
-    box-sizing: border-box !important;
-    position: relative !important;
-}
-
-/* Контейнер профиля растягивается на всё свободное место */
-.profile-container {
-    flex: 1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    background: #0a0a0a;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 28px;
-    padding: 24px 20px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 30px rgba(255,255,255,0.04);
-    position: relative !important;
-    overflow-y: auto !important;       /* скролл внутри, если контент не влезает */
-    box-sizing: border-box !important;
-}
-
-/* Остальные стили (стрелка, аватар, имя и т.д.) ОСТАВЬ как есть – они не мешают */
-
+ 
         .profile-avatar-wrapper {
             display: flex;
             justify-content: center;
@@ -606,6 +580,30 @@
     color: #000 !important;
     border-color: #fff !important;
 }
+        /* Экран профиля — полноценная страница (без конфликтов) */
+#profileScreen {
+    display: none;               /* по умолчанию скрыт, переключает JS */
+    flex-direction: column;
+    height: 100vh;
+    padding: 12px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+/* Контейнер профиля растягивается на всё свободное место */
+.profile-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #0a0a0a;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 28px;
+    padding: 24px 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 30px rgba(255,255,255,0.04);
+    position: relative;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
     </style>
 </head>
 <body>
@@ -753,7 +751,7 @@
         let target = document.getElementById(id);
         if (!target) return;
         let isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen');
-        target.style.display = isFlex ? 'flex' : 'block';
+target.style.display = isFlex ? 'flex' : 'block';
 
         if (id === 'mainMenu') startFireworks(); else stopFireworks();
         if (id === 'loginScreen') { startFallingEmojis(); setRandomPlaceholder(); } else stopFallingEmojis();
