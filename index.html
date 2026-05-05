@@ -1307,33 +1307,11 @@ async function uploadPhoto(eventId) {
 
 
 function downloadPhoto(base64) {
-    // Открываем фото в новом окне Safari, где его можно сохранить
-    const newWindow = window.open();
-    if (!newWindow) {
-        showToast('Не удалось открыть окно. Проверьте настройки браузера.');
-        return;
+    // Открываем изображение напрямую в новом окне/вкладке
+    const win = window.open(base64, '_blank');
+    if (!win) {
+        showToast('Разрешите всплывающие окна для скачивания');
     }
-    newWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Фото</title>
-            <style>
-                body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-                img { max-width: 100%; max-height: 100vh; object-fit: contain; }
-                .save-hint { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: #fff; padding: 12px 24px; border-radius: 20px; font-size: 16px; font-family: -apple-system, sans-serif; text-align: center; animation: fadeOut 2s forwards; }
-                @keyframes fadeOut { 0% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
-            </style>
-        </head>
-        <body>
-            <img src="${base64}" alt="Фото">
-            <div class="save-hint">Долгое нажатие на фото → «Сохранить изображение»</div>
-        </body>
-        </html>
-    `);
-}
-</script>
+}</script>
 </body>
 </html>
