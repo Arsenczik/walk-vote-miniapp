@@ -1268,7 +1268,7 @@ async function loadPhotos(eventId) {
         grid.innerHTML = photos.map((photo, index) => `
             <div class="photo-item">
                 <img src="${photo.image}" alt="Фото" loading="lazy" />
-                <button class="download-photo-btn" onclick="downloadPhoto('${photo.image}')">↗️</button>
+                <button class="download-photo-btn" onclick="downloadPhoto('${photo.image}')">📥</button>
             </div>
         `).join('');
     } catch(e) {
@@ -1306,12 +1306,29 @@ async function uploadPhoto(eventId) {
 
 
 
-function downloadPhoto(base64) {
-    // Открываем изображение напрямую в новом окне/вкладке
-    const win = window.open(base64, '_blank');
-    if (!win) {
-        showToast('Разрешите всплывающие окна для скачивания');
+async function downloadPhoto(base64) {
+    // Конвертируем base64 в Blob
+    const response = await fetch(base64);
+    const blob = await response.blob();
+    const file = new File([blob], 'photo.jpg', { type: 'image/jpeg' });
+
+    // Используем Web Share API для вызова меню "Поделиться"
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                files: [file],
+                title: 'Фото из Каравана',
+            });
+        } catch (err) {
+            // пользователь просто закрыл меню — ничего не делаем
+        }
+    } else {
+        // Если Share API нет (старые устройства), пробуем открыть в новом окне (может не сработать)
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
-}</script>
+}
+</script>
 </body>
 </html>
