@@ -324,23 +324,30 @@
         if (id === 'statsScreen') loadStatistics();
     }
 
-    // --- ПАДАЮЩИЕ ЭМОДЗИ ---
+   // --- ПАДАЮЩИЕ ЭМОДЗИ (рабочая версия) ---
     const emojiCandidates = ['😎','🥸','🥳','🥵','🫠','🤪','🤣','🥴'];
-  function createFallingEmoji() {
-    const el = document.createElement('div');
-    el.className = 'falling-emoji';
-    el.textContent = emojiCandidates[Math.floor(Math.random() * emojiCandidates.length)];
-    el.style.left = Math.random() * 100 + '%';
-    document.body.appendChild(el);
-    fallingEmojis.push({
-        el: el,
-        x: parseFloat(el.style.left),
-        y: -50,
-        speedY: 1.2 + Math.random() * 2.5,
-        speedX: (Math.random() - 0.5) * 1.5,
-        opacity: 0.25
-    });
-}
+
+    function createFallingEmoji() {
+        const el = document.createElement('div');
+        el.className = 'falling-emoji';
+        el.textContent = emojiCandidates[Math.floor(Math.random() * emojiCandidates.length)];
+        // стартовая позиция в пикселях
+        let startX = Math.random() * window.innerWidth;
+        el.style.left = startX + 'px';
+        el.style.top = '-50px';
+        document.body.appendChild(el);
+
+        fallingEmojis.push({
+            el: el,
+            x: startX,                 // теперь в пикселях
+            y: -50,
+            speedY: 1.4 + Math.random() * 2.2,
+            speedX: (Math.random() - 0.5) * 1.8,
+            opacity: 0.25,
+            passedInput: false
+        });
+    }
+
     function startFallingEmojis() {
         stopFallingEmojis();
         loginEmojiInterval = setInterval(() => {
@@ -348,92 +355,80 @@
         }, 400);
         requestAnimationFrame(updateFallingEmojis);
     }
+
     function stopFallingEmojis() {
-        if (loginEmojiInterval) { clearInterval(loginEmojiInterval); loginEmojiInterval = null; }
+        if (loginEmojiInterval) {
+            clearInterval(loginEmojiInterval);
+            loginEmojiInterval = null;
+        }
         fallingEmojis.forEach(e => e.el.remove());
         fallingEmojis = [];
     }
+
     function updateFallingEmojis() {
-    if (document.getElementById('loginScreen')?.style.display !== 'flex') {
-        fallingEmojis.forEach(e => e.el.remove());
-        fallingEmojis = [];
-        return;
-    }
-    let inputEl = document.getElementById('nameInput');
-    let buttonEl = document.querySelector('#loginScreen button');
-    let inputRect = inputEl?.getBoundingClientRect();
-    let buttonRect = buttonEl?.getBoundingClientRect();
-
-    for (let i = fallingEmojis.length - 1; i >= 0; i--) {
-        let obj = fallingEmojis[i];
-        obj.y += obj.speedY;
-        obj.x += obj.speedX;
-
-        // отскок от границ экрана
-        if (obj.x < 0) { obj.x = 0; obj.speedX = Math.abs(obj.speedX) * 0.5; }
-        if (obj.x > window.innerWidth) { obj.x = window.innerWidth; obj.speedX = -Math.abs(obj.speedX) * 0.5; }
-
-        // отскок от поля ввода
-        if (inputRect && obj.y + 20 > inputRect.top && obj.y - 20 < inputRect.bottom) {
-            let emojiCenterX = obj.x + 14;
-            if (emojiCenterX > inputRect.left && emojiCenterX < inputRect.right &&
-                obj.y + 20 > inputRect.top && obj.y - 20 < inputRect.top + 40) {
-                obj.speedY = -Math.abs(obj.speedY) * 0.5;
-                obj.speedX += (Math.random() - 0.5) * 1.2;
-            }
+        const loginScreen = document.getElementById('loginScreen');
+        if (!loginScreen || loginScreen.style.display !== 'flex') {
+            stopFallingEmojis();
+            return;
         }
 
-        // затухание после кнопки
-        if (buttonRect && obj.y > buttonRect.bottom + 20) {
-            obj.opacity -= 0.004;
-            if (obj.opacity < 0.05) obj.opacity = 0.05;
-        }
-
-        if (obj.y > window.innerHeight + 50 || obj.opacity <= 0.05) {
-            obj.el.remove();
-            fallingEmojis.splice(i, 1);
-            continue;
-        }
-
-        obj.el.style.top = obj.y + 'px';
-        obj.el.style.left = obj.x + '%';
-        obj.el.style.opacity = obj.opacity;
-    }
-    requestAnimationFrame(updateFallingEmojis);
-}
-        let inputEl = document.getElementById('nameInput');
-        let buttonEl = document.querySelector('#loginScreen button');
-        let inputRect = inputEl?.getBoundingClientRect();
-        let buttonRect = buttonEl?.getBoundingClientRect();
+        const inputEl = document.getElementById('nameInput');
+        const buttonEl = document.querySelector('#loginScreen button');
+        const inputRect = inputEl?.getBoundingClientRect();
+        const buttonRect = buttonEl?.getBoundingClientRect();
+        const fadeStartY = buttonRect ? buttonRect.bottom + 20 : window.innerHeight;
 
         for (let i = fallingEmojis.length - 1; i >= 0; i--) {
-            let obj = fallingEmojis[i];
+            const obj = fallingEmojis[i];
+
+            // движение
             obj.y += obj.speedY;
             obj.x += obj.speedX;
-            if (inputRect && obj.y + 20 > inputRect.top && obj.y - 20 < inputRect.bottom) {
-                let emojiCenterX = parseFloat(obj.el.style.left) + 14;
+
+            // отскок от краёв экрана
+            if (obj.x < 0) {
+                obj.x = 0;
+                obj.speedX = Math.abs(obj.speedX) * 0.5;
+            } else if (obj.x > window.innerWidth - 14) {
+                obj.x = window.innerWidth - 14;
+                obj.speedX = -Math.abs(obj.speedX) * 0.5;
+            }
+
+            // отскок от поля ввода (только один раз, чтобы не зациклило)
+            if (!obj.passedInput && inputRect) {
+                const emojiCenterX = obj.x + 14;            // ~половина ширины эмодзи
+                const emojiCenterY = obj.y + 14;
                 if (emojiCenterX > inputRect.left && emojiCenterX < inputRect.right &&
-                    obj.y + 20 > inputRect.top && obj.y - 20 < inputRect.top + 40) {
-                    obj.speedX = -obj.speedX * 0.6;
-                    obj.speedY = Math.abs(obj.speedY) * 0.5 + 0.3;
+                    emojiCenterY > inputRect.top && emojiCenterY < inputRect.bottom) {
+                    // вертикальный отскок с затуханием
+                    obj.speedY = -Math.abs(obj.speedY) * 0.45;
+                    // небольшой горизонтальный импульс
+                    obj.speedX += (Math.random() - 0.5) * 1.1;
+                    obj.passedInput = true;   // больше не отскакивать от поля
                 }
             }
-            if (buttonRect && obj.y > buttonRect.bottom) {
-                obj.opacity -= 0.015;
+
+            // плавное затухание после прохождения кнопки "Войти"
+            if (obj.y > fadeStartY) {
+                obj.opacity -= 0.004;
                 if (obj.opacity < 0.05) obj.opacity = 0.05;
             }
+
+            // удаление, если улетел за экран или стал почти невидимым
             if (obj.y > window.innerHeight + 50 || obj.opacity <= 0.05) {
                 obj.el.remove();
-                fallingEmojis.splice(i,1);
+                fallingEmojis.splice(i, 1);
                 continue;
             }
+
+            // применяем стили
             obj.el.style.top = obj.y + 'px';
-            obj.el.style.left = (obj.x % 100) + '%';
+            obj.el.style.left = obj.x + 'px';
             obj.el.style.opacity = obj.opacity;
         }
+
         requestAnimationFrame(updateFallingEmojis);
     }
-
     // --- ОНБОРДИНГ ---
     function startRegistration() { showScreen('loginScreen'); }
 
