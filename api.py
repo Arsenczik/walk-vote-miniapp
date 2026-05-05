@@ -4,9 +4,19 @@ import database
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
 @api_bp.route('/events', methods=['GET'])
+@api_bp.route('/events', methods=['GET'])
 def get_events():
     try:
-        return jsonify(database.get_events())
+        # было: events = database.get_events()
+        events = database.get_active_events()
+        result = []
+        for e in events:
+            creator = database.get_user(e.get('creator_id'))
+            result.append({
+                **e,
+                "creator_name": creator['name'] if creator else 'Unknown'
+            })
+        return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
