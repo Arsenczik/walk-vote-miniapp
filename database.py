@@ -1,4 +1,5 @@
 from uuid import uuid4
+import datetime
 
 # Хранилище
 events_db = []
@@ -26,8 +27,8 @@ def create_event(name, description, date, creator_id, category='🎉', latitude=
         "participants": [creator_id],
         "latitude": latitude,
         "longitude": longitude,
-        "photos": []  # <-- теперь у каждого события есть список фото
-        "archived": False
+        "photos": [],          # <-- обязательно запятая после этой строки
+        "archived": False      # <-- и после этой запятая не нужна (она последняя)
     }
     events_db.append(event)
     return event
