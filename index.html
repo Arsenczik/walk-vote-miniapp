@@ -591,7 +591,7 @@
     position: absolute;
     bottom: 4px;
     right: 4px;
-    width: 28px;
+    width: 30px;
     height: 28px;
     border-radius: 50%;
     background: #1a1a1a;
@@ -1268,7 +1268,7 @@ async function loadPhotos(eventId) {
         grid.innerHTML = photos.map((photo, index) => `
             <div class="photo-item">
                 <img src="${photo.image}" alt="Фото" loading="lazy" />
-                <button class="download-photo-btn" onclick="downloadPhoto('${photo.image}')">⬇️</button>
+                <button class="download-photo-btn" onclick="downloadPhoto('${photo.image}')">↗️</button>
             </div>
         `).join('');
     } catch(e) {
@@ -1307,30 +1307,32 @@ async function uploadPhoto(eventId) {
 
 
 function downloadPhoto(base64) {
-    // Определяем MIME‑тип
-    let mimeType = 'image/jpeg';
-    let byteString;
-    if (base64.startsWith('data:')) {
-        const parts = base64.split(',');
-        mimeType = parts[0].split(':')[1].split(';')[0];
-        byteString = atob(parts[1]);
-    } else {
-        byteString = atob(base64);
+    // Открываем фото в новом окне Safari, где его можно сохранить
+    const newWindow = window.open();
+    if (!newWindow) {
+        showToast('Не удалось открыть окно. Проверьте настройки браузера.');
+        return;
     }
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-    }
-    const blob = new Blob([ab], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'photo.' + (mimeType === 'image/png' ? 'png' : 'jpg');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    newWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Фото</title>
+            <style>
+                body { margin: 0; background: #000; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+                img { max-width: 100%; max-height: 100vh; object-fit: contain; }
+                .save-hint { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); color: #fff; padding: 12px 24px; border-radius: 20px; font-size: 16px; font-family: -apple-system, sans-serif; text-align: center; animation: fadeOut 2s forwards; }
+                @keyframes fadeOut { 0% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+            </style>
+        </head>
+        <body>
+            <img src="${base64}" alt="Фото">
+            <div class="save-hint">Долгое нажатие на фото → «Сохранить изображение»</div>
+        </body>
+        </html>
+    `);
 }
 </script>
 </body>
