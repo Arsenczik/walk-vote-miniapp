@@ -16,6 +16,7 @@ test_users = [
 for uid, name in test_users:
     users_db[uid] = {"id": uid, "name": name}
 
+
 def create_event(name, description, date, creator_id, category='🎉', latitude=None, longitude=None):
     event = {
         "id": str(uuid4()),
@@ -27,21 +28,25 @@ def create_event(name, description, date, creator_id, category='🎉', latitude=
         "participants": [creator_id],
         "latitude": latitude,
         "longitude": longitude,
-        "photos": [],          # <-- обязательно запятая после этой строки
-        "archived": False      # <-- и после этой запятая не нужна (она последняя)
+        "photos": [],
+        "archived_at": None      # время, когда событие попало в архив
     }
     events_db.append(event)
     return event
 
+
 def get_events():
+    """Для совместимости – возвращает все события, но активно используется get_active_events"""
+    events = get_active_events()
     events_with_names = []
-    for e in events_db:
+    for e in events:
         creator = get_user(e.get('creator_id'))
         events_with_names.append({
             **e,
             "creator_name": creator['name'] if creator else 'Unknown'
         })
     return events_with_names
+
 
 def get_event(event_id):
     for e in events_db:
@@ -53,6 +58,7 @@ def get_event(event_id):
             }
     return None
 
+
 def add_participant(event_id, user_id):
     event = next((e for e in events_db if e['id'] == event_id), None)
     if event and user_id not in event['participants']:
@@ -60,12 +66,14 @@ def add_participant(event_id, user_id):
         return True
     return False
 
+
 def remove_participant(event_id, user_id):
     event = next((e for e in events_db if e['id'] == event_id), None)
     if event and user_id in event['participants']:
         event['participants'].remove(user_id)
         return True
     return False
+
 
 def get_participants(event_id):
     event = get_event(event_id)
@@ -78,15 +86,19 @@ def get_participants(event_id):
         return participants
     return []
 
+
 def register_user(user_id, name=None):
+    """Создаёт пользователя, если его ещё нет"""
     if user_id not in users_db:
         users_db[user_id] = {"id": user_id, "name": name or user_id}
+
 
 def get_user(user_id):
     # Автоматически регистрируем, если вдруг пропустили
     if user_id not in users_db:
         register_user(user_id)
     return users_db.get(user_id)
+
 
 # --- ФОТОГРАФИИ ---
 def add_photo(event_id, base64_image, user_id):
@@ -101,33 +113,14 @@ def add_photo(event_id, base64_image, user_id):
         return True
     return False
 
+
 def get_photos(event_id):
     event = next((e for e in events_db if e['id'] == event_id), None)
     if event:
         return event.get('photos', [])
     return []
-def archive_old_events():
-    """Помечает события, прошедшие более 2 дней назад, как архивные"""
-    now = datetime.datetime.now()
-    for event in events_db:
-        if event.get('archived'):
-            continue
-        try:
-            event_date = datetime.datetime.fromisoformat(event['date'])
-            if (now - event_date).days >= 2:   # прошло 2 дня после события
-                event['archived'] = True
-        except:
-            pass
 
-def get_active_events():
-    """Возвращает только неархивированные события"""
-    archive_old_events()   # обновляем статусы перед выдачей
-    return [e for e in events_db if not e.get('archived')]
 
-def get_archived_events():
-    """Возвращает только архивированные события"""
-    archive_old_events()
-    return [e for e in events_db if e.get('archived')]
 # --- АЧИВКИ ---
 def get_user_vibe(user_id):
     user = get_user(user_id)
@@ -174,3 +167,50 @@ def get_user_vibe(user_id):
             "attended": len(events_attended)
         }
     }
+
+
+# --- АРХИВ ---
+def archive_old_events():
+    """Помечает события, прошедшие 2 дня после даты, как архивные (ставит archived_at)"""
+    now = datetime.datetime.now()
+    for event in events_db:
+        if not event.get('archived_at'):
+            try:
+                event_date = datetime.datetime.fromisoformat(event['date'])
+                if (now - event_date).days >= 2:
+                    event['archived_at'] = now.isoformat()
+            except:
+                pass
+
+
+def delete_old_archived():
+    """Удаляет события, которые находятся в архиве больше 7 дней"""
+    now = datetime.datetime.now()
+    events_to_keep = []
+    for event in events_db:
+        if event.get('archived_at'):
+            try:
+                archived_time = datetime.datetime.fromisoformat(event['archived_at'])
+                if (now - archived_time).days < 7:
+                    events_to_keep.append(event)
+                # иначе – не добавляем, событие удаляется
+            except:
+                events_to_keep.append(event)
+        else:
+            events_to_keep.append(event)
+    events_db.clear()
+    events_db.extend(events_to_keep)
+
+
+def get_active_events():
+    """Возвращает только неархивированные события"""
+    archive_old_events()
+    delete_old_archived()
+    return [e for e in events_db if not e.get('archived_at')]
+
+
+def get_archived_events():
+    """Возвращает только архивированные события"""
+    archive_old_events()
+    delete_old_archived()
+    return [e for e in events_db if e.get('archived_at')]
