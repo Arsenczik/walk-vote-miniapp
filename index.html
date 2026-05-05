@@ -610,6 +610,46 @@
     color: #000;
     border-color: #fff;
 }
+
+/* Кнопка Архива */
+.archive-fab {
+    position: fixed;
+    bottom: 24px;
+    right: 90px;          /* левее кнопки статистики */
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: #1a1a1a;
+    border: 1px solid rgba(255,255,255,0.25);
+    box-shadow: 0 0 20px rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 50;
+    transition: all 0.2s;
+}
+.archive-fab:active { background: #fff; color: #000; border-color: #fff; }
+
+/* Экран Архива */
+#archiveScreen {
+    display: none;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #000;
+    color: #fff;
+    padding: 16px 12px;
+    box-sizing: border-box;
+    position: relative;
+    overflow-y: auto;
+}
+#archiveScreen h1 {
+    font-size: 32px;
+    font-weight: 800;
+    text-align: center;
+    margin: 20px 0 30px;
+}
     </style>
 </head>
 <body>
@@ -730,10 +770,18 @@
             <button class="submit-btn-full" onclick="selectLocation()">Выбрать</button>
         </div>
     </div>
+
+    <!-- 7. ЭКРАН АРХИВА -->
+<div id="archiveScreen" style="display: none;">
+    <button class="back-arrow" onclick="showScreen('eventsScreen')">←</button>
+    <h1>📦 Архив</h1>
+    <div class="events-grid" id="archiveGrid"><p>Загрузка...</p></div>
+</div>
 </div>
 
 <button class="stats-fab" id="statsFab" onclick="showScreen('statsScreen')" style="display: none;">📊</button>
-
+<button class="archive-fab" id="archiveFab" onclick="showScreen('archiveScreen')" style="display: none;">📦</button>
+    
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
    // --- ГЛОБАЛЬНЫЕ ---
@@ -768,21 +816,26 @@
 
     // --- НАВИГАЦИЯ ---
     function showScreen(id) {
-        ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen'].forEach(s => {
-            document.getElementById(s).style.display = 'none';
-        });
-        let target = document.getElementById(id);
-        if (!target) return;
-        let isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen');
-target.style.display = isFlex ? 'flex' : 'block';
+    ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
+        document.getElementById(s).style.display = 'none';
+    });
+    let target = document.getElementById(id);
+    if (!target) return;
+    let isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen' || id === 'archiveScreen');
+    target.style.display = isFlex ? 'flex' : 'block';
 
-        if (id === 'mainMenu') startFireworks(); else stopFireworks();
-        if (id === 'loginScreen') { startFallingEmojis(); setRandomPlaceholder(); } else stopFallingEmojis();
-        document.getElementById('statsFab').style.display = (id === 'eventsScreen') ? 'flex' : 'none';
-        if (id === 'eventsScreen') loadEvents();
-        if (id === 'profileScreen') loadProfileScreen();
-        if (id === 'statsScreen') loadStatistics();
-    }
+    if (id === 'mainMenu') startFireworks(); else stopFireworks();
+    if (id === 'loginScreen') { startFallingEmojis(); setRandomPlaceholder(); } else stopFallingEmojis();
+
+    // Управление кнопками внизу
+    document.getElementById('statsFab').style.display = (id === 'eventsScreen') ? 'flex' : 'none';
+    document.getElementById('archiveFab').style.display = (id === 'eventsScreen') ? 'flex' : 'none';
+
+    if (id === 'eventsScreen') loadEvents();
+    if (id === 'profileScreen') loadProfileScreen();
+    if (id === 'statsScreen') loadStatistics();
+    if (id === 'archiveScreen') loadArchive();
+}
 
     // --- ПРОФИЛЬ (Загрузка данных) ---
     async function loadProfileScreen() {
@@ -1085,6 +1138,21 @@ target.style.display = isFlex ? 'flex' : 'block';
             grid.innerHTML = eventsList.map(createEventCard).join('');
         } catch(e) { grid.innerHTML = '<p style="color:red;">Ошибка загрузки</p>'; }
     }
+    async function loadArchive() {
+    let grid = document.getElementById('archiveGrid');
+    try {
+        let res = await fetch('/api/archived');
+        let events = await res.json();
+        if (!events.length) {
+            grid.innerHTML = '<div class="empty-state"><div class="empty-emoji">📭</div><p>Архив пуст</p></div>';
+            return;
+        }
+        events.sort((a,b) => new Date(b.date) - new Date(a.date)); // новые сверху
+        grid.innerHTML = events.map(event => createEventCard(event, /* индекс не важен */ 0)).join('');
+    } catch(e) {
+        grid.innerHTML = '<p style="color:red;">Ошибка загрузки архива</p>';
+    }
+}
     function createEventCard(event) {
         let isGoing = event.participants?.includes(USER_ID);
         let count = event.participants?.length || 0;
