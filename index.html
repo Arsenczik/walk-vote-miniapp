@@ -905,7 +905,7 @@
         if (input) input.placeholder = placeholders[Math.floor(Math.random() * placeholders.length)];
     }
 
-    // --- САЛЮТ (цветные, монохромные взрывы вокруг кнопок) ---
+    // --- САЛЮТ (цветные, равномерно разбросанные по всему экрану) ---
     let fireworksCanvas, fireworksCtx, fireworksParticles = [];
     let fireworksRAF = null;
 
@@ -941,13 +941,10 @@
         if (!fireworksActive) return;
         fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
 
-        // Получаем кнопки меню для привязки взрывов
-        const buttons = document.querySelectorAll('#mainMenu button');
-        if (buttons.length >= 2 && Math.random() < 0.06) { // примерно 3-4 взрыва в секунду
-            const btn = buttons[Math.floor(Math.random() * buttons.length)];
-            const rect = btn.getBoundingClientRect();
-            const x = rect.left + rect.width / 2;
-            const y = rect.top + rect.height / 2;
+        // Взрывы теперь появляются в случайных точках по ВСЕЙ высоте и ширине экрана
+        if (Math.random() < 0.06) {
+            const x = Math.random() * fireworksCanvas.width;
+            const y = Math.random() * fireworksCanvas.height;
             createFireworkExplosion(x, y);
         }
 
