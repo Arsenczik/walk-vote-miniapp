@@ -27,6 +27,7 @@ def create_event(name, description, date, creator_id, category='🎉', latitude=
         "latitude": latitude,
         "longitude": longitude,
         "photos": []  # <-- теперь у каждого события есть список фото
+        "archived": False
     }
     events_db.append(event)
     return event
@@ -104,7 +105,28 @@ def get_photos(event_id):
     if event:
         return event.get('photos', [])
     return []
+def archive_old_events():
+    """Помечает события, прошедшие более 2 дней назад, как архивные"""
+    now = datetime.datetime.now()
+    for event in events_db:
+        if event.get('archived'):
+            continue
+        try:
+            event_date = datetime.datetime.fromisoformat(event['date'])
+            if (now - event_date).days >= 2:   # прошло 2 дня после события
+                event['archived'] = True
+        except:
+            pass
 
+def get_active_events():
+    """Возвращает только неархивированные события"""
+    archive_old_events()   # обновляем статусы перед выдачей
+    return [e for e in events_db if not e.get('archived')]
+
+def get_archived_events():
+    """Возвращает только архивированные события"""
+    archive_old_events()
+    return [e for e in events_db if e.get('archived')]
 # --- АЧИВКИ ---
 def get_user_vibe(user_id):
     user = get_user(user_id)
