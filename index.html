@@ -302,25 +302,6 @@
     padding-top: 30px;   /* сдвигаем весь экран профиля чуть ниже */
 }
 
-.profile-name-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    margin-bottom: 24px;
-}
-
-.edit-icon {
-    font-size: 28px;      /* был 22px — теперь как крупная буква */
-    color: #888;
-    cursor: pointer;
-    transition: color 0.2s;
-    line-height: 1;
-    margin-left: 4px;
-}
-.edit-icon:active {
-    color: #fff;
-}
 
 /* Подсказка под аватаром */
 .avatar-hint {
@@ -392,22 +373,31 @@
 
 /* Подсказка под аватаркой */
 .avatar-hint {
-    text-align: center;
-    font-size: 12px;
+    cursor: default;        /* убираем намёк на кликабельность */
     color: #666;
-    margin-top: 8px;
-    cursor: pointer;
-    transition: color 0.2s;
 }
-.avatar-hint:hover, .avatar-hint:active { color: #aaa; }
-
+.avatar-hint:hover, .avatar-hint:active {
+    color: #666;            /* текст не меняет цвет при наведении */
+}
 /* Имя + карандаш */
 .profile-name-row {
     display: flex;
-    align-items: center;
+    align-items: baseline;       /* выравнивание по базовой линии текста */
     justify-content: center;
     gap: 6px;
     margin-bottom: 24px;
+}
+
+.edit-icon {
+    font-size: 26px;
+    color: #888;
+    cursor: pointer;
+    line-height: 1;
+    vertical-align: middle;
+    transition: color 0.2s;
+}
+.edit-icon:active {
+    color: #fff;
 }
 
 .profile-name-display {
@@ -416,15 +406,6 @@
     letter-spacing: 1px;
     color: #fff;
 }
-
-.edit-icon {
-    font-size: 28px !important;   /* крупный карандаш */
-    color: #888 !important;
-    cursor: pointer;
-    transition: color 0.2s;
-    line-height: 1;
-}
-.edit-icon:active { color: #fff !important; }
 
 /* Статистика */
 .profile-stats-row {
@@ -576,7 +557,7 @@
         <!-- Аватарка -->
         <div class="profile-avatar-wrapper">
             <div class="profile-avatar-bg" id="profileAvatar" onclick="selectEmoji()">👤</div>
-            <div class="avatar-hint" onclick="selectEmoji()">Нажми, чтобы изменить аватар</div>
+            <div class="avatar-hint">Нажми, чтобы изменить аватар</div>
         </div>
         
         <!-- Имя + иконка редактирования (карандаш) -->
