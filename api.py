@@ -93,6 +93,21 @@ def get_profile(user_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@api_bp.route('/archived', methods=['GET'])
+def get_archived():
+    try:
+        events = database.get_archived_events()
+        result = []
+        for e in events:
+            creator = database.get_user(e.get('creator_id'))
+            result.append({
+                **e,
+                "creator_name": creator['name'] if creator else 'Unknown'
+            })
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @api_bp.route('/leaderboard', methods=['GET'])
 def get_leaderboard():
     try:
