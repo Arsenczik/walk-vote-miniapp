@@ -160,6 +160,7 @@
             font-size: 48px;
             box-shadow: 0 0 30px rgba(255,255,255,0.08);
             transition: transform 0.2s;
+            cursor: pointer;
         }
         .profile-avatar-bg:active { transform: scale(0.95); }
         .profile-name-display {
@@ -447,8 +448,299 @@
         }
     }
 
-    // ... (остальные функции: вход, эмодзи, салюты, события, карта, статистика – без изменений, они уже были в предыдущих ответах)
-    // Здесь они должны быть вставлены, я не дублирую их для краткости, но в реальном файле они присутствуют!
+    // --- ВХОД / РЕГИСТРАЦИЯ ---
+    function startRegistration() { showScreen('loginScreen'); }
+    function saveName() {
+        let name = document.getElementById('nameInput').value.trim();
+        if (!name) return showToast('Введи имя!');
+        localStorage.setItem('userName', name);
+        localStorage.setItem('userId', 'u_' + Date.now());
+        localStorage.setItem('userEmoji', userEmoji);
+        initUser();
+        showScreen('mainMenu');
+    }
+    function logout() {
+        ['userName','userId','userEmoji'].forEach(k => localStorage.removeItem(k));
+        userName = 'Гость'; userEmoji = '👤'; USER_NAMES = {};
+        showScreen('loginScreen');
+    }
+    function initUser() {
+        let savedName = localStorage.getItem('userName');
+        if (savedName) {
+            userName = savedName;
+            USER_ID = localStorage.getItem('userId') || 'user1';
+            userEmoji = localStorage.getItem('userEmoji') || '👤';
+        } else {
+            showScreen('onboardingScreen');
+            return;
+        }
+        USER_NAMES[USER_ID] = userName;
+    }
+
+    // --- ПАДАЮЩИЕ ЭМОДЗИ (финальная версия) ---
+    const emojiCandidates = ['😎','🥸','🥳','🥵','🫠','🤪','🤣','🥴'];
+    const GRAVITY = 0.13;
+    const INPUT_BOUNCE_STRENGTH = 0.4;
+    const EXIT_H_SPEED = 4.5;
+    function createFallingEmoji() {
+        const el = document.createElement('div');
+        el.className = 'falling-emoji';
+        el.textContent = emojiCandidates[Math.floor(Math.random() * emojiCandidates.length)];
+        const startX = Math.random() * (window.innerWidth - 30);
+        el.style.left = startX + 'px';
+        el.style.top = '-40px';
+        document.body.appendChild(el);
+        fallingEmojis.push({
+            el, x: startX, y: -40,
+            speedY: 2.0 + Math.random() * 3.5,
+            speedX: (Math.random() - 0.5) * 3.0,
+            opacity: 0.30, radius: 14, bounced: false
+        });
+    }
+    function startFallingEmojis() {
+        stopFallingEmojis();
+        loginEmojiInterval = setInterval(() => {
+            if (fallingEmojis.length < 20) createFallingEmoji();
+        }, 380);
+        requestAnimationFrame(updateFallingEmojis);
+    }
+    function stopFallingEmojis() {
+        if (loginEmojiInterval) { clearInterval(loginEmojiInterval); loginEmojiInterval = null; }
+        fallingEmojis.forEach(e => e.el.remove());
+        fallingEmojis = [];
+    }
+    function updateFallingEmojis() {
+        const loginScreen = document.getElementById('loginScreen');
+        if (!loginScreen || loginScreen.style.display !== 'flex') { stopFallingEmojis(); return; }
+        const inputEl = document.getElementById('nameInput');
+        const buttonEl = document.querySelector('#loginScreen button');
+        const inputRect = inputEl?.getBoundingClientRect();
+        const buttonRect = buttonEl?.getBoundingClientRect();
+        const fadeStartY = buttonRect ? buttonRect.bottom + 30 : window.innerHeight;
+        for (let i = fallingEmojis.length - 1; i >= 0; i--) {
+            const obj = fallingEmojis[i];
+            obj.speedY += GRAVITY;
+            obj.y += obj.speedY;
+            obj.x += obj.speedX;
+            if (obj.x - obj.radius < 0) { obj.x = obj.radius; obj.speedX = Math.abs(obj.speedX) * 0.45; }
+            else if (obj.x + obj.radius > window.innerWidth) { obj.x = window.innerWidth - obj.radius; obj.speedX = -Math.abs(obj.speedX) * 0.45; }
+            if (!obj.bounced && inputRect) {
+                const emojiLeft = obj.x - obj.radius, emojiRight = obj.x + obj.radius;
+                const emojiTop = obj.y - obj.radius, emojiBottom = obj.y + obj.radius;
+                if (emojiRight > inputRect.left && emojiLeft < inputRect.right && emojiBottom > inputRect.top && emojiTop < inputRect.bottom) {
+                    obj.y = inputRect.top - obj.radius;
+                    obj.speedY = -Math.abs(obj.speedY) * INPUT_BOUNCE_STRENGTH;
+                    const hitCenterX = (obj.x - inputRect.left) / inputRect.width;
+                    if (hitCenterX < 0.3) obj.speedX = -EXIT_H_SPEED - Math.random() * 2.0;
+                    else if (hitCenterX > 0.7) obj.speedX = EXIT_H_SPEED + Math.random() * 2.0;
+                    else obj.speedX = (Math.random() - 0.5) * (EXIT_H_SPEED + 2.0);
+                    obj.bounced = true;
+                }
+            }
+            if (obj.y > fadeStartY) { obj.opacity -= 0.004; if (obj.opacity < 0.05) obj.opacity = 0.05; }
+            if (obj.y > window.innerHeight + 100 || obj.opacity <= 0.05) { obj.el.remove(); fallingEmojis.splice(i,1); continue; }
+            obj.el.style.top = obj.y + 'px';
+            obj.el.style.left = obj.x + 'px';
+            obj.el.style.opacity = obj.opacity;
+        }
+        requestAnimationFrame(updateFallingEmojis);
+    }
+    const placeholders = ['тянка', 'кабан', 'семен', 'воздухан'];
+    function setRandomPlaceholder() {
+        let input = document.getElementById('nameInput');
+        if (input) input.placeholder = placeholders[Math.floor(Math.random() * placeholders.length)];
+    }
+
+    // --- САЛЮТ (тёмный, медленный) ---
+    function startFireworks() {
+        if (fireworksActive) return;
+        fireworksActive = true;
+        let canvas = document.getElementById('fireworksCanvas');
+        if (!canvas) return;
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        let ctx = canvas.getContext('2d');
+        let particles = [];
+        function createParticle(x,y) { return { x,y, vx: (Math.random()-0.5)*2.5, vy: (Math.random()-0.5)*2.5, life: 1, color: `hsl(${Math.random()*360},40%,45%)` }; }
+        function explode(x,y) { for (let i=0; i<20; i++) particles.push(createParticle(x,y)); }
+        function loop() {
+            if (!fireworksActive) return;
+            ctx.fillStyle = 'rgba(0,0,0,0.12)';
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            if (Math.random() < 0.03) explode(Math.random()*canvas.width, Math.random()*canvas.height*0.4);
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => {
+                p.x += p.vx; p.y += p.vy; p.life -= 0.01;
+                ctx.beginPath(); ctx.arc(p.x,p.y,1.8,0,Math.PI*2);
+                ctx.fillStyle = p.color; ctx.globalAlpha = p.life * 0.6; ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+            requestAnimationFrame(loop);
+        }
+        loop();
+    }
+    function stopFireworks() { fireworksActive = false; }
+
+    // --- КАРТА ---
+    function openMapModal() {
+        document.getElementById('mapModal').style.display = 'flex';
+        if (!map) {
+            map = L.map('mapContainer', { center: [55.751244, 37.618423], zoom: 13, zoomControl: false, attributionControl: false });
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+            marker = L.marker(map.getCenter(), { icon: L.divIcon({ className: 'cross-center', html: '<div style="position:absolute;top:50%;left:50%;width:20px;height:20px;border:2px solid #fff;border-radius:50%;transform:translate(-50%,-50%);"></div>', iconSize: [20,20], iconAnchor: [10,10] }), interactive: false }).addTo(map);
+            map.on('move', () => { let c = map.getCenter(); marker.setLatLng(c); selectedLat = c.lat.toFixed(6); selectedLng = c.lng.toFixed(6); document.getElementById('locationText').textContent = `${selectedLat}, ${selectedLng}`; });
+        } else map.invalidateSize();
+        selectedLat = map.getCenter().lat.toFixed(6); selectedLng = map.getCenter().lng.toFixed(6);
+        document.getElementById('locationText').textContent = `${selectedLat}, ${selectedLng}`;
+    }
+    function closeMapModal() { document.getElementById('mapModal').style.display = 'none'; }
+    function selectLocation() { closeMapModal(); }
+
+    // --- СОБЫТИЯ ---
+    function showCreateForm() {
+        document.getElementById('createForm').style.display = 'flex';
+        let tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1); tomorrow.setHours(16,0,0,0);
+        document.getElementById('eventDate').value = tomorrow.toISOString().slice(0,16);
+    }
+    function hideCreateForm() { document.getElementById('createForm').style.display = 'none'; }
+    async function submitEvent() {
+        let name = document.getElementById('eventName').value.trim();
+        let desc = document.getElementById('eventDesc').value.trim();
+        let date = document.getElementById('eventDate').value;
+        if (!name || !date) return showToast('Заполни название и дату!');
+        let body = { name, description: desc, date, category: selectedCategory, creator_id: USER_ID };
+        if (selectedLat && selectedLng) { body.latitude = selectedLat; body.longitude = selectedLng; }
+        try {
+            let res = await fetch('/api/events', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+            if (res.ok) {
+                hideCreateForm();
+                document.getElementById('eventName').value = '';
+                document.getElementById('eventDesc').value = '';
+                document.getElementById('eventDate').value = '';
+                selectedLat = selectedLng = null;
+                document.getElementById('locationText').textContent = 'Не выбрано';
+                loadEvents();
+            } else { let err = await res.json(); showToast('❌ ' + (err.error || 'Ошибка')); }
+        } catch(e) { showToast('❌ Ошибка соединения'); }
+    }
+    async function loadEvents() {
+        let grid = document.getElementById('eventsGrid');
+        try {
+            let res = await fetch('/api/events');
+            eventsList = await res.json();
+            if (!eventsList.length) { grid.innerHTML = '<div class="empty-state"><div class="empty-emoji">🦗</div><p>Пока тихо...</p></div>'; return; }
+            eventsList.sort((a,b) => new Date(a.date) - new Date(b.date));
+            grid.innerHTML = eventsList.map(createEventCard).join('');
+        } catch(e) { grid.innerHTML = '<p style="color:red;">Ошибка загрузки</p>'; }
+    }
+    function createEventCard(event) {
+        let isGoing = event.participants?.includes(USER_ID);
+        let count = event.participants?.length || 0;
+        let avatarsHtml = '';
+        if (event.participants) event.participants.slice(0,4).forEach(userId => {
+            let nm = USER_NAMES[userId] || userId; let ini = (nm[0] || '?').toUpperCase();
+            avatarsHtml += `<span class="avatar">${ini}</span>`;
+        });
+        let moreHtml = count > 4 ? `<span class="more-avatars">+${count-4}</span>` : '';
+        let participantsHtml = count === 0 ? '<span style="font-size:12px;color:#888;">Будь первым!</span>' : '';
+        return `<div class="event-card"><div class="card-emoji">${event.category || '🎉'}</div><div class="card-info" onclick="openEventModal('${event.id}')"><h3>${escapeHtml(event.name)}</h3><div class="card-date"><span class="date-day">${formatDateDay(event.date)}</span><span class="date-time">${formatDateTime(event.date)}</span></div><div class="participants-row"><div class="avatars-stack">${avatarsHtml}${moreHtml}</div>${participantsHtml}<span class="count-badge">${count}</span></div></div></div>`;
+    }
+    async function toggleRSVP(eventId, currentlyGoing) {
+        let endpoint = currentlyGoing ? '/api/leave' : '/api/join';
+        try {
+            let res = await fetch(endpoint, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ event_id:eventId, user_id:USER_ID }) });
+            if (res.ok) {
+                let event = eventsList.find(e => e.id === eventId);
+                if (event) {
+                    if (!event.participants) event.participants = [];
+                    if (currentlyGoing) event.participants = event.participants.filter(id => id !== USER_ID);
+                    else if (!event.participants.includes(USER_ID)) event.participants.push(USER_ID);
+                    loadEvents();
+                }
+            }
+        } catch(e) {}
+    }
+    function openEventModal(eventId) {
+        let event = eventsList.find(e => e.id === eventId);
+        if (!event) return;
+        let isGoing = event.participants?.includes(USER_ID);
+        let count = event.participants?.length || 0;
+        let participantsList = '';
+        if (event.participants?.length) {
+            participantsList = event.participants.map(userId => {
+                let nm = USER_NAMES[userId] || userId; let ini = (nm[0] || '?').toUpperCase();
+                let isMe = userId === USER_ID, isCreator = userId === event.creator_id;
+                return `<span class="participant-badge${isMe ? ' is-me' : ''}"><span class="avatar" style="width:28px;height:28px;font-size:12px;margin-left:0;">${ini}</span><span class="participant-name">${nm}${isMe ? ' (ты)' : ''}</span>${isCreator ? '<span class="crown">👑</span>' : ''}</span>`;
+            }).join('');
+        } else participantsList = '<p class="no-participants">Пока никто не записался</p>';
+        let locationHtml = '';
+        if (event.latitude && event.longitude) {
+            let staticMapUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${event.latitude},${event.longitude}&zoom=15&size=400x200&markers=${event.latitude},${event.longitude},red-pushpin`;
+            locationHtml = `<div class="modal-date-section" style="flex-direction:column;align-items:flex-start;"><div class="modal-date-icon">📍</div><div class="modal-date-text">${event.latitude}, ${event.longitude}</div><img src="${staticMapUrl}" class="static-map-preview" alt="Место"><button class="open-in-maps" onclick="openInMaps(${event.latitude},${event.longitude})">🗺️ Проложить маршрут</button></div>`;
+        }
+        document.getElementById('modalContent').innerHTML = `
+            <button class="modal-close-btn" onclick="document.getElementById('eventModal').style.display='none'">✕</button>
+            <div class="modal-header"><div class="modal-emoji">${event.category || '🎉'}</div><div class="modal-title-block"><h2>${escapeHtml(event.name)}</h2></div></div>
+            <div class="modal-date-section"><div class="modal-date-icon">📅</div><div class="modal-date-text">${formatDateFull(event.date)}</div></div>
+            ${locationHtml}
+            ${event.description ? `<p class="modal-description">${escapeHtml(event.description)}</p>` : ''}
+            <div class="modal-participants-section"><div class="modal-section-label">👥 Участники (${count})</div><div class="participants-list">${participantsList}</div></div>
+            <div class="modal-actions"><button class="rsvp-btn ${isGoing ? 'going' : 'not-going'}" onclick="toggleRSVP('${event.id}', ${isGoing}); document.getElementById('eventModal').style.display='none'">${isGoing ? '✕ ОТМЕНИТЬ УЧАСТИЕ' : '➕ БУДУ'}</button></div>`;
+        document.getElementById('eventModal').style.display = 'flex';
+    }
+    function openInMaps(lat, lng) { window.open(`https://maps.apple.com/?ll=${lat},${lng}&q=Точка`, '_blank'); }
+
+    // --- СТАТИСТИКА ---
+    async function loadStatistics() {
+        let content = document.getElementById('statsContent');
+        content.innerHTML = '<p>Загрузка...</p>';
+        try {
+            let [profileRes, leaderboardRes] = await Promise.all([ fetch('/api/profile/' + USER_ID), fetch('/api/leaderboard') ]);
+            let profile = await profileRes.json();
+            let leaderboard = await leaderboardRes.json();
+            let html = '<div class="stats-grid"><div class="stat-card"><div class="stat-value">'+profile.stats.created+'</div><div class="stat-label">Создано</div></div><div class="stat-card"><div class="stat-value">'+profile.stats.attended+'</div><div class="stat-label">Посещено</div></div></div>';
+            if (profile.achievements && profile.achievements.length) {
+                html += '<p style="font-weight:600;margin-top:20px;">🏆 Ачивки</p><div class="achievements-list">'+profile.achievements.map(a => '<span class="achievement-badge"><span class="achievement-emoji">'+a.emoji+'</span> '+a.name+'</span>').join('')+'</div>';
+            }
+            if (leaderboard.length) {
+                html += '<h3 style="margin-top:30px;">📊 Лидеры</h3><table class="leaderboard-table"><tr><th>#</th><th>Имя</th><th>Очки</th><th>Ачивки</th></tr>';
+                leaderboard.slice(0,10).forEach((u,i) => { html += `<tr><td class="pos">${i+1}</td><td>${escapeHtml(u.user.name)}</td><td>${u.score}</td><td>${u.achievements}</td></tr>`; });
+                html += '</table>';
+            }
+            content.innerHTML = html;
+        } catch(e) { content.innerHTML = '<p style="color:red;">Ошибка загрузки статистики</p>'; }
+    }
+
+    // --- УТИЛИТЫ ---
+    function formatDateDay(d) { if(!d) return ''; let date=new Date(d), now=new Date(); if(date.toDateString()===now.toDateString()) return 'Сегодня'; now.setDate(now.getDate()+1); if(date.toDateString()===now.toDateString()) return 'Завтра'; return date.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'}); }
+    function formatDateTime(d) { if(!d) return ''; return new Date(d).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}); }
+    function formatDateFull(d) { if(!d) return ''; return new Date(d).toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}); }
+    function escapeHtml(s) { let div=document.createElement('div'); div.textContent=s||''; return div.innerHTML; }
+    function showToast(msg) { let t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
+
+    // --- СТАРТ ---
+    initUser();
+    if (!localStorage.getItem('userName')) showScreen('onboardingScreen'); else showScreen('mainMenu');
+    document.getElementById('eventModal').onclick = function(e) { if(e.target===this) this.style.display='none'; };
+    document.querySelectorAll('.cat-option').forEach(el => el.onclick = function() {
+        document.querySelectorAll('.cat-option').forEach(o => o.classList.remove('active'));
+        this.classList.add('active'); selectedCategory = this.getAttribute('data-cat');
+    });
+    // выбор эмодзи
+    function selectEmoji() {
+        let picker = document.getElementById('emojiPicker');
+        let list = document.getElementById('emojiList');
+        let emojis = ['😎','🐱','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🕷','🦂'];
+        list.innerHTML = '<button class="modal-close-btn" onclick="document.getElementById(\'emojiPicker\').style.display=\'none\'">✕</button><h2 style="margin-top:0;">Выбери аватар</h2><div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">' +
+            emojis.map(e => `<span style="font-size:32px;cursor:pointer;padding:8px;" onclick="setEmoji('${e}')">${e}</span>`).join('') + '</div>';
+        picker.style.display = 'flex';
+    }
+    window.setEmoji = function(emoji) {
+        userEmoji = emoji;
+        document.getElementById('profileAvatar').textContent = emoji;
+        document.getElementById('emojiPicker').style.display = 'none';
+        localStorage.setItem('userEmoji', emoji);
+    };
 </script>
 </body>
 </html>
