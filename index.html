@@ -156,7 +156,7 @@
         .profile-avatar-wrapper {
             display: flex;
             justify-content: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .profile-avatar-bg {
             width: 100px;
@@ -302,23 +302,23 @@
     padding-top: 30px;   /* сдвигаем весь экран профиля чуть ниже */
 }
 
-/* Строка с именем и иконкой редактирования */
 .profile-name-row {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     margin-bottom: 24px;
 }
 
 .edit-icon {
-    font-size: 22px;
+    font-size: 28px;      /* был 22px — теперь как крупная буква */
     color: #888;
     cursor: pointer;
     transition: color 0.2s;
     line-height: 1;
+    margin-left: 4px;
 }
-.edit-icon:hover, .edit-icon:active {
+.edit-icon:active {
     color: #fff;
 }
 
@@ -401,13 +401,13 @@
     <div class="profile-container">
         <button class="back-arrow back-arrow-profile" onclick="showScreen('mainMenu')">←</button>
         <div class="profile-avatar-wrapper">
-            <div class="profile-avatar-bg" id="profileAvatar" onclick="selectEmoji()">👤</div>
-            <div class="avatar-hint" onclick="selectEmoji()">Нажми, чтобы изменить аватар</div>
-        </div>
-        <div class="profile-name-row">
-            <span class="profile-name-display" id="profileNameDisplay">Гость</span>
-            <span class="edit-icon" onclick="editProfile()">✎</span>
-        </div>
+    <div class="profile-avatar-bg" id="profileAvatar" onclick="selectEmoji()">👤</div>
+    <div class="avatar-hint" onclick="selectEmoji()">Нажми, чтобы изменить аватар</div>
+</div>
+<div class="profile-name-row">
+    <span class="profile-name-display" id="profileNameDisplay">Гость</span>
+    <span class="edit-icon" onclick="editProfile()">✎</span>
+</div>
         <div class="profile-stats-row">
             <div class="profile-stat-item">
                 <div class="stat-number" id="profileCreated">0</div>
