@@ -807,6 +807,7 @@
 
     let selectedCategory = '🍖';
     let eventsList = [];
+    let archiveEvents = [];
     let USER_NAMES = {};
     let fireworksActive = false;
     let fallingEmojis = [];
@@ -1142,13 +1143,13 @@
     let grid = document.getElementById('archiveGrid');
     try {
         let res = await fetch('/api/archived');
-        let events = await res.json();
-        if (!events.length) {
+        archiveEvents = await res.json(); // <-- сохраняем в массив
+        if (!archiveEvents.length) {
             grid.innerHTML = '<div class="empty-state"><div class="empty-emoji">📭</div><p>Архив пуст</p></div>';
             return;
         }
-        events.sort((a,b) => new Date(b.date) - new Date(a.date)); // новые сверху
-        grid.innerHTML = events.map(event => createEventCard(event, /* индекс не важен */ 0)).join('');
+        archiveEvents.sort((a,b) => new Date(b.date) - new Date(a.date));
+        grid.innerHTML = archiveEvents.map(event => createEventCard(event)).join('');
     } catch(e) {
         grid.innerHTML = '<p style="color:red;">Ошибка загрузки архива</p>';
     }
