@@ -16,7 +16,31 @@ def create_event(name, description, date, creator_id, category='🎉', latitude=
     }
     events_db.append(event)
     return event
+    
+# Словарь пользователей (пополняется автоматически)
+users_db = {
+    "user1": {"id": "user1", "name": "Арсен"},
+    "user2": {"id": "user2", "name": "Маша"},
+    "user3": {"id": "user3", "name": "Дима"},
+    "user4": {"id": "user4", "name": "Лена"},
+    "user5": {"id": "user5", "name": "Саша"},
 
+    # Хранилище фотографий: ключ — event_id, значение — список фото
+photos_db = {}
+
+def add_photo(event_id, user_id, image_base64):
+    if event_id not in photos_db:
+        photos_db[event_id] = []
+    photos_db[event_id].append({
+        "user_id": user_id,
+        "image": image_base64,
+        "timestamp": __import__('time').time()
+    })
+    return True
+
+def get_photos(event_id):
+    return photos_db.get(event_id, [])
+    
 def get_events():
     events_with_names = []
     for e in events_db:
@@ -59,13 +83,7 @@ def get_participants(event_id):
         return participants
     return []
 
-# Словарь пользователей (пополняется автоматически)
-users_db = {
-    "user1": {"id": "user1", "name": "Арсен"},
-    "user2": {"id": "user2", "name": "Маша"},
-    "user3": {"id": "user3", "name": "Дима"},
-    "user4": {"id": "user4", "name": "Лена"},
-    "user5": {"id": "user5", "name": "Саша"},
+
 }
 
 def register_user(user_id, name=None):
