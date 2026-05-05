@@ -1306,14 +1306,29 @@ async function uploadPhoto(eventId) {
     reader.readAsDataURL(file);
 }
 
-// 📸 Скачать фото
+// 📸 Скачать фото (через Blob – надёжнее)
 function downloadPhoto(base64) {
-    let link = document.createElement('a');
-    link.href = base64;
-    link.download = 'photo.jpg';
+    // Преобразуем base64 в бинарные данные
+    const byteString = atob(base64.split(',')[1] || base64);
+    const mimeType = base64.split(',')[0].split(':')[1].split(';')[0] || 'image/jpeg';
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    const blob = new Blob([ab], { type: mimeType });
+
+    // Создаём временную ссылку и кликаем по ней
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'photo.' + (mimeType === 'image/png' ? 'png' : 'jpg');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
+    // Через небольшую паузу освобождаем память
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 </script>
 </body>
