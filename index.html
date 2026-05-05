@@ -663,21 +663,27 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // --- ГЛОБАЛЬНЫЕ ---
-    var tg = window.Telegram?.WebApp;
-if (tg) {
-    tg.ready();
-    tg.expand();
-    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        var tgUser = tg.initDataUnsafe.user;
-        // Используем Telegram ID как основу
-        USER_ID = tgUser.id ? 'tg' + tgUser.id : 'user1';
-        userName = tgUser.username || tgUser.first_name || 'Гость';
-    }
-}
-    let USER_ID = USER_ID || 'user1';
-    let userName = 'Гость';
+   // --- ГЛОБАЛЬНЫЕ ---
+    let USER_ID;
+    let userName;
     let userEmoji = '👤';
+
+    // Попытка взять данные из Telegram
+    var tg = window.Telegram?.WebApp;
+    if (tg) {
+        tg.ready();
+        tg.expand();
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            const tgUser = tg.initDataUnsafe.user;
+            USER_ID = tgUser.id ? 'tg' + tgUser.id : undefined;
+            userName = tgUser.username || tgUser.first_name || undefined;
+        }
+    }
+
+    // Если не удалось получить, используем заглушки
+    if (!USER_ID) USER_ID = 'user1';
+    if (!userName) userName = 'Гость';
+
     let selectedCategory = '🍖';
     let eventsList = [];
     let USER_NAMES = {};
