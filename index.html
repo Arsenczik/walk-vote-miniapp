@@ -324,11 +324,11 @@
         if (id === 'statsScreen') loadStatistics();
     }
 
- // --- ПАДАЮЩИЕ ЭМОДЗИ (финальная версия) ---
+// --- ПАДАЮЩИЕ ЭМОДЗИ (надёжная версия без застреваний) ---
     const emojiCandidates = ['😎','🥸','🥳','🥵','🫠','🤪','🤣','🥴'];
-    const GRAVITY = 0.14;             // чуть сильнее
-    const INPUT_BOUNCE = 0.45;        // отскок от поля ввода
-    const WALL_BOUNCE = 0.5;          // отскок от краёв
+    const GRAVITY = 0.15;
+    const INPUT_BOUNCE_VERTICAL = 0.3;   // небольшой подскок вверх после касания
+    const EXIT_HORIZONTAL_SPEED = 3.5;   // базовая скорость ухода в сторону
 
     function createFallingEmoji() {
         const el = document.createElement('div');
@@ -343,17 +343,18 @@
             el: el,
             x: startX,
             y: -40,
-            speedY: 3.0 + Math.random() * 3.5,   // высокая начальная скорость
-            speedX: (Math.random() - 0.5) * 2.2,
+            speedY: 2.5 + Math.random() * 3.5,
+            speedX: (Math.random() - 0.5) * 2.0,
             opacity: 0.30,
-            radius: 14
+            radius: 14,
+            touchedInput: false       // флаг: касался ли уже поля ввода
         });
     }
 
     function startFallingEmojis() {
         stopFallingEmojis();
         loginEmojiInterval = setInterval(() => {
-            if (fallingEmojis.length < 25) createFallingEmoji();  // лимит поднят
+            if (fallingEmojis.length < 25) createFallingEmoji();
         }, 350);
         requestAnimationFrame(updateFallingEmojis);
     }
@@ -383,22 +384,22 @@
         for (let i = fallingEmojis.length - 1; i >= 0; i--) {
             const obj = fallingEmojis[i];
 
-            // Гравитация
+            // гравитация
             obj.speedY += GRAVITY;
             obj.y += obj.speedY;
             obj.x += obj.speedX;
 
-            // Горизонтальные границы экрана
+            // горизонтальные границы экрана (простой отскок)
             if (obj.x - obj.radius < 0) {
                 obj.x = obj.radius;
-                obj.speedX = Math.abs(obj.speedX) * WALL_BOUNCE;
+                obj.speedX = Math.abs(obj.speedX) * 0.5;
             } else if (obj.x + obj.radius > window.innerWidth) {
                 obj.x = window.innerWidth - obj.radius;
-                obj.speedX = -Math.abs(obj.speedX) * WALL_BOUNCE;
+                obj.speedX = -Math.abs(obj.speedX) * 0.5;
             }
 
-            // Столкновение с полем ввода
-            if (inputRect) {
+            // ОДНОРАЗОВОЕ взаимодействие с полем ввода
+            if (!obj.touchedInput && inputRect) {
                 const emojiLeft = obj.x - obj.radius;
                 const emojiRight = obj.x + obj.radius;
                 const emojiTop = obj.y - obj.radius;
@@ -407,45 +408,53 @@
                 if (emojiRight > inputRect.left && emojiLeft < inputRect.right &&
                     emojiBottom > inputRect.top && emojiTop < inputRect.bottom) {
 
+                    // Определяем, с какой стороны произошло касание
                     const overlapLeft = emojiRight - inputRect.left;
                     const overlapRight = inputRect.right - emojiLeft;
                     const overlapTop = emojiBottom - inputRect.top;
                     const overlapBottom = inputRect.bottom - emojiTop;
-
                     const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
 
-                    if (minOverlap === overlapTop) {
-                        // Удар сверху — выталкиваем вверх и даём горизонтальный толчок
-                        obj.y = inputRect.top - obj.radius;
-                        obj.speedY = -Math.abs(obj.speedY) * INPUT_BOUNCE;
-                        obj.speedX += (Math.random() - 0.5) * 2.0;
-                    } else if (minOverlap === overlapBottom) {
-                        obj.y = inputRect.bottom + obj.radius;
-                        obj.speedY = Math.abs(obj.speedY) * INPUT_BOUNCE;
+                    if (minOverlap === overlapTop || minOverlap === overlapBottom) {
+                        // Удар сверху или снизу – подбрасываем чуть вверх и даём сильный горизонтальный импульс
+                        obj.y = inputRect.top - obj.radius; // выносим над полем
+                        obj.speedY = -Math.abs(obj.speedY) * INPUT_BOUNCE_VERTICAL;
+
+                        // Куда улететь: левее центра поля – влево, правее – вправо, иначе случайно
+                        const centerX = inputRect.left + inputRect.width / 2;
+                        if (obj.x < centerX) {
+                            obj.speedX = -EXIT_HORIZONTAL_SPEED - Math.random() * 2.0;
+                        } else {
+                            obj.speedX = EXIT_HORIZONTAL_SPEED + Math.random() * 2.0;
+                        }
                     } else if (minOverlap === overlapLeft) {
+                        // Удар слева – отлетаем влево
                         obj.x = inputRect.left - obj.radius;
-                        obj.speedX = -Math.abs(obj.speedX) * WALL_BOUNCE;
+                        obj.speedX = -EXIT_HORIZONTAL_SPEED - Math.random() * 2.0;
                     } else if (minOverlap === overlapRight) {
+                        // Удар справа – отлетаем вправо
                         obj.x = inputRect.right + obj.radius;
-                        obj.speedX = Math.abs(obj.speedX) * WALL_BOUNCE;
+                        obj.speedX = EXIT_HORIZONTAL_SPEED + Math.random() * 2.0;
                     }
+
+                    obj.touchedInput = true;   // больше никогда не касаемся поля
                 }
             }
 
-            // Затухание ниже кнопки
+            // затухание после кнопки
             if (obj.y > fadeStartY) {
                 obj.opacity -= 0.004;
                 if (obj.opacity < 0.05) obj.opacity = 0.05;
             }
 
-            // Удаление, если улетел далеко вниз, почти невидим или завис высоко (выше -100)
-            if (obj.y > window.innerHeight + 80 || obj.opacity <= 0.05 || obj.y < -100) {
+            // удаление
+            if (obj.y > window.innerHeight + 80 || obj.opacity <= 0.05) {
                 obj.el.remove();
                 fallingEmojis.splice(i, 1);
                 continue;
             }
 
-            // Применяем стили
+            // стили
             obj.el.style.top = obj.y + 'px';
             obj.el.style.left = obj.x + 'px';
             obj.el.style.opacity = obj.opacity;
