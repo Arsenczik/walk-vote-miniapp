@@ -704,25 +704,20 @@ target.style.display = isFlex ? 'flex' : 'block';
         document.getElementById('profileCreated').textContent = data.stats.created;
         document.getElementById('profileAttended').textContent = data.stats.attended;
 
-        // Собираем ачивки
-        let achievements = data.achievements || [];
-        // Если есть флаг приветственной ачивки, но её нет в списке с сервера – добавляем
-        if (localStorage.getItem('achievement_welcome_shown') && !achievements.some(a => a.emoji === '🐪')) {
-            achievements.unshift({ emoji: '🐪', name: 'Организованный верблюд' });
-        }
-
         let achievementsHtml = '';
-        if (achievements.length) {
-            achievements.forEach(a => {
+        if (data.achievements && data.achievements.length) {
+            data.achievements.forEach(a => {
                 achievementsHtml += `<div class="achievement-card"><span class="ach-emoji">${a.emoji}</span><span class="ach-name">${a.name}</span></div>`;
             });
         } else {
             achievementsHtml = '<p style="color:#666;">Пока нет ачивок. Участвуй в движухах!</p>';
         }
-        document.getElementById('achievementsList').innerHTML = achievementsHtml;
-    } catch(e) {}
-}
 
+        document.getElementById('achievementsList').innerHTML = achievementsHtml;
+    } catch(e) {
+        document.getElementById('achievementsList').innerHTML = '<p style="color:#666;">Ошибка загрузки ачивок</p>';
+    }
+}
     function editProfile() {
         let newName = prompt('Новое имя', userName);
         if (newName && newName.trim()) {
