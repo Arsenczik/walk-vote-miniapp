@@ -1,29 +1,19 @@
 from uuid import uuid4
 
+# Хранилище
 events_db = []
+users_db = {}
 
-# Словарь пользователей (пополняется автоматически)
-users_db = {
-    "user1": {"id": "user1", "name": "Арсен"},
-    "user2": {"id": "user2", "name": "Маша"},
-    "user3": {"id": "user3", "name": "Дима"},
-    "user4": {"id": "user4", "name": "Лена"},
-    "user5": {"id": "user5", "name": "Саша"},
-}
-
-# Хранилище фотографий: ключ — event_id, значение — список фото
-photos_db = {}
-
-def register_user(user_id, name=None):
-    """Создаёт пользователя, если его ещё нет"""
-    if user_id not in users_db:
-        users_db[user_id] = {"id": user_id, "name": name or user_id}
-
-def get_user(user_id):
-    # Автоматически регистрируем, если вдруг пропустили
-    if user_id not in users_db:
-        register_user(user_id)
-    return users_db.get(user_id)
+# Заполняем тестовыми пользователями
+test_users = [
+    ("user1", "Арсен"),
+    ("user2", "Маша"),
+    ("user3", "Дима"),
+    ("user4", "Лена"),
+    ("user5", "Саша"),
+]
+for uid, name in test_users:
+    users_db[uid] = {"id": uid, "name": name}
 
 def create_event(name, description, date, creator_id, category='🎉', latitude=None, longitude=None):
     event = {
@@ -35,23 +25,11 @@ def create_event(name, description, date, creator_id, category='🎉', latitude=
         "category": category,
         "participants": [creator_id],
         "latitude": latitude,
-        "longitude": longitude
+        "longitude": longitude,
+        "photos": []  # <-- теперь у каждого события есть список фото
     }
     events_db.append(event)
     return event
-
-def add_photo(event_id, user_id, image_base64):
-    if event_id not in photos_db:
-        photos_db[event_id] = []
-    photos_db[event_id].append({
-        "user_id": user_id,
-        "image": image_base64,
-        "timestamp": __import__('time').time()
-    })
-    return True
-
-def get_photos(event_id):
-    return photos_db.get(event_id, [])
 
 def get_events():
     events_with_names = []
@@ -67,7 +45,10 @@ def get_event(event_id):
     for e in events_db:
         if e['id'] == event_id:
             creator = get_user(e.get('creator_id'))
-            return {**e, "creator_name": creator['name'] if creator else 'Unknown'}
+            return {
+                **e,
+                "creator_name": creator['name'] if creator else 'Unknown'
+            }
     return None
 
 def add_participant(event_id, user_id):
@@ -95,6 +76,36 @@ def get_participants(event_id):
         return participants
     return []
 
+def register_user(user_id, name=None):
+    if user_id not in users_db:
+        users_db[user_id] = {"id": user_id, "name": name or user_id}
+
+def get_user(user_id):
+    # Автоматически регистрируем, если вдруг пропустили
+    if user_id not in users_db:
+        register_user(user_id)
+    return users_db.get(user_id)
+
+# --- ФОТОГРАФИИ ---
+def add_photo(event_id, base64_image, user_id):
+    event = next((e for e in events_db if e['id'] == event_id), None)
+    if event:
+        if 'photos' not in event:
+            event['photos'] = []
+        event['photos'].append({
+            "image": base64_image,
+            "addedBy": user_id
+        })
+        return True
+    return False
+
+def get_photos(event_id):
+    event = next((e for e in events_db if e['id'] == event_id), None)
+    if event:
+        return event.get('photos', [])
+    return []
+
+# --- АЧИВКИ ---
 def get_user_vibe(user_id):
     user = get_user(user_id)
     if not user:
@@ -104,8 +115,6 @@ def get_user_vibe(user_id):
     events_attended = [e for e in events_db if user_id in e.get('participants', [])]
 
     achievements = []
-
-    # Приветственная ачивка — всегда добавляется
     achievements.append({"emoji": "🐪", "name": "Организованный верблюд"})
 
     if len(events_created) >= 2:
