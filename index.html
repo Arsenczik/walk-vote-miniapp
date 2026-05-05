@@ -137,31 +137,33 @@
         .open-in-maps:active { background: #fff; color: #000; }
 
         /* --- Профиль (ЭЛИТНЫЙ UI) --- */
-      /* Экран профиля — теперь полноценная страница */
+        /* Экран профиля — полноценная страница */
 #profileScreen {
-    display: none;
-    flex-direction: column;
-    min-height: 100vh;
-    padding: 16px;
-    position: relative;
-    box-sizing: border-box;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100vh !important;           /* весь экран */
+    padding: 12px !important;
+    box-sizing: border-box !important;
+    position: relative !important;
 }
 
-/* Контейнер профиля растягивается на всё доступное пространство */
+/* Контейнер профиля растягивается на всё свободное место */
 .profile-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
     background: #0a0a0a;
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 28px;
     padding: 24px 20px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 30px rgba(255,255,255,0.04);
-    position: relative;
-    overflow-y: auto;       /* чтобы контент скроллился, если не влезает */
-    box-sizing: border-box;
-    height: 100%;
+    position: relative !important;
+    overflow-y: auto !important;       /* скролл внутри, если контент не влезает */
+    box-sizing: border-box !important;
 }
+
+/* Остальные стили (стрелка, аватар, имя и т.д.) ОСТАВЬ как есть – они не мешают */
+
         .profile-avatar-wrapper {
             display: flex;
             justify-content: center;
@@ -306,11 +308,7 @@
     padding: 0;
     line-height: 1;
 }
-        /* Сдвиг профиля вниз */
-#profileScreen {
-    padding-top: 30px;   /* сдвигаем весь экран профиля чуть ниже */
-}
-
+     
 
 /* Подсказка под аватаром */
 .avatar-hint {
@@ -326,21 +324,7 @@
 }
         /* === ПРОФИЛЬ – ФИНАЛЬНЫЕ СТИЛИ === */
 
-/* Весь экран профиля чуть вниз */
-#profileScreen {
-    padding-top: 30px !important;
-}
 
-/* Контейнер с относительным позиционированием для стрелки */
-.profile-container {
-    position: relative !important;
-    background: #0a0a0a;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 28px;
-    padding: 24px 20px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 30px rgba(255,255,255,0.04);
-    overflow: hidden;
-}
 
 /* Стрелка внутри контейнера */
 .back-arrow-profile {
