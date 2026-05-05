@@ -664,7 +664,18 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     // --- ГЛОБАЛЬНЫЕ ---
-    let USER_ID = 'user1';
+    var tg = window.Telegram?.WebApp;
+if (tg) {
+    tg.ready();
+    tg.expand();
+    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        var tgUser = tg.initDataUnsafe.user;
+        // Используем Telegram ID как основу
+        USER_ID = tgUser.id ? 'tg' + tgUser.id : 'user1';
+        userName = tgUser.username || tgUser.first_name || 'Гость';
+    }
+}
+    let USER_ID = USER_ID || 'user1';
     let userName = 'Гость';
     let userEmoji = '👤';
     let selectedCategory = '🍖';
@@ -712,7 +723,6 @@ target.style.display = isFlex ? 'flex' : 'block';
         } else {
             achievementsHtml = '<p style="color:#666;">Пока нет ачивок. Участвуй в движухах!</p>';
         }
-
         document.getElementById('achievementsList').innerHTML = achievementsHtml;
     } catch(e) {
         document.getElementById('achievementsList').innerHTML = '<p style="color:#666;">Ошибка загрузки ачивок</p>';
@@ -734,14 +744,20 @@ target.style.display = isFlex ? 'flex' : 'block';
     function saveName() {
     let name = document.getElementById('nameInput').value.trim();
     if (!name) return showToast('Введи имя!');
-    localStorage.setItem('userName', name);
-    localStorage.setItem('userId', 'u_' + Date.now());
-    localStorage.setItem('userEmoji', userEmoji);
-    initUser();
 
-    // Проверяем, первый ли это вход
+    // Если есть Telegram – ID уже взят, иначе генерируем из имени
+    if (!USER_ID || USER_ID === 'user1') {
+        USER_ID = 'u_' + name.toLowerCase().replace(/[^a-z0-9]/g, '_') + '_' + Date.now();
+    }
+
+    localStorage.setItem('userName', name);
+    localStorage.setItem('userId', USER_ID);
+    localStorage.setItem('userEmoji', userEmoji);
+    userName = name;
+    USER_NAMES[USER_ID] = name;
+
+    // Приветственное уведомление (первый вход)
     if (!localStorage.getItem('achievement_welcome_shown')) {
-        // Показываем красивое уведомление
         const toast = document.createElement('div');
         toast.className = 'achievement-toast';
         toast.innerHTML = `
@@ -751,10 +767,10 @@ target.style.display = isFlex ? 'flex' : 'block';
         `;
         document.body.appendChild(toast);
         localStorage.setItem('achievement_welcome_shown', '1');
-        // Удаляем уведомление после анимации (через 3 секунды)
         setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
     }
 
+    initUser();
     showScreen('mainMenu');
 }
     function logout() {
