@@ -1040,33 +1040,80 @@ target.style.display = isFlex ? 'flex' : 'block';
         } catch(e) {}
     }
     function openEventModal(eventId) {
-        let event = eventsList.find(e => e.id === eventId);
-        if (!event) return;
-        let isGoing = event.participants?.includes(USER_ID);
-        let count = event.participants?.length || 0;
-        let participantsList = '';
-        if (event.participants?.length) {
-            participantsList = event.participants.map(userId => {
-                let nm = USER_NAMES[userId] || userId; let ini = (nm[0] || '?').toUpperCase();
-                let isMe = userId === USER_ID, isCreator = userId === event.creator_id;
-                return `<span class="participant-badge${isMe ? ' is-me' : ''}"><span class="avatar" style="width:28px;height:28px;font-size:12px;margin-left:0;">${ini}</span><span class="participant-name">${nm}${isMe ? ' (ты)' : ''}</span>${isCreator ? '<span class="crown">👑</span>' : ''}</span>`;
-            }).join('');
-        } else participantsList = '<p class="no-participants">Пока никто не записался</p>';
-        let locationHtml = '';
-        if (event.latitude && event.longitude) {
-            let staticMapUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${event.latitude},${event.longitude}&zoom=15&size=400x200&markers=${event.latitude},${event.longitude},red-pushpin`;
-            locationHtml = `<div class="modal-date-section" style="flex-direction:column;align-items:flex-start;"><div class="modal-date-icon">📍</div><div class="modal-date-text">${event.latitude}, ${event.longitude}</div><img src="${staticMapUrl}" class="static-map-preview" alt="Место"><button class="open-in-maps" onclick="openInMaps(${event.latitude},${event.longitude})">🗺️ Проложить маршрут</button></div>`;
-        }
-        document.getElementById('modalContent').innerHTML = `
-            <button class="modal-close-btn" onclick="document.getElementById('eventModal').style.display='none'">✕</button>
-            <div class="modal-header"><div class="modal-emoji">${event.category || '🎉'}</div><div class="modal-title-block"><h2>${escapeHtml(event.name)}</h2></div></div>
-            <div class="modal-date-section"><div class="modal-date-icon">📅</div><div class="modal-date-text">${formatDateFull(event.date)}</div></div>
-            ${locationHtml}
-            ${event.description ? `<p class="modal-description">${escapeHtml(event.description)}</p>` : ''}
-            <div class="modal-participants-section"><div class="modal-section-label">👥 Участники (${count})</div><div class="participants-list">${participantsList}</div></div>
-            <div class="modal-actions"><button class="rsvp-btn ${isGoing ? 'going' : 'not-going'}" onclick="toggleRSVP('${event.id}', ${isGoing}); document.getElementById('eventModal').style.display='none'">${isGoing ? '✕ ОТМЕНИТЬ УЧАСТИЕ' : '➕ БУДУ'}</button></div>`;
-        document.getElementById('eventModal').style.display = 'flex';
+    let event = eventsList.find(e => e.id === eventId);
+    if (!event) return;
+    let isGoing = event.participants?.includes(USER_ID);
+    let count = event.participants?.length || 0;
+    let participantsList = '';
+    if (event.participants?.length) {
+        participantsList = event.participants.map(userId => {
+            let nm = USER_NAMES[userId] || userId;
+            let ini = (nm[0] || '?').toUpperCase();
+            let isMe = userId === USER_ID, isCreator = userId === event.creator_id;
+            return `<span class="participant-badge${isMe ? ' is-me' : ''}"><span class="avatar" style="width:28px;height:28px;font-size:12px;margin-left:0;">${ini}</span><span class="participant-name">${nm}${isMe ? ' (ты)' : ''}</span>${isCreator ? '<span class="crown">👑</span>' : ''}</span>`;
+        }).join('');
+    } else participantsList = '<p class="no-participants">Пока никто не записался</p>';
+
+    let locationHtml = '';
+    if (event.latitude && event.longitude) {
+        let staticMapUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${event.latitude},${event.longitude}&zoom=15&size=400x200&markers=${event.latitude},${event.longitude},red-pushpin`;
+        locationHtml = `<div class="modal-date-section" style="flex-direction:column;align-items:flex-start;"><div class="modal-date-icon">📍</div><div class="modal-date-text">${event.latitude}, ${event.longitude}</div><img src="${staticMapUrl}" class="static-map-preview" alt="Место"><button class="open-in-maps" onclick="openInMaps(${event.latitude},${event.longitude})">🗺️ Проложить маршрут</button></div>`;
     }
+
+    // Проверяем, прошло ли событие
+    let now = new Date();
+    let eventDate = new Date(event.date);
+    let isPast = eventDate < now;
+
+    // Основной контент модалки
+    let innerHTML = `
+        <button class="modal-close-btn" onclick="document.getElementById('eventModal').style.display='none'">✕</button>
+        <div class="modal-header">
+            <div class="modal-emoji">${event.category || '🎉'}</div>
+            <div class="modal-title-block"><h2>${escapeHtml(event.name)}</h2></div>
+        </div>
+        <div class="modal-date-section">
+            <div class="modal-date-icon">📅</div>
+            <div class="modal-date-text">${formatDateFull(event.date)}</div>
+        </div>
+        ${!isPast ? locationHtml : ''}
+        ${event.description && !isPast ? `<p class="modal-description">${escapeHtml(event.description)}</p>` : ''}
+    `;
+
+    if (isPast) {
+        // Показываем общий альбом
+        innerHTML += `
+            <div class="album-section">
+                <div class="album-header">
+                    <span class="album-title">📸 Общий альбом</span>
+                    ${isGoing ? `<button class="add-photo-btn" onclick="triggerPhotoUpload('${eventId}')">➕ Добавить фото</button>` : ''}
+                </div>
+                <div class="photo-grid" id="photoGrid_${eventId}">
+                    <p>Загрузка...</p>
+                </div>
+                <input type="file" id="photoInput_${eventId}" accept="image/*" style="display:none;" onchange="uploadPhoto('${eventId}')" />
+            </div>`;
+    }
+
+    innerHTML += `
+        <div class="modal-participants-section">
+            <div class="modal-section-label">👥 Участники (${count})</div>
+            <div class="participants-list">${participantsList}</div>
+        </div>
+        <div class="modal-actions">
+            <button class="rsvp-btn ${isGoing ? 'going' : 'not-going'}" onclick="toggleRSVP('${event.id}', ${isGoing}); document.getElementById('eventModal').style.display='none'">
+                ${isGoing ? '✕ ОТМЕНИТЬ УЧАСТИЕ' : '➕ БУДУ'}
+            </button>
+        </div>`;
+
+    document.getElementById('modalContent').innerHTML = innerHTML;
+    document.getElementById('eventModal').style.display = 'flex';
+
+    // Загружаем фото альбома
+    if (isPast) {
+        loadPhotos(eventId);
+    }
+}
     function openInMaps(lat, lng) { window.open(`https://maps.apple.com/?ll=${lat},${lng}&q=Точка`, '_blank'); }
 
     // --- СТАТИСТИКА ---
