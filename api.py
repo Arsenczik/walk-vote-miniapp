@@ -3,7 +3,7 @@ import database
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
-@api_bp.route('/events', methods=['GET'])
+
 @api_bp.route('/events', methods=['GET'])
 def get_events():
     try:
@@ -146,5 +146,12 @@ def add_photo(event_id):
         if database.add_photo(event_id, data['image'], data['user_id']):
             return jsonify({"status": "added"})
         return jsonify({"error": "Could not add photo"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+@api_bp.route('/events/<event_id>', methods=['DELETE'])
+def delete_event(event_id):
+    try:
+        database.delete_event(event_id)
+        return jsonify({"status": "deleted"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
