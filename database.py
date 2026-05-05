@@ -1,13 +1,6 @@
 from uuid import uuid4
 
 events_db = []
-users_db = {
-    "user1": {"id": "user1", "name": "Арсен"},
-    "user2": {"id": "user2", "name": "Маша"},
-    "user3": {"id": "user3", "name": "Дима"},
-    "user4": {"id": "user4", "name": "Лена"},
-    "user5": {"id": "user5", "name": "Саша"},
-}
 
 def create_event(name, description, date, creator_id, category='🎉', latitude=None, longitude=None):
     event = {
@@ -66,7 +59,24 @@ def get_participants(event_id):
         return participants
     return []
 
+# Словарь пользователей (пополняется автоматически)
+users_db = {
+    "user1": {"id": "user1", "name": "Арсен"},
+    "user2": {"id": "user2", "name": "Маша"},
+    "user3": {"id": "user3", "name": "Дима"},
+    "user4": {"id": "user4", "name": "Лена"},
+    "user5": {"id": "user5", "name": "Саша"},
+}
+
+def register_user(user_id, name=None):
+    """Создаёт пользователя, если его ещё нет"""
+    if user_id not in users_db:
+        users_db[user_id] = {"id": user_id, "name": name or user_id}
+
 def get_user(user_id):
+    # Автоматически регистрируем, если вдруг пропустили
+    if user_id not in users_db:
+        register_user(user_id)
     return users_db.get(user_id)
 
 def get_user_vibe(user_id):
