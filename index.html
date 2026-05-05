@@ -1159,7 +1159,7 @@ target.style.display = isFlex ? 'flex' : 'block';
             <div class="album-section">
                 <div class="album-header">
                     <span class="album-title">📸 Общий альбом</span>
-                    ${isGoing ? `<button class="add-photo-btn" onclick="triggerPhotoUpload('${eventId}')">➕ Добавить фото</button>` : ''}
+                    ${isGoing ? `<label class="add-photo-btn" for="photoInput_${eventId}">➕ Добавить фото</label>` : ''}
                 </div>
                 <div class="photo-grid" id="photoGrid_${eventId}">
                     <p>Загрузка...</p>
@@ -1275,10 +1275,7 @@ async function loadPhotos(eventId) {
     }
 }
 
-// 📸 Открыть выбор файла
-function triggerPhotoUpload(eventId) {
-    document.getElementById('photoInput_' + eventId).click();
-}
+
 
 // 📸 Загрузить фото на сервер
 async function uploadPhoto(eventId) {
