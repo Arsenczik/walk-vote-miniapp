@@ -324,27 +324,29 @@
         if (id === 'statsScreen') loadStatistics();
     }
 
-   // --- ПАДАЮЩИЕ ЭМОДЗИ (рабочая версия) ---
+  // --- ПАДАЮЩИЕ ЭМОДЗИ (финальная версия с гравитацией) ---
     const emojiCandidates = ['😎','🥸','🥳','🥵','🫠','🤪','🤣','🥴'];
+    const GRAVITY = 0.12;          // ускорение свободного падения
+    const GROUND_FRICTION = 0.7;   // потеря энергии при отскоке от земли (не используется)
+    const INPUT_BOUNCE = 0.35;     // коэффициент отскока от поля ввода
 
     function createFallingEmoji() {
         const el = document.createElement('div');
         el.className = 'falling-emoji';
         el.textContent = emojiCandidates[Math.floor(Math.random() * emojiCandidates.length)];
-        // стартовая позиция в пикселях
-        let startX = Math.random() * window.innerWidth;
+        const startX = Math.random() * (window.innerWidth - 30);
         el.style.left = startX + 'px';
-        el.style.top = '-50px';
+        el.style.top = '-40px';
         document.body.appendChild(el);
 
         fallingEmojis.push({
             el: el,
-            x: startX,                 // теперь в пикселях
-            y: -50,
-            speedY: 1.4 + Math.random() * 2.2,
-            speedX: (Math.random() - 0.5) * 1.8,
-            opacity: 0.25,
-            passedInput: false
+            x: startX,
+            y: -40,
+            speedY: 2.0 + Math.random() * 3.0,   // начальная скорость падения
+            speedX: (Math.random() - 0.5) * 2.0,
+            opacity: 0.30,
+            radius: 14
         });
     }
 
@@ -352,7 +354,7 @@
         stopFallingEmojis();
         loginEmojiInterval = setInterval(() => {
             if (fallingEmojis.length < 15) createFallingEmoji();
-        }, 400);
+        }, 450);
         requestAnimationFrame(updateFallingEmojis);
     }
 
@@ -376,52 +378,56 @@
         const buttonEl = document.querySelector('#loginScreen button');
         const inputRect = inputEl?.getBoundingClientRect();
         const buttonRect = buttonEl?.getBoundingClientRect();
-        const fadeStartY = buttonRect ? buttonRect.bottom + 20 : window.innerHeight;
+        const fadeStartY = buttonRect ? buttonRect.bottom + 25 : window.innerHeight;
 
         for (let i = fallingEmojis.length - 1; i >= 0; i--) {
             const obj = fallingEmojis[i];
 
-            // движение
+            // гравитация
+            obj.speedY += GRAVITY;
             obj.y += obj.speedY;
             obj.x += obj.speedX;
 
-            // отскок от краёв экрана
-            if (obj.x < 0) {
-                obj.x = 0;
-                obj.speedX = Math.abs(obj.speedX) * 0.5;
-            } else if (obj.x > window.innerWidth - 14) {
-                obj.x = window.innerWidth - 14;
-                obj.speedX = -Math.abs(obj.speedX) * 0.5;
+            // горизонтальные границы экрана
+            if (obj.x - obj.radius < 0) {
+                obj.x = obj.radius;
+                obj.speedX = Math.abs(obj.speedX) * 0.4;
+            } else if (obj.x + obj.radius > window.innerWidth) {
+                obj.x = window.innerWidth - obj.radius;
+                obj.speedX = -Math.abs(obj.speedX) * 0.4;
             }
 
-            // отскок от поля ввода (только один раз, чтобы не зациклило)
-            if (!obj.passedInput && inputRect) {
-                const emojiCenterX = obj.x + 14;            // ~половина ширины эмодзи
-                const emojiCenterY = obj.y + 14;
-                if (emojiCenterX > inputRect.left && emojiCenterX < inputRect.right &&
-                    emojiCenterY > inputRect.top && emojiCenterY < inputRect.bottom) {
-                    // вертикальный отскок с затуханием
-                    obj.speedY = -Math.abs(obj.speedY) * 0.45;
-                    // небольшой горизонтальный импульс
-                    obj.speedX += (Math.random() - 0.5) * 1.1;
-                    obj.passedInput = true;   // больше не отскакивать от поля
+            // столкновение с полем ввода
+            if (inputRect) {
+                const emojiLeft = obj.x - obj.radius;
+                const emojiRight = obj.x + obj.radius;
+                const emojiTop = obj.y - obj.radius;
+                const emojiBottom = obj.y + obj.radius;
+
+                if (emojiRight > inputRect.left && emojiLeft < inputRect.right &&
+                    emojiBottom > inputRect.top && emojiTop < inputRect.bottom) {
+                    // точка контакта – выталкиваем эмодзи наверх от поля
+                    obj.y = inputRect.top - obj.radius;
+                    obj.speedY = -Math.abs(obj.speedY) * INPUT_BOUNCE;
+                    // небольшой случайный горизонтальный толчок
+                    obj.speedX += (Math.random() - 0.5) * 1.5;
                 }
             }
 
-            // плавное затухание после прохождения кнопки "Войти"
+            // затухание, когда эмодзи уходит ниже кнопки "Войти"
             if (obj.y > fadeStartY) {
                 obj.opacity -= 0.004;
                 if (obj.opacity < 0.05) obj.opacity = 0.05;
             }
 
-            // удаление, если улетел за экран или стал почти невидимым
-            if (obj.y > window.innerHeight + 50 || obj.opacity <= 0.05) {
+            // удаление: упал далеко вниз или почти невидим
+            if (obj.y > window.innerHeight + 80 || obj.opacity <= 0.05) {
                 obj.el.remove();
                 fallingEmojis.splice(i, 1);
                 continue;
             }
 
-            // применяем стили
+            // обновляем стили
             obj.el.style.top = obj.y + 'px';
             obj.el.style.left = obj.x + 'px';
             obj.el.style.opacity = obj.opacity;
