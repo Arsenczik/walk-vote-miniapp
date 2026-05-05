@@ -326,21 +326,27 @@
 
     // --- ПАДАЮЩИЕ ЭМОДЗИ ---
     const emojiCandidates = ['😎','🥸','🥳','🥵','🫠','🤪','🤣','🥴'];
-    function createFallingEmoji() {
-        const el = document.createElement('div');
-        el.className = 'falling-emoji';
-        el.textContent = emojiCandidates[Math.floor(Math.random() * emojiCandidates.length)];
-        el.style.left = Math.random() * 100 + '%';
-        document.body.appendChild(el);
-        fallingEmojis.push({
-            el,
-            x: parseFloat(el.style.left),
-            y: -50,
-            speedY: 1.2 + Math.random() * 2.5,
-            speedX: (Math.random() - 0.5) * 1.5,
-            opacity: 0.25
-        });
-    }
+   function createFallingEmoji() {
+    const el = document.createElement('div');
+    el.className = 'falling-emoji';
+    const emoji = emojiCandidates[Math.floor(Math.random() * emojiCandidates.length)];
+    el.textContent = emoji;
+    // размер эмодзи примерно 28px, радиус ~14px
+    const radius = 14;
+    el.style.left = Math.random() * 100 + '%';
+    document.body.appendChild(el);
+    fallingEmojis.push({
+        el,
+        x: parseFloat(el.style.left),
+        y: -50,
+        speedY: 1.4 + Math.random() * 2.2,  // чуть быстрее
+        speedX: (Math.random() - 0.5) * 1.8,
+        opacity: 0.25,
+        radius: radius,
+        // флаг, прошёл ли уже поле ввода
+        passedInput: false
+    });
+}
     function startFallingEmojis() {
         stopFallingEmojis();
         loginEmojiInterval = setInterval(() => {
@@ -354,11 +360,77 @@
         fallingEmojis = [];
     }
     function updateFallingEmojis() {
-        if (document.getElementById('loginScreen')?.style.display !== 'flex') {
-            fallingEmojis.forEach(e => e.el.remove());
-            fallingEmojis = [];
-            return;
+    // Если экран входа не активен, удаляем все эмодзи
+    if (document.getElementById('loginScreen')?.style.display !== 'flex') {
+        fallingEmojis.forEach(e => e.el.remove());
+        fallingEmojis = [];
+        return;
+    }
+
+    const inputEl = document.getElementById('nameInput');
+    const buttonEl = document.querySelector('#loginScreen button');
+    const inputRect = inputEl?.getBoundingClientRect();
+    const buttonRect = buttonEl?.getBoundingClientRect();
+
+    // Граница, после которой начинается затухание: низ кнопки + 20px
+    const fadeStartY = buttonRect ? buttonRect.bottom + 20 : window.innerHeight;
+
+    for (let i = fallingEmojis.length - 1; i >= 0; i--) {
+        const obj = fallingEmojis[i];
+
+        // обновляем позицию
+        obj.y += obj.speedY;
+        obj.x += obj.speedX;
+
+        // горизонтальные границы (отскок от краёв экрана)
+        if (obj.x - obj.radius < 0) {
+            obj.x = obj.radius;
+            obj.speedX = Math.abs(obj.speedX) * 0.5;
+        } else if (obj.x + obj.radius > window.innerWidth) {
+            obj.x = window.innerWidth - obj.radius;
+            obj.speedX = -Math.abs(obj.speedX) * 0.5;
         }
+
+        // Коллизия с полем ввода (input)
+        if (!obj.passedInput && inputRect) {
+            // центр эмодзи
+            const emojiCenterX = parseFloat(obj.el.style.left) + obj.radius;
+            const emojiCenterY = obj.y + obj.radius;
+
+            // проверяем, находится ли центр внутри прямоугольника поля ввода (с небольшим запасом)
+            if (emojiCenterX > inputRect.left && emojiCenterX < inputRect.right &&
+                emojiCenterY > inputRect.top && emojiCenterY < inputRect.bottom) {
+                // отскок: вертикальная скорость меняет знак, немного гасится
+                obj.speedY = -Math.abs(obj.speedY) * 0.6;
+                // добавляем случайный горизонтальный импульс для естественности
+                obj.speedX += (Math.random() - 0.5) * 1.2;
+                // помечаем, что взаимодействие было, чтобы не зациклиться
+                obj.passedInput = true;
+            }
+        }
+
+        // Затухание после прохождения fadeStartY
+        if (obj.y > fadeStartY) {
+            // уменьшаем opacity медленно: за ~1 секунду (60 кадров) с 0.25 до 0.05
+            obj.opacity -= 0.004;
+            if (obj.opacity < 0.05) obj.opacity = 0.05;
+        }
+
+        // Удаление, если эмодзи улетел за экран или стал почти невидимым
+        if (obj.y > window.innerHeight + 50 || obj.opacity <= 0.05) {
+            obj.el.remove();
+            fallingEmojis.splice(i, 1);
+            continue;
+        }
+
+        // Применяем стили
+        obj.el.style.top = obj.y + 'px';
+        obj.el.style.left = (obj.x % 100) + '%';
+        obj.el.style.opacity = obj.opacity;
+    }
+
+    requestAnimationFrame(updateFallingEmojis);
+}
         let inputEl = document.getElementById('nameInput');
         let buttonEl = document.querySelector('#loginScreen button');
         let inputRect = inputEl?.getBoundingClientRect();
