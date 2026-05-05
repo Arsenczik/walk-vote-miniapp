@@ -28,32 +28,6 @@ def create_event():
         return jsonify(event), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-# 📸 Загрузить фото в альбом события
-@api_bp.route('/events/<event_id>/photos', methods=['POST'])
-def upload_photo(event_id):
-    try:
-        data = request.json
-        if not data or 'user_id' not in data or 'image' not in data:
-            return jsonify({"error": "user_id and image (base64) are required"}), 400
-        event = database.get_event(event_id)
-        if not event:
-            return jsonify({"error": "Event not found"}), 404
-        if data['user_id'] not in event.get('participants', []):
-            return jsonify({"error": "Only participants can add photos"}), 403
-        database.add_photo(event_id, data['user_id'], data['image'])
-        return jsonify({"status": "ok"}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-# 📸 Получить все фото события
-@api_bp.route('/events/<event_id>/photos', methods=['GET'])
-def get_photos(event_id):
-    try:
-        photos = database.get_photos(event_id)
-        return jsonify(photos)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
 
 @api_bp.route('/events/<event_id>', methods=['GET'])
 def get_event(event_id):
@@ -101,7 +75,6 @@ def get_participants(event_id):
 @api_bp.route('/profile/<user_id>', methods=['GET'])
 def get_profile(user_id):
     try:
-        # Убедимся, что пользователь существует
         database.register_user(user_id)
         vibe = database.get_user_vibe(user_id)
         if vibe:
@@ -109,7 +82,7 @@ def get_profile(user_id):
         return jsonify({"error": "User not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-        
+
 @api_bp.route('/leaderboard', methods=['GET'])
 def get_leaderboard():
     try:
@@ -127,5 +100,26 @@ def get_leaderboard():
                 })
         leaderboard.sort(key=lambda x: x['score'], reverse=True)
         return jsonify(leaderboard)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# --- ФОТОГРАФИИ ---
+@api_bp.route('/events/<event_id>/photos', methods=['GET'])
+def get_photos(event_id):
+    try:
+        photos = database.get_photos(event_id)
+        return jsonify(photos)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/events/<event_id>/photos', methods=['POST'])
+def add_photo(event_id):
+    try:
+        data = request.json
+        if not data or 'user_id' not in data or 'image' not in data:
+            return jsonify({"error": "user_id and image are required"}), 400
+        if database.add_photo(event_id, data['image'], data['user_id']):
+            return jsonify({"status": "added"})
+        return jsonify({"error": "Could not add photo"}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
