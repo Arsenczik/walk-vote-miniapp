@@ -56,9 +56,18 @@
 
         /* --- Стрелка назад --- */
         .back-arrow {
-            position: absolute; top: 20px; left: 12px; background: none; border: none;
-            color: #888; font-size: 28px; cursor: pointer; z-index: 10; padding: 0; line-height: 1;
-        }
+    position: absolute;
+    top: 16px;    /* было 20px */
+    left: 12px;
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 10;
+    padding: 0;
+    line-height: 1;
+}
 
         /* --- Заголовок событий --- */
         #eventsHeader {
@@ -128,13 +137,13 @@
         .open-in-maps:active { background: #fff; color: #000; }
 
         /* --- Профиль (ЭЛИТНЫЙ UI) --- */
-        #profileScreen {
-            display: none;
-            flex-direction: column;
-            min-height: 100vh;
-            padding: 16px;
-            position: relative;
-        }
+       #profileScreen {
+    display: none;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 16px;
+    position: relative;
+}
         .profile-container {
             background: #0a0a0a;
             border: 1px solid rgba(255, 255, 255, 0.15);
