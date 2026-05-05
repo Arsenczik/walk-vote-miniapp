@@ -75,13 +75,15 @@ def get_participants(event_id):
 @api_bp.route('/profile/<user_id>', methods=['GET'])
 def get_profile(user_id):
     try:
+        # Убедимся, что пользователь существует
+        database.register_user(user_id)
         vibe = database.get_user_vibe(user_id)
         if vibe:
             return jsonify(vibe)
         return jsonify({"error": "User not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
+        
 @api_bp.route('/leaderboard', methods=['GET'])
 def get_leaderboard():
     try:
