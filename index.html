@@ -1182,7 +1182,7 @@
         } catch(e) {}
     }
     function openEventModal(eventId) {
-    let event = eventsList.find(e => e.id === eventId);
+    let event = eventsList.find(e => e.id === eventId) || archiveEvents.find(e => e.id === eventId);
     if (!event) return;
     let isGoing = event.participants?.includes(USER_ID);
     let count = event.participants?.length || 0;
@@ -1242,11 +1242,14 @@
             <div class="modal-section-label">👥 Участники (${count})</div>
             <div class="participants-list">${participantsList}</div>
         </div>
+        ${!isPast ? `
         <div class="modal-actions">
             <button class="rsvp-btn ${isGoing ? 'going' : 'not-going'}" onclick="toggleRSVP('${event.id}', ${isGoing}); document.getElementById('eventModal').style.display='none'">
                 ${isGoing ? '✕ ОТМЕНИТЬ УЧАСТИЕ' : '➕ БУДУ'}
             </button>
-        </div>`;
+        </div>
+        ` : ''}
+    `;
 
     document.getElementById('modalContent').innerHTML = innerHTML;
     document.getElementById('eventModal').style.display = 'flex';
