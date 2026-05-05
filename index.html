@@ -551,36 +551,98 @@
         if (input) input.placeholder = placeholders[Math.floor(Math.random() * placeholders.length)];
     }
 
-    // --- САЛЮТ (тёмный, медленный) ---
+    // --- САЛЮТ (цветные, монохромные взрывы вокруг кнопок) ---
+    let fireworksCanvas, fireworksCtx, fireworksParticles = [];
+    let fireworksRAF = null;
+
     function startFireworks() {
         if (fireworksActive) return;
         fireworksActive = true;
-        let canvas = document.getElementById('fireworksCanvas');
-        if (!canvas) return;
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-        let ctx = canvas.getContext('2d');
-        let particles = [];
-        function createParticle(x,y) { return { x,y, vx: (Math.random()-0.5)*2.5, vy: (Math.random()-0.5)*2.5, life: 1, color: `hsl(${Math.random()*360},40%,45%)` }; }
-        function explode(x,y) { for (let i=0; i<20; i++) particles.push(createParticle(x,y)); }
-        function loop() {
-            if (!fireworksActive) return;
-            ctx.fillStyle = 'rgba(0,0,0,0.12)';
-            ctx.fillRect(0,0,canvas.width,canvas.height);
-            if (Math.random() < 0.03) explode(Math.random()*canvas.width, Math.random()*canvas.height*0.4);
-            particles = particles.filter(p => p.life > 0);
-            particles.forEach(p => {
-                p.x += p.vx; p.y += p.vy; p.life -= 0.01;
-                ctx.beginPath(); ctx.arc(p.x,p.y,1.8,0,Math.PI*2);
-                ctx.fillStyle = p.color; ctx.globalAlpha = p.life * 0.6; ctx.fill();
-            });
-            ctx.globalAlpha = 1;
-            requestAnimationFrame(loop);
-        }
-        loop();
+        fireworksCanvas = document.getElementById('fireworksCanvas');
+        if (!fireworksCanvas) return;
+        fireworksCtx = fireworksCanvas.getContext('2d');
+        resizeFireworksCanvas();
+        window.addEventListener('resize', resizeFireworksCanvas);
+        fireworksParticles = [];
+        fireworksRAF = requestAnimationFrame(fireworksLoop);
     }
-    function stopFireworks() { fireworksActive = false; }
 
+    function stopFireworks() {
+        fireworksActive = false;
+        if (fireworksRAF) {
+            cancelAnimationFrame(fireworksRAF);
+            fireworksRAF = null;
+        }
+        window.removeEventListener('resize', resizeFireworksCanvas);
+        if (fireworksCtx) fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+    }
+
+    function resizeFireworksCanvas() {
+        if (!fireworksCanvas) return;
+        fireworksCanvas.width = fireworksCanvas.offsetWidth;
+        fireworksCanvas.height = fireworksCanvas.offsetHeight;
+    }
+
+    function fireworksLoop() {
+        if (!fireworksActive) return;
+        fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+
+        // Получаем кнопки меню для привязки взрывов
+        const buttons = document.querySelectorAll('#mainMenu button');
+        if (buttons.length >= 2 && Math.random() < 0.06) { // примерно 3-4 взрыва в секунду
+            const btn = buttons[Math.floor(Math.random() * buttons.length)];
+            const rect = btn.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            createFireworkExplosion(x, y);
+        }
+
+        // Обновление частиц с медленной гравитацией
+        for (let i = fireworksParticles.length - 1; i >= 0; i--) {
+            const p = fireworksParticles[i];
+            p.vy += 0.04; // лёгкая гравитация
+            p.vx *= 0.98;
+            p.vy *= 0.98;
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life -= 0.015;
+            if (p.life <= 0) {
+                fireworksParticles.splice(i, 1);
+                continue;
+            }
+            const alpha = Math.min(p.life, 0.7);
+            fireworksCtx.beginPath();
+            fireworksCtx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+            fireworksCtx.fillStyle = p.color;
+            fireworksCtx.globalAlpha = alpha;
+            fireworksCtx.fill();
+            // лёгкое свечение
+            fireworksCtx.beginPath();
+            fireworksCtx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+            fireworksCtx.fillStyle = p.color;
+            fireworksCtx.globalAlpha = alpha * 0.3;
+            fireworksCtx.fill();
+        }
+        fireworksCtx.globalAlpha = 1;
+        fireworksRAF = requestAnimationFrame(fireworksLoop);
+    }
+
+    function createFireworkExplosion(x, y) {
+        const count = 30 + Math.floor(Math.random() * 20);
+        const hue = Math.random() * 360; // один тон на весь взрыв
+        for (let i = 0; i < count; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 2 + Math.random() * 4;
+            fireworksParticles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: 1.2 + Math.random() * 0.5,
+                color: `hsl(${hue}, 60%, 60%)`
+            });
+        }
+    }
     // --- КАРТА ---
     function openMapModal() {
         document.getElementById('mapModal').style.display = 'flex';
