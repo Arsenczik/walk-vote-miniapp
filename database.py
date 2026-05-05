@@ -214,3 +214,9 @@ def get_archived_events():
     archive_old_events()
     delete_old_archived()
     return [e for e in events_db if e.get('archived_at')]
+    
+def delete_event(event_id):
+    """Удаляет событие по ID"""
+    global events_db
+    events_db = [e for e in events_db if e['id'] != event_id]
+    return True
