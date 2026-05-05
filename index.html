@@ -650,6 +650,24 @@
     text-align: center;
     margin: 20px 0 30px;
 }
+        .delete-event-btn {
+    width: 100%;
+    padding: 14px;
+    background: transparent;
+    border: 1px solid rgba(255, 100, 100, 0.4);
+    border-radius: 14px;
+    color: #ff6b6b;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+}
+.delete-event-btn:active {
+    background: #ff6b6b;
+    color: #fff;
+    border-color: #ff6b6b;
+}
     </style>
 </head>
 <body>
@@ -785,6 +803,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
    // --- ГЛОБАЛЬНЫЕ ---
+    const ADMIN_ID = 'user1';   // ← замени на свой ID (например, 'tg123456')
     let USER_ID;
     let userName;
     let userEmoji = '👤';
@@ -861,6 +880,28 @@
         document.getElementById('achievementsList').innerHTML = '<p style="color:#666;">Ошибка загрузки ачивок</p>';
     }
 }
+    async function deleteEvent(eventId) {
+    if (!confirm('Удалить событие навсегда? Это действие необратимо.')) return;
+    try {
+        let res = await fetch('/api/events/' + eventId, { method: 'DELETE' });
+        if (res.ok) {
+            document.getElementById('eventModal').style.display = 'none';
+            // обновляем текущий список (события или архив)
+            if (document.getElementById('archiveScreen').style.display === 'flex') {
+                loadArchive();
+            } else {
+                loadEvents();
+            }
+            showToast('🗑️ Событие удалено');
+        } else {
+            let err = await res.json();
+            showToast('❌ ' + (err.error || 'Ошибка удаления'));
+        }
+    } catch(e) {
+        showToast('❌ Ошибка соединения');
+    }
+}
+    
     function editProfile() {
         let newName = prompt('Новое имя', userName);
         if (newName && newName.trim()) {
@@ -1248,6 +1289,11 @@
                 ${isGoing ? '✕ ОТМЕНИТЬ УЧАСТИЕ' : '➕ БУДУ'}
             </button>
         </div>
+        ${USER_ID === ADMIN_ID ? `
+<div style="margin-top: 12px;">
+    <button class="delete-event-btn" onclick="deleteEvent('${event.id}')">🗑️ Удалить событие</button>
+</div>
+` : ''}
         ` : ''}
     `;
 
