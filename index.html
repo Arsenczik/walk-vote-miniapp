@@ -1304,23 +1304,7 @@ async function uploadPhoto(eventId) {
     reader.readAsDataURL(file);
 }
 
-// 📸 Отрисовка сетки фото из event.photos
-function renderPhotoGrid(eventId) {
-    let grid = document.getElementById('photoGrid_' + eventId);
-    if (!grid) return;
-    let event = eventsList.find(ev => ev.id === eventId);
-    let photos = event?.photos || [];
-    if (photos.length === 0) {
-        grid.innerHTML = '<p style="color:#666;text-align:center;width:100%;">Пока нет фотографий</p>';
-        return;
-    }
-    grid.innerHTML = photos.map((photo, index) => `
-        <div class="photo-item">
-            <img src="${photo.image}" alt="Фото" loading="lazy" />
-            <button class="download-photo-btn" onclick="downloadPhoto('${photo.image}')">⬇️</button>
-        </div>
-    `).join('');
-}
+
 
 function downloadPhoto(base64) {
     // Определяем MIME‑тип
