@@ -324,11 +324,11 @@
         if (id === 'statsScreen') loadStatistics();
     }
 
-  // --- ПАДАЮЩИЕ ЭМОДЗИ (финальная версия с гравитацией) ---
+ // --- ПАДАЮЩИЕ ЭМОДЗИ (финальная версия) ---
     const emojiCandidates = ['😎','🥸','🥳','🥵','🫠','🤪','🤣','🥴'];
-    const GRAVITY = 0.12;          // ускорение свободного падения
-    const GROUND_FRICTION = 0.7;   // потеря энергии при отскоке от земли (не используется)
-    const INPUT_BOUNCE = 0.35;     // коэффициент отскока от поля ввода
+    const GRAVITY = 0.14;             // чуть сильнее
+    const INPUT_BOUNCE = 0.45;        // отскок от поля ввода
+    const WALL_BOUNCE = 0.5;          // отскок от краёв
 
     function createFallingEmoji() {
         const el = document.createElement('div');
@@ -343,8 +343,8 @@
             el: el,
             x: startX,
             y: -40,
-            speedY: 2.0 + Math.random() * 3.0,   // начальная скорость падения
-            speedX: (Math.random() - 0.5) * 2.0,
+            speedY: 3.0 + Math.random() * 3.5,   // высокая начальная скорость
+            speedX: (Math.random() - 0.5) * 2.2,
             opacity: 0.30,
             radius: 14
         });
@@ -353,8 +353,8 @@
     function startFallingEmojis() {
         stopFallingEmojis();
         loginEmojiInterval = setInterval(() => {
-            if (fallingEmojis.length < 15) createFallingEmoji();
-        }, 450);
+            if (fallingEmojis.length < 25) createFallingEmoji();  // лимит поднят
+        }, 350);
         requestAnimationFrame(updateFallingEmojis);
     }
 
@@ -368,98 +368,91 @@
     }
 
     function updateFallingEmojis() {
-    const loginScreen = document.getElementById('loginScreen');
-    if (!loginScreen || loginScreen.style.display !== 'flex') {
-        stopFallingEmojis();
-        return;
-    }
-
-    const inputEl = document.getElementById('nameInput');
-    const buttonEl = document.querySelector('#loginScreen button');
-    const inputRect = inputEl?.getBoundingClientRect();
-    const buttonRect = buttonEl?.getBoundingClientRect();
-    const fadeStartY = buttonRect ? buttonRect.bottom + 25 : window.innerHeight;
-
-    for (let i = fallingEmojis.length - 1; i >= 0; i--) {
-        const obj = fallingEmojis[i];
-
-        // 1. Гравитация (уменьшенная для плавности)
-        obj.speedY += 0.08;            // было 0.12
-        obj.y += obj.speedY;
-        obj.x += obj.speedX;
-
-        // 2. Горизонтальные границы экрана (отскок с трением)
-        if (obj.x - obj.radius < 0) {
-            obj.x = obj.radius;
-            obj.speedX = Math.abs(obj.speedX) * 0.4;
-        } else if (obj.x + obj.radius > window.innerWidth) {
-            obj.x = window.innerWidth - obj.radius;
-            obj.speedX = -Math.abs(obj.speedX) * 0.4;
+        const loginScreen = document.getElementById('loginScreen');
+        if (!loginScreen || loginScreen.style.display !== 'flex') {
+            stopFallingEmojis();
+            return;
         }
 
-        // 3. Столкновение с полем ввода (все стороны)
-        if (inputRect) {
-            const emojiLeft = obj.x - obj.radius;
-            const emojiRight = obj.x + obj.radius;
-            const emojiTop = obj.y - obj.radius;
-            const emojiBottom = obj.y + obj.radius;
+        const inputEl = document.getElementById('nameInput');
+        const buttonEl = document.querySelector('#loginScreen button');
+        const inputRect = inputEl?.getBoundingClientRect();
+        const buttonRect = buttonEl?.getBoundingClientRect();
+        const fadeStartY = buttonRect ? buttonRect.bottom + 25 : window.innerHeight;
 
-            // Проверяем перекрытие
-            if (emojiRight > inputRect.left && emojiLeft < inputRect.right &&
-                emojiBottom > inputRect.top && emojiTop < inputRect.bottom) {
+        for (let i = fallingEmojis.length - 1; i >= 0; i--) {
+            const obj = fallingEmojis[i];
 
-                // Определяем, с какой стороны произошло касание (по глубине проникновения)
-                const overlapLeft = emojiRight - inputRect.left;
-                const overlapRight = inputRect.right - emojiLeft;
-                const overlapTop = emojiBottom - inputRect.top;
-                const overlapBottom = inputRect.bottom - emojiTop;
+            // Гравитация
+            obj.speedY += GRAVITY;
+            obj.y += obj.speedY;
+            obj.x += obj.speedX;
 
-                // Находим минимальное перекрытие — это сторона удара
-                const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
+            // Горизонтальные границы экрана
+            if (obj.x - obj.radius < 0) {
+                obj.x = obj.radius;
+                obj.speedX = Math.abs(obj.speedX) * WALL_BOUNCE;
+            } else if (obj.x + obj.radius > window.innerWidth) {
+                obj.x = window.innerWidth - obj.radius;
+                obj.speedX = -Math.abs(obj.speedX) * WALL_BOUNCE;
+            }
 
-                if (minOverlap === overlapTop) {
-                    // Удар сверху (эмодзи падает на поле)
-                    obj.y = inputRect.top - obj.radius;
-                    obj.speedY = -Math.abs(obj.speedY) * 0.35;
-                    // Небольшой горизонтальный импульс для случайного отскока
-                    obj.speedX += (Math.random() - 0.5) * 1.2;
-                } else if (minOverlap === overlapBottom) {
-                    // Удар снизу (редко, но обработаем)
-                    obj.y = inputRect.bottom + obj.radius;
-                    obj.speedY = Math.abs(obj.speedY) * 0.35;
-                } else if (minOverlap === overlapLeft) {
-                    // Удар слева
-                    obj.x = inputRect.left - obj.radius;
-                    obj.speedX = -Math.abs(obj.speedX) * 0.4;
-                } else if (minOverlap === overlapRight) {
-                    // Удар справа
-                    obj.x = inputRect.right + obj.radius;
-                    obj.speedX = Math.abs(obj.speedX) * 0.4;
+            // Столкновение с полем ввода
+            if (inputRect) {
+                const emojiLeft = obj.x - obj.radius;
+                const emojiRight = obj.x + obj.radius;
+                const emojiTop = obj.y - obj.radius;
+                const emojiBottom = obj.y + obj.radius;
+
+                if (emojiRight > inputRect.left && emojiLeft < inputRect.right &&
+                    emojiBottom > inputRect.top && emojiTop < inputRect.bottom) {
+
+                    const overlapLeft = emojiRight - inputRect.left;
+                    const overlapRight = inputRect.right - emojiLeft;
+                    const overlapTop = emojiBottom - inputRect.top;
+                    const overlapBottom = inputRect.bottom - emojiTop;
+
+                    const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
+
+                    if (minOverlap === overlapTop) {
+                        // Удар сверху — выталкиваем вверх и даём горизонтальный толчок
+                        obj.y = inputRect.top - obj.radius;
+                        obj.speedY = -Math.abs(obj.speedY) * INPUT_BOUNCE;
+                        obj.speedX += (Math.random() - 0.5) * 2.0;
+                    } else if (minOverlap === overlapBottom) {
+                        obj.y = inputRect.bottom + obj.radius;
+                        obj.speedY = Math.abs(obj.speedY) * INPUT_BOUNCE;
+                    } else if (minOverlap === overlapLeft) {
+                        obj.x = inputRect.left - obj.radius;
+                        obj.speedX = -Math.abs(obj.speedX) * WALL_BOUNCE;
+                    } else if (minOverlap === overlapRight) {
+                        obj.x = inputRect.right + obj.radius;
+                        obj.speedX = Math.abs(obj.speedX) * WALL_BOUNCE;
+                    }
                 }
             }
+
+            // Затухание ниже кнопки
+            if (obj.y > fadeStartY) {
+                obj.opacity -= 0.004;
+                if (obj.opacity < 0.05) obj.opacity = 0.05;
+            }
+
+            // Удаление, если улетел далеко вниз, почти невидим или завис высоко (выше -100)
+            if (obj.y > window.innerHeight + 80 || obj.opacity <= 0.05 || obj.y < -100) {
+                obj.el.remove();
+                fallingEmojis.splice(i, 1);
+                continue;
+            }
+
+            // Применяем стили
+            obj.el.style.top = obj.y + 'px';
+            obj.el.style.left = obj.x + 'px';
+            obj.el.style.opacity = obj.opacity;
         }
 
-        // 4. Затухание ниже кнопки "Войти"
-        if (obj.y > fadeStartY) {
-            obj.opacity -= 0.004;
-            if (obj.opacity < 0.05) obj.opacity = 0.05;
-        }
-
-        // 5. Удаление, если улетел далеко вниз или почти невидим
-        if (obj.y > window.innerHeight + 80 || obj.opacity <= 0.05) {
-            obj.el.remove();
-            fallingEmojis.splice(i, 1);
-            continue;
-        }
-
-        // 6. Применяем стили
-        obj.el.style.top = obj.y + 'px';
-        obj.el.style.left = obj.x + 'px';
-        obj.el.style.opacity = obj.opacity;
+        requestAnimationFrame(updateFallingEmojis);
     }
-
-    requestAnimationFrame(updateFallingEmojis);
-}
     // --- ОНБОРДИНГ ---
     function startRegistration() { showScreen('loginScreen'); }
 
