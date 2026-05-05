@@ -136,118 +136,192 @@
         .open-in-maps { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; color: #fff; font-weight: 600; cursor: pointer; width: 100%; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .open-in-maps:active { background: #fff; color: #000; }
 
-        /* --- Профиль (ЭЛИТНЫЙ UI) --- */
+      
  
-        .profile-avatar-wrapper {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 15px;
-        }
-        .profile-avatar-bg {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 48px;
-            box-shadow: 0 0 30px rgba(255,255,255,0.08);
-            transition: transform 0.2s;
-            cursor: pointer;
-        }
-        .profile-avatar-bg:active { transform: scale(0.95); }
-        .profile-name-display {
-            text-align: center;
-            font-size: 24px;
-            font-weight: 800;
-            letter-spacing: 1px;
-            margin-bottom: 24px;
-            color: #fff;
-        }
-        .profile-stats-row {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
-        .profile-stat-item {
-            flex: 1;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 20px;
-            padding: 16px 12px;
-            text-align: center;
-        }
-        .profile-stat-item .stat-number {
-            font-size: 28px;
-            font-weight: 700;
-            color: #fff;
-        }
-        .profile-stat-item .stat-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #888;
-            margin-top: 4px;
-        }
-        .profile-achievements {
-            margin: 20px 0;
-        }
-        .profile-achievements .section-title {
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #aaa;
-            margin-bottom: 12px;
-        }
-        .achievement-card {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 16px;
-            padding: 12px 16px;
-            margin-bottom: 8px;
-        }
-        .achievement-card .ach-emoji {
-            font-size: 28px;
-            width: 40px;
-            text-align: center;
-        }
-        .achievement-card .ach-name {
-            font-weight: 600;
-            color: #ddd;
-        }
-        .profile-edit-btn {
-            width: 100%;
-            padding: 14px;
-            background: #fff;
-            color: #000;
-            border: none;
-            border-radius: 14px;
-            font-weight: 700;
-            font-size: 16px;
-            margin-top: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .profile-edit-btn:active { background: #ccc; }
-        .profile-logout-btn {
-            width: 100%;
-            padding: 14px;
-            background: transparent;
-            border: 1px solid #333;
-            border-radius: 14px;
-            color: #ff6b6b;
-            font-weight: 600;
-            margin-top: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .profile-logout-btn:active { background: #1a1a1a; }
+        /* --- Профиль (ПРЕМИУМ СТЕКЛО) --- */
+#profileScreen {
+    display: none;                 /* скрыт по умолчанию */
+    flex-direction: column;
+    min-height: 100vh;
+    background: #000;             /* чёрный фон за стеклом */
+    color: #fff;
+    padding: 16px 12px;
+    box-sizing: border-box;
+    position: relative;
+    overflow-y: auto;
+}
 
+/* Контейнер больше не используется как карточка, но оставим для структуры */
+.profile-container {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Аватарка – стеклянный круг с подсветкой */
+.profile-avatar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.profile-avatar-bg {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    /* Стеклянная основа */
+    background: #0a0a0a;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.06), inset 0 0 12px rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+.profile-avatar-bg:active {
+    transform: scale(0.95);
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.12), inset 0 0 16px rgba(0,0,0,0.7);
+}
+
+/* Подсказка под аватаром */
+.avatar-hint {
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    margin-top: 8px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.avatar-hint:hover {
+    color: #aaa;
+}
+
+/* Имя + карандаш */
+.profile-name-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 28px;
+}
+.profile-name-display {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #fff;
+}
+.edit-icon {
+    font-size: 26px;
+    color: #888;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s, transform 0.2s;
+}
+.edit-icon:active {
+    color: #fff;
+    transform: scale(1.2);
+}
+
+/* Карточки статистики – стеклянные панели */
+.profile-stats-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+}
+.profile-stat-item {
+    flex: 1;
+    background: #0a0a0a;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    padding: 20px 12px;
+    text-align: center;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.03), inset 0 0 8px rgba(0,0,0,0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.profile-stat-item:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.05), inset 0 0 12px rgba(0,0,0,0.6);
+}
+.profile-stat-item .stat-number {
+    font-size: 30px;
+    font-weight: 700;
+    color: #fff;
+}
+.profile-stat-item .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #888;
+    margin-top: 6px;
+}
+
+/* Ачивки – стеклянные карточки */
+.profile-achievements {
+    margin: 24px 0;
+}
+.section-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-bottom: 14px;
+}
+.achievement-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: #0a0a0a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.02), inset 0 0 8px rgba(0,0,0,0.5);
+    transition: transform 0.2s, border-color 0.2s;
+}
+.achievement-card:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+    transform: scale(1.01);
+}
+.achievement-card .ach-emoji {
+    font-size: 30px;
+    width: 44px;
+    text-align: center;
+}
+.achievement-card .ach-name {
+    font-weight: 600;
+    color: #ddd;
+    font-size: 15px;
+}
+
+/* Кнопка выхода – стеклянная, с акцентом */
+.profile-logout-btn {
+    width: 100%;
+    padding: 16px;
+    background: #0a0a0a;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    color: #ff6b6b;
+    font-weight: 600;
+    font-size: 16px;
+    margin-top: 12px;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.03), inset 0 0 6px rgba(0,0,0,0.5);
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+}
+.profile-logout-btn:active {
+    background: #fff;
+    color: #000;
+    border-color: #fff;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.12);
+}
         /* --- Статистика --- */
         #statsScreen { padding-top: 20px; }
         #statsScreen h1 { font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 30px; }
@@ -266,114 +340,7 @@
         #mapContainer { width: 100%; height: 60vh; border-radius: 16px; margin-bottom: 16px; }
         .cross-center { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 2px solid #fff; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; }
         .leaflet-container { background: #0a0a0a; filter: grayscale(100%) invert(92%) hue-rotate(180deg); }
-   /* Стрелка внутри профиля */
-.back-arrow-profile {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    z-index: 15;
-    margin: 0;
-    /* обнуляем общие стили, если нужно усилить */
-    background: none;
-    border: none;
-    color: #888;
-    font-size: 28px;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-}
-     
-
-/* Подсказка под аватаром */
-.avatar-hint {
-    text-align: center;
-    font-size: 12px;
-    color: #666;
-    margin-top: 8px;
-    cursor: pointer;
-    transition: color 0.2s;
-}
-.avatar-hint:hover {
-    color: #aaa;
-}
-        /* === ПРОФИЛЬ – ФИНАЛЬНЫЕ СТИЛИ === */
-
-
-
-/* Стрелка внутри контейнера */
-.back-arrow-profile {
-    position: absolute !important;
-    top: 16px !important;
-    left: 16px !important;
-    z-index: 15 !important;
-    background: none !important;
-    border: none !important;
-    color: #888 !important;
-    font-size: 28px !important;
-    cursor: pointer;
-    padding: 0 !important;
-    line-height: 1 !important;
-}
-
-/* Аватарка */
-.profile-avatar-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 15px;   /* ты можешь менять это значение, сейчас 15px */
-}
-
-.profile-avatar-bg {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 48px;
-    box-shadow: 0 0 30px rgba(255,255,255,0.08);
-    transition: transform 0.2s;
-    cursor: pointer;
-}
-.profile-avatar-bg:active { transform: scale(0.95); }
-
-/* Подсказка под аватаркой */
-.avatar-hint {
-    cursor: default;        /* убираем намёк на кликабельность */
-    color: #666;
-}
-.avatar-hint:hover, .avatar-hint:active {
-    color: #666;            /* текст не меняет цвет при наведении */
-}
-/* Имя + карандаш */
-.profile-name-row {
-    display: flex;
-    align-items: baseline;       /* выравнивание по базовой линии текста */
-    justify-content: center;
-    gap: 6px;
-    margin-bottom: 24px;
-}
-
-.edit-icon {
-    font-size: 26px;
-    color: #888;
-    cursor: pointer;
-    line-height: 1;
-    vertical-align: middle;
-    transition: color 0.2s;
-}
-.edit-icon:active {
-    color: #fff;
-}
-
-.profile-name-display {
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    color: #fff;
-}
-
+  
 /* Статистика */
 .profile-stats-row {
     display: flex;
@@ -404,56 +371,7 @@
     margin-top: 4px;
 }
 
-/* Ачивки */
-.profile-achievements {
-    margin: 20px 0;
-}
 
-.section-title {
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #aaa;
-    margin-bottom: 12px;
-}
-
-.achievement-card {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 16px;
-    padding: 12px 16px;
-    margin-bottom: 8px;
-}
-
-.achievement-card .ach-emoji {
-    font-size: 28px;
-    width: 40px;
-    text-align: center;
-}
-
-.achievement-card .ach-name {
-    font-weight: 600;
-    color: #ddd;
-}
-
-/* Кнопка выхода */
-.profile-logout-btn {
-    width: 100%;
-    padding: 14px;
-    background: transparent;
-    border: 1px solid #333;
-    border-radius: 14px;
-    color: #ff6b6b;
-    font-weight: 600;
-    margin-top: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.profile-logout-btn:active { background: #1a1a1a; }
         /* Модалка выбора эмодзи */
 #emojiPicker {
     display: none;
@@ -580,70 +498,7 @@
     color: #000 !important;
     border-color: #fff !important;
 }
-    /* === ЭКРАН ПРОФИЛЯ – полноэкранный, без бортиков === */
-#profileScreen {
-    display: none;                  /* скрыт по умолчанию */
-    flex-direction: column;
-    min-height: 100vh;             /* на весь экран */
-    background: #000;              /* чёрный фон как у событий */
-    color: #fff;
-    padding: 16px 12px;            /* небольшие отступы */
-    box-sizing: border-box;
-    position: relative;            /* для стрелки назад */
-    overflow-y: auto;              /* скролл, если контент не помещается */
-}
-
-/* Контейнер-обёртка больше не нужен – весь контент напрямую */
-.profile-container {
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    padding: 0;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Стрелка назад – абсолютно в левом верхнем углу экрана профиля */
-.back-arrow-profile {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    z-index: 15;
-    background: none;
-    border: none;
-    color: #888;
-    font-size: 28px;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-}
-
-/* Остальные элементы (аватар, имя, статистика) остаются с теми же стилями, 
-   но мы можем немного увеличить ширину кнопок статистики, 
-   чтобы они были на весь экран с учётом отступов */
-.profile-stats-row {
-    gap: 10px;
-    margin-bottom: 20px;
-}
-.profile-stat-item {
-    flex: 1;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px;
-    padding: 14px 10px;
-}
-.profile-logout-btn {
-    width: 100%;
-    background: transparent;
-    border: 1px solid #333;
-    color: #ff6b6b;
-    font-weight: 600;
-    margin-top: 12px;
-    padding: 14px;
-    border-radius: 14px;
-}
+  
     </style>
 </head>
 <body>
