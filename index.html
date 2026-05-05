@@ -580,19 +580,14 @@
     color: #000 !important;
     border-color: #fff !important;
 }
-       /* Экран профиля — как отдельная страница */
+     /* Экран профиля – полноценная страница, как События */
 #profileScreen {
-    display: none;                    /* скрыт по умолчанию */
+    display: none;                /* скрыт по умолчанию */
     flex-direction: column;
-    position: absolute;               /* растягиваем внутри .container */
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 20;                      /* поверх других экранов, когда показан */
+    min-height: 100vh;            /* растягивается на весь экран */
     padding: 12px;
     box-sizing: border-box;
-    overflow: hidden;                 /* скролл будет внутри .profile-container */
+    overflow-y: auto;             /* скролл при необходимости */
 }
 
 /* Контейнер профиля занимает всё пространство */
@@ -605,8 +600,8 @@
     border-radius: 28px;
     padding: 24px 20px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 30px rgba(255,255,255,0.04);
-    position: relative;               /* для стрелки и внутреннего позиционирования */
-    overflow-y: auto;                 /* скролл, если контент не влезает */
+    position: relative;
+    overflow-y: auto;
     box-sizing: border-box;
 }
     </style>
