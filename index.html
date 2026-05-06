@@ -1384,14 +1384,19 @@
             <button class="rsvp-btn ${isGoing ? 'going' : 'not-going'}" onclick="toggleRSVP('${event.id}', ${isGoing}); document.getElementById('eventModal').style.display='none'">
                 ${isGoing ? '✕ ОТМЕНИТЬ УЧАСТИЕ' : '➕ БУДУ'}
             </button>
-        </div> 
+        </div>
         ` : ''}
     `;
-        ${USER_ID === ADMIN_ID ? `
-<div style="margin-top: 12px;">
-    <button class="delete-event-btn" onclick="deleteEvent('${event.id}')">🗑️ Удалить событие</button>
-</div>
-       
+
+    // Кнопка удаления для админа (всегда видна)
+    if (USER_ID === ADMIN_ID) {
+        innerHTML += `
+            <div style="margin-top: 12px;">
+                <button class="delete-event-btn" onclick="deleteEvent('${event.id}')">🗑️ Удалить событие</button>
+            </div>
+        `;
+    }
+
     document.getElementById('modalContent').innerHTML = innerHTML;
     document.getElementById('eventModal').style.display = 'flex';
 
