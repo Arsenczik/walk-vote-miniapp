@@ -29,11 +29,11 @@ def create_event(name, description, date, creator_id, category='🎉', latitude=
         "latitude": latitude,
         "longitude": longitude,
         "photos": [],
-        "archived_at": None      # время, когда событие попало в архив
+        "archived_at": None,
+        "special_achievements": []   # список достижений, задаваемых создателем
     }
     events_db.append(event)
     return event
-
 
 def get_events():
     """Для совместимости – возвращает все события, но активно используется get_active_events"""
@@ -158,7 +158,14 @@ def get_user_vibe(user_id):
 
     if len(events_attended) >= 5:
         achievements.append({"emoji": "⭐", "name": "Старожил"})
-
+    # Добавляем специальные достижения
+    if 'special_achievements' in user:
+        for ach_key, ach in user['special_achievements'].items():
+            achievements.append({
+                "emoji": ach['emoji'],
+                "name": ach['name'],
+                "description": ach.get('description', '')  # описание!
+            })
     return {
         "user": user,
         "achievements": achievements,
@@ -219,4 +226,44 @@ def delete_event(event_id):
     """Удаляет событие по ID"""
     global events_db
     events_db = [e for e in events_db if e['id'] != event_id]
+    return True
+
+# --- СПЕЦИАЛЬНЫЕ ДОСТИЖЕНИЯ ---
+def set_special_achievements(event_id, achievements_list):
+    """Сохраняет массив достижений (до 3 штук) для события"""
+    event = next((e for e in events_db if e['id'] == event_id), None)
+    if event:
+        event['special_achievements'] = achievements_list
+        return True
+    return False
+
+def assign_achievement(event_id, achievement_index, user_ids):
+    """Назначает достижение участникам. achievement_index – индекс в списке special_achievements."""
+    event = next((e for e in events_db if e['id'] == event_id), None)
+    if not event or achievement_index >= len(event.get('special_achievements', [])):
+        return False
+
+    ach = event['special_achievements'][achievement_index]
+    # Инициализируем список назначенных, если нет
+    if 'assignedTo' not in ach:
+        ach['assignedTo'] = []
+    # Проверяем, что не превышаем 3
+    available = 3 - len(ach['assignedTo'])
+    users_to_add = user_ids[:available]
+    ach['assignedTo'].extend(users_to_add)
+
+    # Добавляем достижение в профили пользователей
+    for uid in users_to_add:
+        user = get_user(uid)
+        if user:
+            if 'special_achievements' not in user:
+                user['special_achievements'] = {}
+            # Сохраняем информацию о достижении
+            user['special_achievements'][event_id + '_' + str(achievement_index)] = {
+                "emoji": ach['emoji'],
+                "name": ach['name'],
+                "description": ach.get('description', ''),
+                "event_id": event_id,
+                "event_name": event['name']
+            }
     return True
