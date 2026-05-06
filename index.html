@@ -886,8 +886,9 @@
     let archiveEvents = [];
     let USER_NAMES = {};
     let fireworksActive = false;
-    // --- АНИМАЦИЯ МЕНЮ (МИНИМАЛИЗМ) ---
+   // --- АНИМАЦИЯ МЕНЮ (ПУСТЫНЯ + ВЕРБЛЮДЫ) ---
     let desertCanvas, desertCtx, desertRAF = null;
+    let desertTime = 0;
 
     function startDesertAnimation() {
         desertCanvas = document.getElementById('fireworksCanvas');
@@ -913,57 +914,130 @@
         desertCanvas.height = desertCanvas.offsetHeight;
     }
 
-    let desertTime = 0;
     function desertLoop() {
         if (!desertCanvas || !desertCtx) return;
         desertTime += 0.005;
-        
-        // Глубокий черный фон
-        desertCtx.fillStyle = '#000000';
+
+        // === 1. Фон ===
+        const bgColor = lerpColor([15, 23, 42], [0, 0, 0], Math.sin(desertTime) * 0.3 + 0.5);
+        desertCtx.fillStyle = `rgb(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]})`;
         desertCtx.fillRect(0, 0, desertCanvas.width, desertCanvas.height);
 
-        // Мерцающие звезды (маленькие серые точки)
-        for (let i = 0; i < 40; i++) {
-            const sx = (i * 137 + desertTime * 10) % desertCanvas.width;
+        // === 2. Звёзды (только ночью) ===
+        const nightFactor = Math.max(0, -Math.sin(desertTime));
+        for (let i = 0; i < 30; i++) {
+            const sx = (i * 137) % desertCanvas.width;
             const sy = (i * 73) % (desertCanvas.height * 0.6);
-            const brightness = Math.sin(desertTime * 5 + i) * 0.3 + 0.5; // пульсация
+            const brightness = Math.sin(desertTime * 5 + i) * 0.4 + 0.6;
             desertCtx.beginPath();
-            desertCtx.arc(sx, sy, 1.5, 0, Math.PI * 2);
-            desertCtx.fillStyle = `rgba(200, 200, 200, ${brightness})`;
+            desertCtx.arc(sx, sy, 1.2, 0, Math.PI * 2);
+            desertCtx.fillStyle = `rgba(200,200,200, ${brightness * nightFactor})`;
             desertCtx.fill();
         }
 
-        // Луна (маленькая, яркая)
-        const moonX = desertCanvas.width * 0.7 + Math.sin(desertTime * 0.2) * 50;
-        const moonY = desertCanvas.height * 0.15;
-        desertCtx.beginPath();
-        desertCtx.arc(moonX, moonY, 20, 0, Math.PI * 2);
-        desertCtx.fillStyle = '#F0F0F0';
-        desertCtx.fill();
-        // свечение луны
-        const gradient = desertCtx.createRadialGradient(moonX, moonY, 20, moonX, moonY, 40);
-        gradient.addColorStop(0, 'rgba(240,240,240,0.2)');
-        gradient.addColorStop(1, 'rgba(240,240,240,0)');
-        desertCtx.beginPath();
-        desertCtx.arc(moonX, moonY, 40, 0, Math.PI * 2);
-        desertCtx.fillStyle = gradient;
-        desertCtx.fill();
-
-        // Песчаные дюны (плавные линии внизу)
-        desertCtx.strokeStyle = '#2a2a2a';
-        desertCtx.lineWidth = 1.5;
-        for (let layer = 0; layer < 3; layer++) {
+        // === 3. Солнце / Луна ===
+        const diagonalX = desertCanvas.width * 0.8 + Math.sin(desertTime) * desertCanvas.width * 0.6;
+        const diagonalY = desertCanvas.height * 0.2 + Math.cos(desertTime) * desertCanvas.height * 0.15;
+        if (Math.sin(desertTime) > 0) {
+            // Солнце
+            const sunGrad = desertCtx.createRadialGradient(diagonalX, diagonalY, 5, diagonalX, diagonalY, 30);
+            sunGrad.addColorStop(0, 'rgba(255,255,255,0.9)');
+            sunGrad.addColorStop(0.5, 'rgba(255,255,200,0.2)');
+            sunGrad.addColorStop(1, 'rgba(255,255,200,0)');
             desertCtx.beginPath();
-            const baseY = desertCanvas.height * (0.65 + layer * 0.12);
+            desertCtx.arc(diagonalX, diagonalY, 30, 0, Math.PI * 2);
+            desertCtx.fillStyle = sunGrad;
+            desertCtx.fill();
+        } else {
+            // Луна
+            desertCtx.beginPath();
+            desertCtx.arc(diagonalX, diagonalY, 20, 0, Math.PI * 2);
+            desertCtx.fillStyle = '#F0F0F0';
+            desertCtx.fill();
+            const moonGrad = desertCtx.createRadialGradient(diagonalX, diagonalY, 20, diagonalX, diagonalY, 40);
+            moonGrad.addColorStop(0, 'rgba(240,240,240,0.3)');
+            moonGrad.addColorStop(1, 'rgba(240,240,240,0)');
+            desertCtx.beginPath();
+            desertCtx.arc(diagonalX, diagonalY, 40, 0, Math.PI * 2);
+            desertCtx.fillStyle = moonGrad;
+            desertCtx.fill();
+        }
+
+        // === 4. Пустыня (дюны, двигаются влево) ===
+        const duneColor = lerpColor([60, 50, 40], [10, 15, 25], nightFactor);
+        desertCtx.strokeStyle = `rgb(${duneColor[0]}, ${duneColor[1]}, ${duneColor[2]})`;
+        desertCtx.lineWidth = 2;
+        for (let layer = 0; layer < 4; layer++) {
+            desertCtx.beginPath();
+            const baseY = desertCanvas.height * (0.6 + layer * 0.1);
+            const speed = (layer + 1) * 0.3;
             for (let x = 0; x <= desertCanvas.width; x += 5) {
-                const y = baseY + Math.sin(x * 0.015 + desertTime * 0.3 + layer) * 10 + Math.sin(x * 0.03 + desertTime * 0.1) * 5;
+                const offsetX = x + desertTime * 100 * speed;
+                const y = baseY + Math.sin(offsetX * 0.008) * 12 + Math.sin(offsetX * 0.02) * 6;
                 if (x === 0) desertCtx.moveTo(x, y);
                 else desertCtx.lineTo(x, y);
             }
             desertCtx.stroke();
         }
 
+        // === 5. Верблюды (по центру) ===
+        const camelY = desertCanvas.height * 0.65;
+        const camelColor = lerpColor([80, 60, 40], [30, 40, 55], nightFactor);
+        desertCtx.fillStyle = `rgb(${camelColor[0]}, ${camelColor[1]}, ${camelColor[2]})`;
+        for (let i = 0; i < 2; i++) {
+            const camelX = desertCanvas.width * (0.35 + i * 0.25);
+            const legPhase = desertTime * 15 + i * Math.PI; // анимация ног
+            drawCamel(desertCtx, camelX, camelY, 0.8);
+        }
+
         desertRAF = requestAnimationFrame(desertLoop);
+    }
+
+    // Простой силуэт верблюда
+    function drawCamel(ctx, x, y, scale) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scale, scale);
+        // Тело
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 25, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Горб
+        ctx.beginPath();
+        ctx.ellipse(-8, -10, 8, 6, 0.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(8, -10, 8, 6, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+        // Шея и голова
+        ctx.beginPath();
+        ctx.moveTo(-18, -8);
+        ctx.lineTo(-30, -22);
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = ctx.fillStyle;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(-32, -22, 6, 4, 0.4, 0, Math.PI * 2);
+        ctx.fill();
+        // Ноги (с анимацией)
+        const legLen = 18;
+        for (let j = 0; j < 4; j++) {
+            const sign = j % 2 === 0 ? 1 : -1;
+            const phase = desertTime * 15 + j * Math.PI / 2;
+            const offsetX = (j - 1.5) * 10;
+            const offsetY = 10 + Math.sin(phase) * 3;
+            ctx.fillRect(offsetX - 2, offsetY, 4, legLen);
+        }
+        ctx.restore();
+    }
+
+    // Вспомогательная функция для смешивания цветов
+    function lerpColor(c1, c2, t) {
+        return [
+            Math.round(c1[0] + (c2[0] - c1[0]) * t),
+            Math.round(c1[1] + (c2[1] - c1[1]) * t),
+            Math.round(c1[2] + (c2[2] - c1[2]) * t)
+        ];
     }
     let fallingEmojis = [];
     let loginEmojiInterval = null;
