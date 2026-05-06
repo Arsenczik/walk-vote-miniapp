@@ -831,7 +831,6 @@
 </div>
 </div>
 
-<button class="stats-fab" id="statsFab" onclick="showScreen('statsScreen')" style="display: none;">📊</button>
 <button class="archive-fab" id="archiveFab" onclick="showScreen('archiveScreen')" style="display: none;">📦</button>
     
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -882,7 +881,6 @@
     if (id === 'loginScreen') { startFallingEmojis(); setRandomPlaceholder(); } else stopFallingEmojis();
 
     // Управление кнопками внизу
-    document.getElementById('statsFab').style.display = (id === 'eventsScreen') ? 'flex' : 'none';
     document.getElementById('archiveFab').style.display = (id === 'eventsScreen') ? 'flex' : 'none';
 
     if (id === 'eventsScreen') loadEvents();
@@ -908,6 +906,7 @@
     <span class="ach-emoji">${a.emoji}</span>
     <span class="ach-name">${a.name}</span>
 </div>`;
+            });        
         } else {
             achievementsHtml = '<p style="color:#666;">Пока нет ачивок. Участвуй в движухах!</p>';
         }
@@ -1386,12 +1385,12 @@
                 ${isGoing ? '✕ ОТМЕНИТЬ УЧАСТИЕ' : '➕ БУДУ'}
             </button>
         </div> 
+        ` : ''}
+    `;
         ${USER_ID === ADMIN_ID ? `
 <div style="margin-top: 12px;">
     <button class="delete-event-btn" onclick="deleteEvent('${event.id}')">🗑️ Удалить событие</button>
 </div>
-        ` : ''}
-    `;
        
     document.getElementById('modalContent').innerHTML = innerHTML;
     document.getElementById('eventModal').style.display = 'flex';
@@ -1467,7 +1466,6 @@
         document.getElementById('emojiPicker').style.display = 'none';
         localStorage.setItem('userEmoji', emoji);
     };
-    // 📸 Загрузка списка фото и отрисовка
 // 📸 Загрузка списка фото и отрисовка
 async function loadPhotos(eventId) {
     let grid = document.getElementById('photoGrid_' + eventId);
