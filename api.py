@@ -39,6 +39,32 @@ def create_event():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# --- СПЕЦИАЛЬНЫЕ ДОСТИЖЕНИЯ ---
+@api_bp.route('/events/<event_id>/special-achievements', methods=['POST'])
+def set_special_achievements(event_id):
+    try:
+        data = request.json
+        if not data or 'achievements' not in data:
+            return jsonify({"error": "achievements list is required"}), 400
+        # achievements – список объектов {emoji, name, description}
+        database.set_special_achievements(event_id, data['achievements'])
+        return jsonify({"status": "saved"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api_bp.route('/events/<event_id>/assign-achievement', methods=['POST'])
+def assign_achievement(event_id):
+    try:
+        data = request.json
+        if not data or 'achievement_index' not in data or 'user_ids' not in data:
+            return jsonify({"error": "achievement_index and user_ids required"}), 400
+        success = database.assign_achievement(event_id, data['achievement_index'], data['user_ids'])
+        if success:
+            return jsonify({"status": "assigned"})
+        return jsonify({"error": "Could not assign"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @api_bp.route('/events/<event_id>', methods=['GET'])
 def get_event(event_id):
     try:
