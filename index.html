@@ -886,6 +886,134 @@
     let archiveEvents = [];
     let USER_NAMES = {};
     let fireworksActive = false;
+    // --- АНИМАЦИЯ ПУСТЫНИ В ГЛАВНОМ МЕНЮ ---
+    let desertCanvas, desertCtx, desertRAF = null;
+    let desertTime = 0; // время для цикла дня и ночи
+
+    function startDesertAnimation() {
+        desertCanvas = document.getElementById('fireworksCanvas'); // используем тот же canvas
+        if (!desertCanvas) return;
+        desertCtx = desertCanvas.getContext('2d');
+        resizeDesertCanvas();
+        window.addEventListener('resize', resizeDesertCanvas);
+        desertRAF = requestAnimationFrame(desertLoop);
+    }
+
+    function stopDesertAnimation() {
+        if (desertRAF) {
+            cancelAnimationFrame(desertRAF);
+            desertRAF = null;
+        }
+        window.removeEventListener('resize', resizeDesertCanvas);
+        if (desertCtx) desertCtx.clearRect(0, 0, desertCanvas.width, desertCanvas.height);
+    }
+
+    function resizeDesertCanvas() {
+        if (!desertCanvas) return;
+        desertCanvas.width = desertCanvas.offsetWidth;
+        desertCanvas.height = desertCanvas.offsetHeight;
+    }
+
+    function desertLoop(timestamp) {
+        if (!desertCanvas || !desertCtx) return;
+        
+        desertTime += 0.002; // скорость смены дня/ночи (медленно)
+        const cycle = Math.sin(desertTime); // -1 (ночь) до 1 (день)
+        
+        // Фон неба: плавный переход от голубого к тёмно-синему
+        const dayColor = [135, 206, 235];   // дневное небо
+        const nightColor = [15, 23, 42];    // ночное небо
+        const lerp = (a, b, t) => a + (b - a) * t;
+        const t = (cycle + 1) / 2; // 0 = ночь, 1 = день
+        const r = Math.floor(lerp(nightColor[0], dayColor[0], t));
+        const g = Math.floor(lerp(nightColor[1], dayColor[1], t));
+        const b = Math.floor(lerp(nightColor[2], dayColor[2], t));
+        
+        desertCtx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+        desertCtx.fillRect(0, 0, desertCanvas.width, desertCanvas.height);
+
+        // Пустыня (песок) в нижней части
+        const groundY = desertCanvas.height * 0.7;
+        desertCtx.fillStyle = '#edc9af'; // цвет песка
+        desertCtx.beginPath();
+        desertCtx.moveTo(0, groundY);
+        for (let x = 0; x <= desertCanvas.width; x += 20) {
+            const y = groundY + Math.sin(x * 0.02) * 10;
+            desertCtx.lineTo(x, y);
+        }
+        desertCtx.lineTo(desertCanvas.width, desertCanvas.height);
+        desertCtx.lineTo(0, desertCanvas.height);
+        desertCtx.fill();
+
+        // Солнце или луна (плавный переход)
+        const celestialX = desertCanvas.width * ((desertTime * 0.1) % 1); // движется слева направо
+        const celestialY = desertCanvas.height * 0.2 + Math.sin(desertTime * 0.5) * 30;
+        
+        if (cycle > 0) { // день – солнце
+            desertCtx.beginPath();
+            desertCtx.arc(celestialX, celestialY, 30, 0, Math.PI * 2);
+            desertCtx.fillStyle = '#FFD700';
+            desertCtx.fill();
+        } else { // ночь – луна
+            desertCtx.beginPath();
+            desertCtx.arc(celestialX, celestialY, 25, 0, Math.PI * 2);
+            desertCtx.fillStyle = '#F0F0F0';
+            desertCtx.fill();
+            // звёзды (несколько точек)
+            for (let i = 0; i < 20; i++) {
+                const sx = (i * 97 + desertTime * 10) % desertCanvas.width;
+                const sy = (i * 53) % (desertCanvas.height * 0.5);
+                desertCtx.beginPath();
+                desertCtx.arc(sx, sy, 1.5, 0, Math.PI * 2);
+                desertCtx.fillStyle = '#FFF';
+                desertCtx.fill();
+            }
+        }
+
+        // Верблюды (два силуэта)
+        const camel1X = (desertTime * 50) % (desertCanvas.width + 200) - 200;
+        const camel2X = (desertTime * 40 + desertCanvas.width * 0.5) % (desertCanvas.width + 200) - 200;
+        const camelY = groundY - 40;
+        drawCamel(desertCtx, camel1X, camelY, 1);
+        drawCamel(desertCtx, camel2X, camelY, 0.8);
+
+        desertRAF = requestAnimationFrame(desertLoop);
+    }
+
+    function drawCamel(ctx, x, y, scale) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scale, scale);
+        ctx.fillStyle = '#8B5A2B'; // коричневый верблюд
+        // Тело
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 30, 15, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Горб
+        ctx.beginPath();
+        ctx.ellipse(-10, -12, 10, 8, 0.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(10, -12, 10, 8, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+        // Ноги
+        ctx.fillStyle = '#5C3317';
+        ctx.fillRect(-20, 10, 6, 25);
+        ctx.fillRect(-8, 10, 6, 25);
+        ctx.fillRect(2, 10, 6, 25);
+        ctx.fillRect(14, 10, 6, 25);
+        // Голова и шея
+        ctx.fillStyle = '#8B5A2B';
+        ctx.beginPath();
+        ctx.ellipse(-30, -25, 12, 8, 0.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(-20, -15);
+        ctx.lineTo(-35, -25);
+        ctx.lineWidth = 5;
+        ctx.stroke();
+        ctx.restore();
+    }
     let fallingEmojis = [];
     let loginEmojiInterval = null;
     let selectedLat = null, selectedLng = null;
@@ -901,7 +1029,7 @@
     let isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen' || id === 'archiveScreen');
     target.style.display = isFlex ? 'flex' : 'block';
 
-    if (id === 'mainMenu') startFireworks(); else stopFireworks();
+    if (id === 'mainMenu') startDesertAnimation(); else stopDesertAnimation();
     if (id === 'loginScreen') { startFallingEmojis(); setRandomPlaceholder(); } else stopFallingEmojis();
 
     // Управление кнопками внизу
@@ -912,6 +1040,20 @@
     if (id === 'statsScreen') loadStatistics();
     if (id === 'archiveScreen') loadArchive();
 }
+    function celebrateAchievement() {
+        if (fireworksActive) return;
+        fireworksActive = true;
+        fireworksCanvas = document.getElementById('fireworksCanvas');
+        fireworksCtx = fireworksCanvas?.getContext('2d');
+        fireworksParticles = [];
+        fireworksRAF = requestAnimationFrame(fireworksLoop);
+        // автоматически останавливаем через 3 секунды
+        setTimeout(() => {
+            fireworksActive = false;
+            if (fireworksRAF) cancelAnimationFrame(fireworksRAF);
+            if (fireworksCtx) fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+        }, 3000);
+    }
 
     // --- ПРОФИЛЬ (Загрузка данных) ---
     async function loadProfileScreen() {
@@ -1001,6 +1143,7 @@
         document.body.appendChild(toast);
         localStorage.setItem('achievement_welcome_shown', '1');
         setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
+        celebrateAchievement();
     }
 
     initUser();
@@ -1102,27 +1245,7 @@
     let fireworksCanvas, fireworksCtx, fireworksParticles = [];
     let fireworksRAF = null;
 
-    function startFireworks() {
-        if (fireworksActive) return;
-        fireworksActive = true;
-        fireworksCanvas = document.getElementById('fireworksCanvas');
-        if (!fireworksCanvas) return;
-        fireworksCtx = fireworksCanvas.getContext('2d');
-        resizeFireworksCanvas();
-        window.addEventListener('resize', resizeFireworksCanvas);
-        fireworksParticles = [];
-        fireworksRAF = requestAnimationFrame(fireworksLoop);
-    }
-
-    function stopFireworks() {
-        fireworksActive = false;
-        if (fireworksRAF) {
-            cancelAnimationFrame(fireworksRAF);
-            fireworksRAF = null;
-        }
-        window.removeEventListener('resize', resizeFireworksCanvas);
-        if (fireworksCtx) fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
-    }
+   
 
     function resizeFireworksCanvas() {
         if (!fireworksCanvas) return;
