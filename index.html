@@ -50,10 +50,10 @@
         }
 
         /* --- Меню --- */
-        # { flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; gap: 20px; position: relative; overflow: hidden; }
-        # button { width: 100%; max-width: 320px; padding: 20px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; color: #fff; font-size: 20px; font-weight: 600; cursor: pointer; box-shadow: 0 0 30px rgba(255,255,255,0.03); position: relative; z-index: 1; }
-        # canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-
+       #mainMenu { flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; gap: 20px; position: relative; overflow: hidden; }
+        #mainMenu button { width: 100%; max-width: 320px; padding: 20px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; color: #fff; font-size: 20px; font-weight: 600; cursor: pointer; box-shadow: 0 0 30px rgba(255,255,255,0.03); position: relative; z-index: 1; }
+        #mainMenu canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        
         /* --- Стрелка назад --- */
         .back-arrow {
     position: absolute;
@@ -723,7 +723,8 @@
     </div>
 
   <!-- 3. ГЛАВНОЕ МЕНЮ -->
-    <div id="" style="display: none; position: relative; overflow: hidden; min-height: 100vh;">
+    <!-- 3. ГЛАВНОЕ МЕНЮ -->
+    <div id="mainMenu" style="display: none; position: relative; overflow: hidden; min-height: 100vh;">
         <canvas id="fireworksCanvas"></canvas>
         <button onclick="showScreen('eventsScreen')" style="position: relative; z-index: 3;">📅 События</button>
         <button onclick="showScreen('statsScreen')" style="position: relative; z-index: 3;">🏆 Лидерборд</button>
@@ -732,7 +733,7 @@
     
     <!-- 4. ЭКРАН СОБЫТИЙ -->
     <div id="eventsScreen" style="display: none;">
-        <button class="back-arrow" onclick="showScreen('')">←</button>
+        <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
         <div id="eventsHeader">События 💭</div>
         <div class="create-form" id="createForm" style="display: none;">
             <div class="form-card">
@@ -1073,12 +1074,12 @@
 
     // --- НАВИГАЦИЯ ---
     function showScreen(id) {
-    ['onboardingScreen', 'loginScreen', '', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
+    ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
         document.getElementById(s).style.display = 'none';
     });
     let target = document.getElementById(id);
     if (!target) return;
-    let isFlex = (id === '' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen' || id === 'archiveScreen');
+    let isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen' || id === 'archiveScreen');
     target.style.display = isFlex ? 'flex' : 'block';
 
     if (id === 'mainMenu') {
