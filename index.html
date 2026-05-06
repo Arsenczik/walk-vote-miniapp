@@ -718,6 +718,26 @@
                 </div>
                 <label>КОГДА</label>
                 <input type="datetime-local" id="eventDate">
+                <div class="special-achievements-section" style="margin-top:16px;">
+    <label style="color:#ffd700; font-size:12px; letter-spacing:1px;">🏆 Достижения для события (до 3)</label>
+    <div id="achievementInputs">
+        <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
+            <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
+            <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
+            <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
+        </div>
+        <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
+            <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
+            <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
+            <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
+        </div>
+        <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
+            <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
+            <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
+            <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
+        </div>
+    </div>
+</div>
                 <label style="margin-top: 12px;">МЕСТО ВСТРЕЧИ</label>
                 <div class="location-row">
                     <button class="location-btn" onclick="openMapModal()">🗺️ Указать</button>
@@ -1150,26 +1170,57 @@
         document.getElementById('eventDate').value = tomorrow.toISOString().slice(0,16);
     }
     function hideCreateForm() { document.getElementById('createForm').style.display = 'none'; }
-    async function submitEvent() {
-        let name = document.getElementById('eventName').value.trim();
-        let desc = document.getElementById('eventDesc').value.trim();
-        let date = document.getElementById('eventDate').value;
-        if (!name || !date) return showToast('Заполни название и дату!');
-        let body = { name, description: desc, date, category: selectedCategory, creator_id: USER_ID };
-        if (selectedLat && selectedLng) { body.latitude = selectedLat; body.longitude = selectedLng; }
-        try {
-            let res = await fetch('/api/events', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
-            if (res.ok) {
-                hideCreateForm();
-                document.getElementById('eventName').value = '';
-                document.getElementById('eventDesc').value = '';
-                document.getElementById('eventDate').value = '';
-                selectedLat = selectedLng = null;
-                document.getElementById('locationText').textContent = 'Не выбрано';
-                loadEvents();
-            } else { let err = await res.json(); showToast('❌ ' + (err.error || 'Ошибка')); }
-        } catch(e) { showToast('❌ Ошибка соединения'); }
+   async function submitEvent() {
+    let name = document.getElementById('eventName').value.trim();
+    let desc = document.getElementById('eventDesc').value.trim();
+    let date = document.getElementById('eventDate').value;
+    if (!name || !date) return showToast('Заполни название и дату!');
+    let body = { name, description: desc, date, category: selectedCategory, creator_id: USER_ID };
+    if (selectedLat && selectedLng) { body.latitude = selectedLat; body.longitude = selectedLng; }
+
+    try {
+        let res = await fetch('/api/events', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        if (res.ok) {
+            const newEvent = await res.json();   // получаем созданное событие с id
+
+            // --- Сбор введённых достижений ---
+            const achievements = [];
+            document.querySelectorAll('.ach-input-row').forEach(row => {
+                const emoji = row.querySelector('.ach-emoji')?.value.trim();
+                const achName = row.querySelector('.ach-name')?.value.trim();
+                const achDesc = row.querySelector('.ach-desc')?.value.trim();
+                if (emoji && achName) {
+                    achievements.push({ emoji, name: achName, description: achDesc });
+                }
+            });
+
+            // Если есть хотя бы одно достижение – отправляем на сервер
+            if (achievements.length > 0) {
+                await fetch('/api/events/' + newEvent.id + '/special-achievements', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ achievements })
+                });
+            }
+
+            // Очистка формы и обновление списка
+            hideCreateForm();
+            document.getElementById('eventName').value = '';
+            document.getElementById('eventDesc').value = '';
+            document.getElementById('eventDate').value = '';
+            selectedLat = selectedLng = null;
+            document.getElementById('locationText').textContent = 'Не выбрано';
+            // очистим поля достижений
+            document.querySelectorAll('.ach-emoji, .ach-name, .ach-desc').forEach(el => el.value = '');
+            loadEvents();
+        } else {
+            let err = await res.json();
+            showToast('❌ ' + (err.error || 'Ошибка'));
+        }
+    } catch(e) {
+        showToast('❌ Ошибка соединения');
     }
+}
     async function loadEvents() {
         let grid = document.getElementById('eventsGrid');
         try {
