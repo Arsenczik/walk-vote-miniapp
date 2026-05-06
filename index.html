@@ -698,116 +698,7 @@
     background: #444;
     border-radius: 4px;
 }
-       /* === CSS-АНИМАЦИЯ ПУСТЫНИ В ГЛАВНОМ МЕНЮ === */
-.desert-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    background: linear-gradient(180deg, #0a0f1a 0%, #1a1f2a 100%);
-    overflow: hidden;
-}
-
-/* Звёзды (располагаются под дюнами) */
-.stars-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: radial-gradient(2px 2px at 10% 20%, #eee, transparent),
-                      radial-gradient(2px 2px at 25% 8%, #eee, transparent),
-                      radial-gradient(2px 2px at 40% 35%, #eee, transparent),
-                      radial-gradient(2px 2px at 55% 15%, #eee, transparent),
-                      radial-gradient(2px 2px at 70% 45%, #eee, transparent),
-                      radial-gradient(2px 2px at 85% 25%, #eee, transparent),
-                      radial-gradient(2px 2px at 15% 55%, #eee, transparent),
-                      radial-gradient(2px 2px at 35% 70%, #eee, transparent),
-                      radial-gradient(2px 2px at 60% 60%, #eee, transparent),
-                      radial-gradient(2px 2px at 80% 80%, #eee, transparent),
-                      radial-gradient(2px 2px at 90% 10%, #eee, transparent),
-                      radial-gradient(2px 2px at 5% 85%, #eee, transparent);
-    background-size: 100% 100%;
-    opacity: 0;
-    animation: fadeStars 15s ease-in-out infinite;
-    z-index: 0; /* ниже дюн */
-}
-
-/* Дюны (перекрывают звёзды) */
-.dune-layer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 200%;
-    height: 100%;
-    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><path d="M0,300 Q150,200 300,280 T600,250 T900,290 T1200,270 L1200,400 L0,400 Z" fill="%23333"/></svg>') repeat-x;
-    background-size: auto 100%;
-    background-position: bottom;
-    z-index: 1; /* выше звёзд */
-}
-
-@keyframes moveDunes {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-}
-
-/* Солнце и луна – движутся по диагонали */
-.sun-moon {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 2;
-}
-
-.celestial-body {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(10px);
-    animation: diagonalMove 15s ease-in-out infinite;
-}
-
-.sun {
-    width: 60px;
-    height: 60px;
-    background: radial-gradient(circle, rgba(255,200,100,0.9) 0%, rgba(255,200,100,0) 70%);
-    opacity: 0;
-    animation: sunGlow 15s ease-in-out infinite, diagonalMove 15s ease-in-out infinite;
-}
-
-.moon {
-    width: 40px;
-    height: 40px;
-    background: radial-gradient(circle, rgba(200,200,220,0.8) 0%, rgba(200,200,220,0) 70%);
-    opacity: 0;
-    animation: moonGlow 15s ease-in-out infinite, diagonalMove 15s ease-in-out infinite;
-}
-
-@keyframes diagonalMove {
-    0%, 100% { transform: translate(90vw, 15vh); }  /* стартовая позиция (право-верх) */
-    50% { transform: translate(10vw, 70vh); }      /* середина (лево-низ) */
-}
-
-@keyframes sunGlow {
-    0%, 40% { opacity: 0; }
-    50%, 90% { opacity: 1; }
-    100% { opacity: 0; }
-}
-
-@keyframes moonGlow {
-    0%, 40% { opacity: 1; }
-    50%, 90% { opacity: 0; }
-    100% { opacity: 1; }
-}
-
-@keyframes fadeStars {
-    0%, 45% { opacity: 0; }
-    50%, 95% { opacity: 1; }
-    100% { opacity: 0; }
-}
+       
     </style>
 </head>
 <body>
@@ -828,21 +719,6 @@
 
   <!-- 3. ГЛАВНОЕ МЕНЮ (CSS-анимация) -->
     <div id="mainMenu" style="display: none; position: relative; overflow: hidden; min-height: 100vh;">
-        <!-- Анимированный фон пустыни -->
-        <div class="desert-bg">
-            <!-- Сначала звёзды (нижний слой) -->
-            <div class="stars-container"></div>
-            <!-- Потом дюны (перекрывают звёзды) -->
-            <div class="dune-layer" style="animation: moveDunes 25s linear infinite;"></div>
-            <div class="dune-layer" style="animation: moveDunes 35s linear infinite; opacity: 0.6; transform: scaleY(0.8);"></div>
-            <div class="dune-layer" style="animation: moveDunes 45s linear infinite; opacity: 0.3; transform: scaleY(0.6);"></div>
-            <!-- Солнце и луна (поверх дюн) -->
-            <div class="sun-moon">
-                <div class="celestial-body sun"></div>
-                <div class="celestial-body moon"></div>
-            </div>
-        </div>
-
         <!-- Кнопки (поверх фона) -->
         <button onclick="showScreen('eventsScreen')" style="position: relative; z-index: 3;">📅 События</button>
         <button onclick="showScreen('statsScreen')" style="position: relative; z-index: 3;">🏆 Лидерборд</button>
