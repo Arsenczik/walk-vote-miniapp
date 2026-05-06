@@ -886,159 +886,313 @@
     let archiveEvents = [];
     let USER_NAMES = {};
     let fireworksActive = false;
-   // --- АНИМАЦИЯ МЕНЮ (ПУСТЫНЯ + ВЕРБЛЮДЫ) ---
-    let desertCanvas, desertCtx, desertRAF = null;
-    let desertTime = 0;
+   // ╔══════════════════════════════════════╗
+    // ║  ПУСТЫНЯ – АНИМАЦИЯ МЕНЮ           ║
+    // ║  Архитектура: Engine / State / Objects ║
+    // ╚══════════════════════════════════════╝
 
+    // --- Глобальные переменные модуля ---
+    let desertCanvas = null;
+    let desertCtx = null;
+    let desertRAF = null;
+    let desertRunning = false;
+
+    // Объекты сцены (инициализируются один раз)
+    let stars = [];
+    let desertLayers = [];
+
+    // Состояние сцены
+    let sceneState = {
+        time: 0,                   // общее время анимации в секундах
+        dayProgress: 0,            // 0 = ночь, 1 = день (плавно меняется)
+        transitionSpeed: 0.8,      // скорость переходов день/ночь
+    };
+
+    // --- Инициализация / Остановка ---
     function startDesertAnimation() {
+        if (desertRunning) return;
         desertCanvas = document.getElementById('fireworksCanvas');
         if (!desertCanvas) return;
         desertCtx = desertCanvas.getContext('2d');
         resizeDesertCanvas();
+        initSceneObjects();         // Создаём звёзды и слои пустыни
         window.addEventListener('resize', resizeDesertCanvas);
+        desertRunning = true;
         desertRAF = requestAnimationFrame(desertLoop);
     }
 
     function stopDesertAnimation() {
+        if (!desertRunning) return;
+        desertRunning = false;
         if (desertRAF) {
             cancelAnimationFrame(desertRAF);
             desertRAF = null;
         }
         window.removeEventListener('resize', resizeDesertCanvas);
-        if (desertCtx) desertCtx.clearRect(0, 0, desertCanvas.width, desertCanvas.height);
+        if (desertCtx && desertCanvas) {
+            desertCtx.clearRect(0, 0, desertCanvas.width, desertCanvas.height);
+        }
     }
 
     function resizeDesertCanvas() {
         if (!desertCanvas) return;
         desertCanvas.width = desertCanvas.offsetWidth;
         desertCanvas.height = desertCanvas.offsetHeight;
+        // Пересоздаём звёзды при изменении размера
+        initStars();
     }
 
-    function desertLoop() {
-        if (!desertCanvas || !desertCtx) return;
-        desertTime += 0.005;
+    // --- Создание неизменяемых объектов сцены ---
+    function initSceneObjects() {
+        initStars();
+        initDesertLayers();
+    }
 
-        // === 1. Фон ===
-        const bgColor = lerpColor([15, 23, 42], [0, 0, 0], Math.sin(desertTime) * 0.3 + 0.5);
-        desertCtx.fillStyle = `rgb(${bgColor[0]}, ${bgColor[1]}, ${bgColor[2]})`;
-        desertCtx.fillRect(0, 0, desertCanvas.width, desertCanvas.height);
-
-        // === 2. Звёзды (только ночью) ===
-        const nightFactor = Math.max(0, -Math.sin(desertTime));
-        for (let i = 0; i < 30; i++) {
-            const sx = (i * 137) % desertCanvas.width;
-            const sy = (i * 73) % (desertCanvas.height * 0.6);
-            const brightness = Math.sin(desertTime * 5 + i) * 0.4 + 0.6;
-            desertCtx.beginPath();
-            desertCtx.arc(sx, sy, 1.2, 0, Math.PI * 2);
-            desertCtx.fillStyle = `rgba(200,200,200, ${brightness * nightFactor})`;
-            desertCtx.fill();
+    function initStars() {
+        stars = [];
+        const count = Math.floor((desertCanvas.width * desertCanvas.height) / 800); // примерно 100-200 звёзд
+        for (let i = 0; i < count; i++) {
+            stars.push({
+                x: Math.random() * desertCanvas.width,
+                y: Math.random() * desertCanvas.height * 0.6, // только верхняя часть
+                radius: 0.8 + Math.random() * 1.4,
+                phase: Math.random() * Math.PI * 2, // для мерцания
+                speed: 0.3 + Math.random() * 0.7,
+            });
         }
+    }
 
-        // === 3. Солнце / Луна ===
-        const diagonalX = desertCanvas.width * 0.8 + Math.sin(desertTime) * desertCanvas.width * 0.6;
-        const diagonalY = desertCanvas.height * 0.2 + Math.cos(desertTime) * desertCanvas.height * 0.15;
-        if (Math.sin(desertTime) > 0) {
-            // Солнце
-            const sunGrad = desertCtx.createRadialGradient(diagonalX, diagonalY, 5, diagonalX, diagonalY, 30);
-            sunGrad.addColorStop(0, 'rgba(255,255,255,0.9)');
-            sunGrad.addColorStop(0.5, 'rgba(255,255,200,0.2)');
-            sunGrad.addColorStop(1, 'rgba(255,255,200,0)');
-            desertCtx.beginPath();
-            desertCtx.arc(diagonalX, diagonalY, 30, 0, Math.PI * 2);
-            desertCtx.fillStyle = sunGrad;
-            desertCtx.fill();
-        } else {
-            // Луна
-            desertCtx.beginPath();
-            desertCtx.arc(diagonalX, diagonalY, 20, 0, Math.PI * 2);
-            desertCtx.fillStyle = '#F0F0F0';
-            desertCtx.fill();
-            const moonGrad = desertCtx.createRadialGradient(diagonalX, diagonalY, 20, diagonalX, diagonalY, 40);
-            moonGrad.addColorStop(0, 'rgba(240,240,240,0.3)');
-            moonGrad.addColorStop(1, 'rgba(240,240,240,0)');
-            desertCtx.beginPath();
-            desertCtx.arc(diagonalX, diagonalY, 40, 0, Math.PI * 2);
-            desertCtx.fillStyle = moonGrad;
-            desertCtx.fill();
+    function initDesertLayers() {
+        desertLayers = [];
+        // Дальние слои – больше амплитуда, ниже скорость
+        const layerCount = 4;
+        for (let i = 0; i < layerCount; i++) {
+            desertLayers.push({
+                offsetX: 0,                    // накопительное смещение
+                speed: 30 + i * 20,            // пикселей в секунду (дальние медленнее)
+                amplitude: 8 + i * 4,          // высота волн
+                frequency: 0.006 + i * 0.002,  // частота волн
+                yBase: desertCanvas.height * (0.58 + i * 0.09),
+                colorDay: [200, 150, 100],     // тёплый дневной
+                colorNight: [50, 60, 100],     // холодный ночной
+            });
         }
+    }
 
-        // === 4. Пустыня (дюны, двигаются влево) ===
-        const duneColor = lerpColor([60, 50, 40], [10, 15, 25], nightFactor);
-        desertCtx.strokeStyle = `rgb(${duneColor[0]}, ${duneColor[1]}, ${duneColor[2]})`;
-        desertCtx.lineWidth = 2;
-        for (let layer = 0; layer < 4; layer++) {
-            desertCtx.beginPath();
-            const baseY = desertCanvas.height * (0.6 + layer * 0.1);
-            const speed = (layer + 1) * 0.3;
-            for (let x = 0; x <= desertCanvas.width; x += 5) {
-                const offsetX = x + desertTime * 100 * speed;
-                const y = baseY + Math.sin(offsetX * 0.008) * 12 + Math.sin(offsetX * 0.02) * 6;
-                if (x === 0) desertCtx.moveTo(x, y);
-                else desertCtx.lineTo(x, y);
+    // --- Главный цикл анимации (вызывается каждый кадр) ---
+    function desertLoop(timestamp) {
+        if (!desertRunning || !desertCanvas || !desertCtx) return;
+
+        // 1. DeltaTime для нормализации скорости
+        const now = performance.now() / 1000; // секунды
+        if (!desertLoop._lastTime) desertLoop._lastTime = now;
+        let dt = now - desertLoop._lastTime;
+        desertLoop._lastTime = now;
+        // Ограничиваем dt, чтобы не было скачков
+        if (dt > 0.1) dt = 0.016;
+
+        sceneState.time += dt;
+
+        // 2. Обновление прогресса дня/ночи (полный цикл ~20 сек)
+        const rawSin = Math.sin(sceneState.time * 0.5); // -1..1
+        const targetProgress = (rawSin + 1) / 2;        // 0..1 (0=ночь, 1=день)
+        // Плавное приближение к targetProgress
+        const current = sceneState.dayProgress;
+        const newProgress = current + (targetProgress - current) * Math.min(1, sceneState.transitionSpeed * dt * 5);
+        sceneState.dayProgress = newProgress;
+        const isNight = sceneState.dayProgress < 0.3; // ночь, когда прогресс < 0.3
+
+        // 3. Очистка и отрисовка слоёв снизу вверх
+        const ctx = desertCtx;
+        const W = desertCanvas.width;
+        const H = desertCanvas.height;
+
+        // Фон неба (всегда очень тёмный, чуть синий ночью)
+        const skyR = 10 + 5 * (1 - sceneState.dayProgress);
+        const skyG = 12 + 8 * (1 - sceneState.dayProgress);
+        const skyB = 20 + 15 * (1 - sceneState.dayProgress);
+        ctx.fillStyle = `rgb(${skyR}, ${skyG}, ${skyB})`;
+        ctx.fillRect(0, 0, W, H);
+
+        // ---- 4. Звёзды (только ночью) ----
+        if (sceneState.dayProgress < 0.5) {
+            const starAlpha = Math.min(1, (0.5 - sceneState.dayProgress) * 4); // плавное появление
+            for (const star of stars) {
+                const brightness = 0.4 + 0.3 * Math.sin(sceneState.time * star.speed * 3 + star.phase);
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${brightness * starAlpha})`;
+                ctx.fill();
             }
-            desertCtx.stroke();
         }
 
-        // === 5. Верблюды (по центру) ===
-        const camelY = desertCanvas.height * 0.65;
-        const camelColor = lerpColor([80, 60, 40], [30, 40, 55], nightFactor);
-        desertCtx.fillStyle = `rgb(${camelColor[0]}, ${camelColor[1]}, ${camelColor[2]})`;
-        for (let i = 0; i < 2; i++) {
-            const camelX = desertCanvas.width * (0.35 + i * 0.25);
-            const legPhase = desertTime * 15 + i * Math.PI; // анимация ног
-            drawCamel(desertCtx, camelX, camelY, 0.8);
+        // ---- 5. Пустыня (движущиеся дюны) ----
+        // Сначала обновим смещение слоёв
+        for (const layer of desertLayers) {
+            layer.offsetX -= layer.speed * dt;
+            // Бесшовное зацикливание по ширине canvas
+            if (layer.offsetX < -W) layer.offsetX += W;
+        }
+
+        // Отрисовка слоёв (дальние -> ближние)
+        for (const layer of desertLayers) {
+            // Цвет слоя с учётом дня/ночи
+            const progress = sceneState.dayProgress;
+            const r = Math.round(layer.colorDay[0] * progress + layer.colorNight[0] * (1 - progress));
+            const g = Math.round(layer.colorDay[1] * progress + layer.colorNight[1] * (1 - progress));
+            const b = Math.round(layer.colorDay[2] * progress + layer.colorNight[2] * (1 - progress));
+            ctx.strokeStyle = `rgb(${r}, ${g}, ${b})`;
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+            // Рисуем два сегмента для бесшовности
+            for (let seg = 0; seg < 2; seg++) {
+                const segOffsetX = seg * W - layer.offsetX;
+                for (let x = 0; x <= W; x += 5) {
+                    const worldX = x + seg * W - layer.offsetX;
+                    const y = layer.yBase + Math.sin(worldX * layer.frequency) * layer.amplitude
+                              + Math.sin(worldX * layer.frequency * 2.3) * layer.amplitude * 0.4;
+                    if (x === 0 && seg === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+        }
+
+        // ---- 6. Солнце / Луна (диагональное движение) ----
+        const diagonalCycle = sceneState.time * 0.4; // период ~15 секунд
+        const diagProgress = (diagonalCycle % 1);    // 0..1
+        // Траектория: от правого верхнего угла (1,0) к левому нижнему (0,1)
+        const sunX = W * (1 - diagProgress);
+        const sunY = H * diagProgress * 0.7; // не до самого низа
+
+        if (sceneState.dayProgress > 0.5) {
+            // День – солнце
+            const alpha = Math.min(1, (sceneState.dayProgress - 0.5) * 3); // плавное появление
+            const sunRadius = 25;
+            const gradient = ctx.createRadialGradient(sunX, sunY, sunRadius * 0.2, sunX, sunY, sunRadius);
+            gradient.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
+            gradient.addColorStop(0.6, `rgba(255, 240, 200, ${alpha * 0.4})`);
+            gradient.addColorStop(1, `rgba(255, 240, 200, 0)`);
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
+            ctx.fillStyle = gradient;
+            ctx.fill();
+        } else {
+            // Ночь – луна
+            const alpha = Math.min(1, (0.5 - sceneState.dayProgress) * 3);
+            const moonRadius = 18;
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, moonRadius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(240, 240, 240, ${alpha})`;
+            ctx.fill();
+            // Лёгкое свечение
+            const glow = ctx.createRadialGradient(sunX, sunY, moonRadius, sunX, sunY, moonRadius * 2);
+            glow.addColorStop(0, `rgba(240, 240, 240, ${alpha * 0.3})`);
+            glow.addColorStop(1, `rgba(240, 240, 240, 0)`);
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, moonRadius * 2, 0, Math.PI * 2);
+            ctx.fillStyle = glow;
+            ctx.fill();
+        }
+
+        // ---- 7. Верблюды (по центру, покачивание) ----
+        const camelBaseY = H * 0.75; // нижняя часть экрана
+        const camelSpacing = W * 0.25;
+        const camelCenterX = W / 2;
+        const camelPositions = [
+            camelCenterX - camelSpacing * 0.6,
+            camelCenterX + camelSpacing * 0.6
+        ];
+
+        // Цвет верблюдов с учётом дня/ночи
+        const camelR = Math.round(80 * sceneState.dayProgress + 40 * (1 - sceneState.dayProgress));
+        const camelG = Math.round(60 * sceneState.dayProgress + 45 * (1 - sceneState.dayProgress));
+        const camelB = Math.round(40 * sceneState.dayProgress + 60 * (1 - sceneState.dayProgress));
+        ctx.fillStyle = `rgb(${camelR}, ${camelG}, ${camelB})`;
+
+        for (let i = 0; i < camelPositions.length; i++) {
+            // Лёгкое покачивание (шаг)
+            const bounce = Math.sin(sceneState.time * 8 + i * Math.PI) * 2; // ±2 px
+            drawCamelDetailed(ctx, camelPositions[i], camelBaseY + bounce, 0.8);
         }
 
         desertRAF = requestAnimationFrame(desertLoop);
     }
 
-    // Простой силуэт верблюда
-    function drawCamel(ctx, x, y, scale) {
+    // --- Детализированный верблюд (высокое качество) ---
+    function drawCamelDetailed(ctx, x, y, scale) {
         ctx.save();
         ctx.translate(x, y);
         ctx.scale(scale, scale);
+
+        // Тень под ногами
+        ctx.fillStyle = 'rgba(0,0,0,0.2)';
+        ctx.beginPath();
+        ctx.ellipse(0, 25, 18, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Основной цвет (уже установлен снаружи)
+        const baseColor = ctx.fillStyle;
+
         // Тело
         ctx.beginPath();
-        ctx.ellipse(0, 0, 25, 12, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 0, 22, 9, 0, 0, Math.PI * 2);
         ctx.fill();
-        // Горб
+
+        // Горбы
         ctx.beginPath();
-        ctx.ellipse(-8, -10, 8, 6, 0.2, 0, Math.PI * 2);
+        ctx.ellipse(-7, -8, 6, 5, 0.2, 0, Math.PI * 2);
         ctx.fill();
         ctx.beginPath();
-        ctx.ellipse(8, -10, 8, 6, -0.2, 0, Math.PI * 2);
+        ctx.ellipse(7, -8, 6, 5, -0.2, 0, Math.PI * 2);
         ctx.fill();
-        // Шея и голова
+
+        // Шея
+        ctx.strokeStyle = baseColor;
+        ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.moveTo(-18, -8);
-        ctx.lineTo(-30, -22);
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = ctx.fillStyle;
+        ctx.moveTo(-15, -5);
+        ctx.lineTo(-26, -17);
         ctx.stroke();
+
+        // Голова
         ctx.beginPath();
-        ctx.ellipse(-32, -22, 6, 4, 0.4, 0, Math.PI * 2);
+        ctx.ellipse(-27, -17, 5, 3, 0.5, 0, Math.PI * 2);
         ctx.fill();
-        // Ноги (с анимацией)
-        const legLen = 18;
+
+        // Глаз
+        ctx.fillStyle = '#000';
+        ctx.beginPath();
+        ctx.arc(-28, -18, 0.8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = baseColor;
+
+        // Ноги (с анимацией шага)
+        const legLen = 15;
         for (let j = 0; j < 4; j++) {
-            const sign = j % 2 === 0 ? 1 : -1;
-            const phase = desertTime * 15 + j * Math.PI / 2;
-            const offsetX = (j - 1.5) * 10;
-            const offsetY = 10 + Math.sin(phase) * 3;
-            ctx.fillRect(offsetX - 2, offsetY, 4, legLen);
+            const legOffsetX = (j - 1.5) * 7;
+            const phase = sceneState.time * 12 + j * Math.PI / 2;
+            const legLift = Math.sin(phase) * 2;
+            ctx.fillRect(legOffsetX - 1.5, 10 + legLift, 3, legLen - legLift);
+            // Копыто
+            ctx.fillStyle = '#222';
+            ctx.fillRect(legOffsetX - 2, 10 + legLen - 3, 4, 3);
+            ctx.fillStyle = baseColor;
         }
+
+        // Хвост
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(20, -4);
+        ctx.quadraticCurveTo(25, -2, 24, 10);
+        ctx.stroke();
+
         ctx.restore();
     }
 
-    // Вспомогательная функция для смешивания цветов
-    function lerpColor(c1, c2, t) {
-        return [
-            Math.round(c1[0] + (c2[0] - c1[0]) * t),
-            Math.round(c1[1] + (c2[1] - c1[1]) * t),
-            Math.round(c1[2] + (c2[2] - c1[2]) * t)
-        ];
-    }
+    // Вспомогательная функция (если используется в других местах) уже есть
+    // function lerpColor(c1, c2, t) { ... }
     let fallingEmojis = [];
     let loginEmojiInterval = null;
     let selectedLat = null, selectedLng = null;
