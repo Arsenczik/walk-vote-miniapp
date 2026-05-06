@@ -83,14 +83,6 @@
             border-radius: 0 0 20px 20px; box-shadow: 0 0 6px rgba(255,255,255,0.1); z-index: 5;
         }
 
-        /* --- Кнопка статистики --- */
-        .stats-fab {
-            position: fixed; bottom: 24px; right: 24px; width: 52px; height: 52px;
-            border-radius: 16px; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.25);
-            box-shadow: 0 0 20px rgba(255,255,255,0.06); display: flex; align-items: center;
-            justify-content: center; font-size: 24px; cursor: pointer; z-index: 50; transition: all 0.2s;
-        }
-        .stats-fab:active { background: #fff; color: #000; border-color: #fff; }
 
         /* --- Карточки событий --- */
         .event-card { display: flex; align-items: center; gap: 14px; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 16px; box-shadow: 0 0 30px rgba(255,255,255,0.03), inset 0 0 20px rgba(0,0,0,0.4); transition: border-color 0.2s, box-shadow 0.2s; width: 100%; box-sizing: border-box; margin-bottom: 8px; }
@@ -668,6 +660,20 @@
     color: #fff;
     border-color: #ff6b6b;
 }
+  .ach-choice:active { background: #2a2a2a; }
+.assign-achievements-btn {
+    width: 100%;
+    padding: 14px;
+    background: #1a1a1a;
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 14px;
+    color: #ffd700;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: all 0.2s;
+}
+.assign-achievements-btn:active { background: #ffd700; color: #000; }
     </style>
 </head>
 <body>
@@ -690,6 +696,7 @@
     <div id="mainMenu" style="display: none;">
         <canvas id="fireworksCanvas"></canvas>
         <button onclick="showScreen('eventsScreen')">📅 События</button>
+        <button onclick="showScreen('statsScreen')">🏆 Лидерборд</button>
         <button onclick="showScreen('profileScreen')">👤 Профиль</button>
     </div>
 
@@ -815,6 +822,13 @@
     <h1>📦 Архив</h1>
     <div class="events-grid" id="archiveGrid"><p>Загрузка...</p></div>
 </div>
+    <div class="modal-overlay" id="assignmentModal">
+    <div class="modal-card" style="max-width:400px; width:95%;">
+        <button class="modal-close-btn" onclick="closeAssignmentModal()">✕</button>
+        <h2>Присвоение ачивок</h2>
+        <div id="assignmentContent"></div>
+    </div>
+</div>
 </div>
 
 <button class="stats-fab" id="statsFab" onclick="showScreen('statsScreen')" style="display: none;">📊</button>
@@ -890,8 +904,10 @@
         let achievementsHtml = '';
         if (data.achievements && data.achievements.length) {
             data.achievements.forEach(a => {
-                achievementsHtml += `<div class="achievement-card"><span class="ach-emoji">${a.emoji}</span><span class="ach-name">${a.name}</span></div>`;
-            });
+               achievementsHtml += `<div class="achievement-card" onclick="showAchievementDescription('${a.name}', '${a.description || 'Нет описания'}')" style="cursor:pointer;">
+    <span class="ach-emoji">${a.emoji}</span>
+    <span class="ach-name">${a.name}</span>
+</div>`;
         } else {
             achievementsHtml = '<p style="color:#666;">Пока нет ачивок. Участвуй в движухах!</p>';
         }
@@ -1314,6 +1330,33 @@
         ${event.description && !isPast ? `<p class="modal-description">${escapeHtml(event.description)}</p>` : ''}
     `;
 
+    // Вычисляем кнопку присвоения и блок возможных ачивок ДО того, как формировать innerHTML
+    let assignButton = '';
+    const eventDateTime = new Date(event.date).getTime();
+    const sixHours = 6 * 60 * 60 * 1000;
+    const canAssign = (USER_ID === event.creator_id || USER_ID === ADMIN_ID) && (Date.now() - eventDateTime > sixHours);
+    if (canAssign && event.special_achievements && event.special_achievements.length > 0) {
+        assignButton = `<button class="assign-achievements-btn" onclick="openAssignmentModal('${event.id}')">🏅 Присвоить ачивки</button>`;
+    }
+
+    let achievementsInfo = '';
+    if (event.special_achievements && event.special_achievements.length > 0) {
+        achievementsInfo = `
+            <div style="margin:12px 0;">
+                <div style="font-weight:600; color:#ffd700; margin-bottom:8px;">🏆 Возможные ачивки</div>
+                ${event.special_achievements.map(ach => `
+                    <div style="background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.2); border-radius:10px; padding:8px 10px; display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                        <span style="font-size:20px;">${ach.emoji}</span>
+                        <div>
+                            <div style="font-weight:600; color:#ffd700;">${ach.name}</div>
+                            <div style="font-size:12px; color:#aaa;">${ach.description || ''}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
     if (isPast) {
         // Показываем общий альбом
         innerHTML += `
@@ -1329,6 +1372,9 @@
             </div>`;
     }
 
+    innerHTML += achievementsInfo;
+    innerHTML += assignButton;
+
     innerHTML += `
         <div class="modal-participants-section">
             <div class="modal-section-label">👥 Участники (${count})</div>
@@ -1339,15 +1385,14 @@
             <button class="rsvp-btn ${isGoing ? 'going' : 'not-going'}" onclick="toggleRSVP('${event.id}', ${isGoing}); document.getElementById('eventModal').style.display='none'">
                 ${isGoing ? '✕ ОТМЕНИТЬ УЧАСТИЕ' : '➕ БУДУ'}
             </button>
-        </div>
+        </div> 
         ${USER_ID === ADMIN_ID ? `
 <div style="margin-top: 12px;">
     <button class="delete-event-btn" onclick="deleteEvent('${event.id}')">🗑️ Удалить событие</button>
 </div>
-` : ''}
         ` : ''}
     `;
-
+       
     document.getElementById('modalContent').innerHTML = innerHTML;
     document.getElementById('eventModal').style.display = 'flex';
 
@@ -1497,6 +1542,71 @@ async function downloadPhoto(base64) {
         window.open(url, '_blank');
         setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
+}
+        function openAssignmentModal(eventId) {
+    const event = eventsList.find(e => e.id === eventId) || archiveEvents.find(e => e.id === eventId);
+    if (!event) return;
+    const achievements = event.special_achievements || [];
+    const available = achievements.filter(a => !a.assignedTo || a.assignedTo.length < 3).map((a, index) => ({...a, originalIndex: index}));
+    if (available.length === 0) {
+        showToast('Все ачивки уже присвоены');
+        return;
+    }
+    let html = '<p>Выбери ачивку:</p>';
+    available.forEach(ach => {
+        html += `<div class="ach-choice" onclick="selectAchievement('${eventId}', ${ach.originalIndex})" style="margin-bottom:10px; cursor:pointer; background:#1a1a1a; border:1px solid #333; border-radius:12px; padding:12px; display:flex; align-items:center; gap:10px;">
+            <span style="font-size:24px;">${ach.emoji}</span>
+            <div>
+                <div style="font-weight:600; color:#ffd700;">${ach.name}</div>
+                <div style="font-size:12px; color:#aaa;">${ach.description || ''}</div>
+            </div>
+        </div>`;
+    });
+    document.getElementById('assignmentContent').innerHTML = html;
+    document.getElementById('assignmentModal').style.display = 'flex';
+}
+
+function selectAchievement(eventId, index) {
+    const event = eventsList.find(e => e.id === eventId) || archiveEvents.find(e => e.id === eventId);
+    const participants = event.participants || [];
+    const eligible = participants.filter(uid => uid !== event.creator_id);
+    let html = `<h3>Участники</h3><div style="max-height:300px; overflow-y:auto; margin:12px 0;">`;
+    eligible.forEach(uid => {
+        const name = USER_NAMES[uid] || uid;
+        html += `<label style="display:flex; align-items:center; gap:8px; padding:8px; border-bottom:1px solid #222;">
+            <input type="checkbox" class="participant-check" value="${uid}">
+            <span>${name}</span>
+        </label>`;
+    });
+    html += `</div><button class="submit-btn-full" onclick="submitAssignment('${eventId}', ${index})">Присвоить выбранным (макс. 3)</button>`;
+    document.getElementById('assignmentContent').innerHTML = html;
+}
+
+async function submitAssignment(eventId, achievementIndex) {
+    const checks = document.querySelectorAll('.participant-check:checked');
+    const userIds = Array.from(checks).map(cb => cb.value).slice(0, 3);
+    if (userIds.length === 0) return showToast('Выбери хотя бы одного');
+    try {
+        let res = await fetch('/api/events/' + eventId + '/assign-achievement', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ achievement_index: achievementIndex, user_ids: userIds })
+        });
+        if (res.ok) {
+            showToast('✅ Ачивка присвоена');
+            closeAssignmentModal();
+            openEventModal(eventId); // обновляем модалку события
+        } else {
+            const err = await res.json();
+            showToast('❌ ' + (err.error || 'Ошибка'));
+        }
+    } catch(e) {
+        showToast('❌ Ошибка соединения');
+    }
+}
+
+function closeAssignmentModal() {
+    document.getElementById('assignmentModal').style.display = 'none';
 }
 </script>
 </body>
