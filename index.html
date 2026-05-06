@@ -864,6 +864,7 @@
 <button class="archive-fab" id="archiveFab" onclick="showScreen('archiveScreen')" style="display: none;">📦</button>
     
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/desert_animation.js"></script>
 <script>
    // --- ГЛОБАЛЬНЫЕ ---
     const ADMIN_ID = 'u_sisja_1777994828428';
@@ -908,10 +909,7 @@
     target.style.display = isFlex ? 'flex' : 'block';
 
     if (id === 'mainMenu') {
-        // Даём браузеру кадр на отрисовку, затем включаем анимацию
-        requestAnimationFrame(() => {
-            initDesertAnimation();
-        });
+        initDesertAnimation();
     } else {
         stopDesertAnimation();
     }
@@ -1487,13 +1485,8 @@
         showScreen('onboardingScreen');
     } else {
         showScreen('mainMenu');
-        // Дополнительная страховка: если canvas ещё не инициализирован, запустим позже
-        setTimeout(() => {
-            if (!document.getElementById('skyCanvas')?.style.display || document.getElementById('skyCanvas')?.style.display === 'none') {
-                initDesertAnimation();
-            }
-        }, 100);
     }
+    
     document.getElementById('eventModal').onclick = function(e) { if(e.target===this) this.style.display='none'; };
     document.querySelectorAll('.cat-option').forEach(el => el.onclick = function() {
         document.querySelectorAll('.cat-option').forEach(o => o.classList.remove('active'));
@@ -1668,6 +1661,5 @@ function closeAssignmentModal() {
     document.getElementById('assignmentModal').style.display = 'none';
 }
 </script>
-     <script src="/static/desert_animation.js"></script>
 </body>
 </html>
