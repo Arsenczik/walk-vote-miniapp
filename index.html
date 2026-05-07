@@ -719,7 +719,7 @@
             pointer-events: none;
             z-index: 0;
             }
-     /* Стеклянные кнопки главного меню (поверх анимации) */
+    /* Стеклянные кнопки главного меню */
 #mainMenu > button {
     width: 100%;
     max-width: 320px;
@@ -734,15 +734,18 @@
     box-shadow: 0 0 30px rgba(255,255,255,0.03);
     position: relative;
     z-index: 3;
-    transition: all 0.2s ease;          /* ← плавный переход */
+    transition: all 0.15s ease;
+    -webkit-tap-highlight-color: transparent;         /* убираем синюю подсветку */
 }
 
-/* Эффект при нажатии */
-#mainMenu > button:active {
-    background: #1a1a1a !important;     /* чуть светлее */
-    border-color: rgba(255,255,255,0.3) !important;
-    box-shadow: 0 0 40px rgba(255,255,255,0.08);
-    transform: scale(0.98);            /* лёгкое уменьшение */
+/* Подсветка при нажатии (desktop + mobile) */
+#mainMenu > button:active,
+#mainMenu > button:active:focus {
+    background: #1f1f1f !important;                  /* светлее нажатие */
+    border-color: rgba(255,255,255,0.35) !important;
+    box-shadow: 0 0 50px rgba(255,255,255,0.12) !important;
+    transform: scale(0.97) !important;
+    outline: none !important;
 }
         html, body {
     overflow-x: hidden;
