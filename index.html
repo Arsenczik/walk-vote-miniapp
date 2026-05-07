@@ -758,6 +758,7 @@
     box-shadow: 0 0 30px rgba(255,255,255,0.03);
     position: relative;
     z-index: 3;
+    transform: translateY(-30px);          /* сдвиг всех кнопок вверх */
     transition: all 0.15s ease;
     -webkit-tap-highlight-color: transparent;         /* убираем синюю подсветку */
 }
@@ -770,6 +771,7 @@
     box-shadow: 0 0 50px rgba(255,255,255,0.12) !important;
     transform: scale(0.97) !important;
     outline: none !important;
+    transform: scale(0.97) translateY(-30px) !important;   /* сохраняем сдвиг при нажатии */
 }
         html, body {
     overflow-x: hidden;
