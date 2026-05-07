@@ -910,12 +910,12 @@
 
     let W, H;
     // ── ВАЖНО: windows объявлен ДО resize() ──
-    let windows = [];
+     
 
     function resize() {
         W = canvas.width  = window.innerWidth;
         H = canvas.height = window.innerHeight;
-        windows = [];
+         
     }
     resize();
     window.addEventListener('resize', resize);
@@ -927,7 +927,7 @@
         speed: 0.5 + Math.random() * 1.5,
     }));
 
-    const HORIZON = 0.78;
+     
 
     function getBuildings() {
         return [
@@ -1090,12 +1090,12 @@
         const sunT=getSunT(), moonT=getMoonT();
 
         // НЕБО
-        const skyGrad = ctx.createLinearGradient(0, 0, 0, H*HORIZON);
+        const skyGrad = ctx.createLinearGradient(0, 0, 0, H);
         skyGrad.addColorStop(0,   lerpHex(lerpHex('#050300','#1a0800',sunsetF),'#00000e',night));
         skyGrad.addColorStop(0.6, lerpHex(lerpHex('#0c0600','#7a1e00',sunsetF),'#000012',night));
         skyGrad.addColorStop(1,   lerpHex('#0a0500','#00000a',night));
         ctx.fillStyle = skyGrad;
-        ctx.fillRect(0, 0, W, H*HORIZON);
+        ctx.fillRect(0, 0, W, H);
 
         // ЗАКАТ
         if (sunsetF > 0.02) {
@@ -1120,7 +1120,7 @@
             stars.forEach(s => {
                 ctx.globalAlpha = night*(0.5+0.5*Math.sin(ts*0.001*s.speed+s.phase))*0.92;
                 ctx.fillStyle='#cce8ff';
-                ctx.beginPath(); ctx.arc(s.x*W, s.y*H*HORIZON, s.r, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2); ctx.fill();
             });
             ctx.globalAlpha=1;
         }
@@ -1160,21 +1160,6 @@
             ctx.globalAlpha=1;
         }
 
-        // ГОРОД
-        drawCity(night, ts);
-
-        // ОКНА
-        if (night > 0.15) {
-            if (windows.length === 0) generateWindows();
-            const wa = clamp((night-0.15)*2.2, 0, 1);
-            windows.forEach(w => {
-                const twinkle = 0.6+0.4*Math.sin(ts*0.007*(w.phase%3+0.5));
-                ctx.fillStyle = w.warm
-                    ? `rgba(255,215,85,${wa*w.brightness*twinkle})`
-                    : `rgba(170,215,255,${wa*w.brightness*twinkle*0.65})`;
-                ctx.fillRect(w.x, w.y, w.w, w.h);
-            });
-        }
 
         raf = requestAnimationFrame(tick);
     }
