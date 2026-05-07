@@ -739,6 +739,12 @@
     overflow-x: hidden;
     overflow-y: auto;
 }
+        /* Блокировка скролла для главного меню */
+body.no-scroll {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+}
 
     </style>
 </head>
@@ -1121,6 +1127,13 @@
     if (!target) return;
     let isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen' || id === 'archiveScreen');
     target.style.display = isFlex ? 'flex' : 'block';
+
+      // ✅ Жёсткая блокировка скролла при главном меню
+    if (id === 'mainMenu') {
+        document.body.classList.add('no-scroll');
+    } else {
+        document.body.classList.remove('no-scroll');
+    }
 
     // Убираем старый обработчик, если был
     window.removeEventListener('scroll', lockScroll);
