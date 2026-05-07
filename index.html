@@ -898,13 +898,13 @@
     let selectedLat = null, selectedLng = null;
     let map = null, marker = null;
 
-    // ═══════════════════════════════════════════
-    // ВСТРОЕННАЯ АНИМАЦИЯ НЕБА + ГОРОД (v4.0)
+   // ═══════════════════════════════════════════
+    // ВСТРОЕННАЯ АНИМАЦИЯ НЕБА + ГОРОД (v5.0)
     // ═══════════════════════════════════════════
     (function() {
-        const TZ_OFFSET = 2;
-        const SUNRISE_HOUR = 5.5;
-        const SUNSET_HOUR = 21.0;
+        const TZ_OFFSET      = 2;
+        const SUNRISE_HOUR   = 5.5;
+        const SUNSET_HOUR    = 21.0;
         const TRANSITION_MIN = 60;
 
         const canvas = document.createElement('canvas');
@@ -915,159 +915,175 @@
 
         let W, H;
         function resize() {
-            W = canvas.width = window.innerWidth;
+            W = canvas.width  = window.innerWidth;
             H = canvas.height = window.innerHeight;
+            windows = []; // сбросить окна при ресайзе
         }
         resize();
         window.addEventListener('resize', resize);
 
-        // ---- ЗВЁЗДЫ ----
+        // ── ЗВЁЗДЫ ──────────────────────────────────────────────
         const stars = Array.from({ length: 110 }, () => ({
-            x: Math.random(), y: Math.random() * 0.78,
+            x: Math.random(), y: Math.random() * 0.75,
             r: 0.4 + Math.random() * 1.8,
             phase: Math.random() * Math.PI * 2,
             speed: 0.5 + Math.random() * 1.5,
         }));
 
-        // ---- ВАРШАВСКИЙ СИЛУЭТ ----
-        // Здания вдохновлены реальным skyline Варшавы:
-        // Pałac Kultury, Varso Tower, Warsaw Spire, Złota 44, Q22 и др.
-        function getWarsawBuildings() {
+        // ── ВАРШАВСКИЙ СИЛУЭТ ────────────────────────────────────
+        // Горизонт = нижние 22% экрана. Здания не заходят выше.
+        const HORIZON = 0.78; // baseY = H * HORIZON
+
+        function getBuildings() {
+            // xFrac, wFrac — доли от W
+            // hFrac — высота как доля от H (только нижняя зона)
             return [
-                { xFrac:0.00, wFrac:0.04, hFrac:0.10 },
-                { xFrac:0.03, wFrac:0.05, hFrac:0.13 },
-                { xFrac:0.07, wFrac:0.04, hFrac:0.09 },
-                { xFrac:0.10, wFrac:0.06, hFrac:0.14 },
-                { xFrac:0.15, wFrac:0.04, hFrac:0.11 },
-                // Złota 44 — наклонная башня
-                { xFrac:0.19, wFrac:0.055, hFrac:0.28, slant:true },
+                { xFrac:0.00, wFrac:0.045, hFrac:0.055 },
+                { xFrac:0.04, wFrac:0.050, hFrac:0.070 },
+                { xFrac:0.08, wFrac:0.040, hFrac:0.050 },
+                { xFrac:0.11, wFrac:0.060, hFrac:0.080 },
+                { xFrac:0.16, wFrac:0.040, hFrac:0.060 },
+                // Złota 44 — срезанная вершина
+                { xFrac:0.19, wFrac:0.055, hFrac:0.150, slant:true },
                 // Warsaw Spire
-                { xFrac:0.25, wFrac:0.06, hFrac:0.32, hasSpire:true, spireH:0.06 },
-                { xFrac:0.31, wFrac:0.04, hFrac:0.18 },
-                { xFrac:0.34, wFrac:0.05, hFrac:0.22 },
+                { xFrac:0.25, wFrac:0.055, hFrac:0.170, hasSpire:true, spireH:0.035 },
+                { xFrac:0.30, wFrac:0.040, hFrac:0.095 },
+                { xFrac:0.33, wFrac:0.050, hFrac:0.120 },
                 // Q22
-                { xFrac:0.38, wFrac:0.055, hFrac:0.30, stepped:true },
-                // Pałac Kultury i Nauki — главный, центральный
-                { xFrac:0.435, wFrac:0.10, hFrac:0.44, palace:true },
-                // Varso Tower — антенна мигает ночью
-                { xFrac:0.545, wFrac:0.055, hFrac:0.38, hasAntenna:true, antennaH:0.08 },
-                { xFrac:0.60, wFrac:0.05, hFrac:0.25 },
-                { xFrac:0.64, wFrac:0.04, hFrac:0.20 },
-                { xFrac:0.67, wFrac:0.06, hFrac:0.28, stepped:true },
-                { xFrac:0.72, wFrac:0.05, hFrac:0.22 },
-                { xFrac:0.76, wFrac:0.055, hFrac:0.18 },
-                { xFrac:0.80, wFrac:0.04, hFrac:0.14 },
-                { xFrac:0.83, wFrac:0.05, hFrac:0.16 },
-                { xFrac:0.87, wFrac:0.04, hFrac:0.12 },
-                { xFrac:0.90, wFrac:0.05, hFrac:0.10 },
-                { xFrac:0.94, wFrac:0.04, hFrac:0.13 },
-                { xFrac:0.97, wFrac:0.04, hFrac:0.09 },
+                { xFrac:0.37, wFrac:0.055, hFrac:0.155, stepped:true },
+                // Pałac Kultury — главный
+                { xFrac:0.42, wFrac:0.095, hFrac:0.220, palace:true },
+                // Varso Tower
+                { xFrac:0.52, wFrac:0.055, hFrac:0.190, hasAntenna:true, antennaH:0.045 },
+                { xFrac:0.57, wFrac:0.050, hFrac:0.130 },
+                { xFrac:0.61, wFrac:0.040, hFrac:0.100 },
+                { xFrac:0.64, wFrac:0.060, hFrac:0.145, stepped:true },
+                { xFrac:0.69, wFrac:0.050, hFrac:0.110 },
+                { xFrac:0.73, wFrac:0.055, hFrac:0.090 },
+                { xFrac:0.77, wFrac:0.040, hFrac:0.075 },
+                { xFrac:0.80, wFrac:0.050, hFrac:0.085 },
+                { xFrac:0.84, wFrac:0.040, hFrac:0.060 },
+                { xFrac:0.87, wFrac:0.050, hFrac:0.070 },
+                { xFrac:0.91, wFrac:0.040, hFrac:0.055 },
+                { xFrac:0.94, wFrac:0.050, hFrac:0.065 },
+                { xFrac:0.97, wFrac:0.040, hFrac:0.050 },
             ];
         }
 
-        function drawCity(nightFactor) {
-            const bldgs = getWarsawBuildings();
-            const baseY = H * 0.78;
+        function drawCity(nightFactor, ts) {
+            const bldgs  = getBuildings();
+            const baseY  = H * HORIZON;
 
-            bldgs.forEach(b => {
-                const x  = b.xFrac * W;
-                const w  = b.wFrac * W;
-                const h  = b.hFrac * H;
-                const top = baseY - h;
-
-                // Цвет: днём тёмно-серый, ночью почти чёрный
-                const c = nightFactor > 0.5 ? 'rgba(8,8,12,1)' : 'rgba(30,28,26,1)';
-                ctx.fillStyle = c;
-
-                if (b.palace) {
-                    // Pałac Kultury — ступенчатая башня со шпилем
-                    ctx.fillRect(x,           top + h*0.55, w,       h*0.45);
-                    ctx.fillRect(x + w*0.10,  top + h*0.30, w*0.80,  h*0.25);
-                    ctx.fillRect(x + w*0.22,  top + h*0.12, w*0.56,  h*0.18);
-                    ctx.beginPath();
-                    ctx.moveTo(x + w*0.50, top);
-                    ctx.lineTo(x + w*0.38, top + h*0.12);
-                    ctx.lineTo(x + w*0.62, top + h*0.12);
-                    ctx.closePath();
-                    ctx.fill();
-                } else if (b.stepped) {
-                    ctx.fillRect(x, top, w, h);
-                    ctx.fillRect(x + w*0.15, top - h*0.08, w*0.70, h*0.08);
-                } else if (b.slant) {
-                    // Złota 44 — срезанная вершина
-                    ctx.beginPath();
-                    ctx.moveTo(x,     baseY);
-                    ctx.lineTo(x,     top + h*0.15);
-                    ctx.lineTo(x + w*0.5, top);
-                    ctx.lineTo(x + w, top + h*0.05);
-                    ctx.lineTo(x + w, baseY);
-                    ctx.closePath();
-                    ctx.fill();
-                } else {
-                    ctx.fillRect(x, top, w, h);
-                }
-
-                // Шпиль Warsaw Spire
-                if (b.hasSpire) {
-                    const sh = b.spireH * H;
-                    ctx.beginPath();
-                    ctx.moveTo(x + w*0.50, top - sh);
-                    ctx.lineTo(x + w*0.42, top);
-                    ctx.lineTo(x + w*0.58, top);
-                    ctx.closePath();
-                    ctx.fill();
-                }
-
-                // Антенна Varso Tower + мигающий огонёк ночью
-                if (b.hasAntenna) {
-                    const ah = b.antennaH * H;
-                    ctx.fillStyle = c;
-                    ctx.fillRect(x + w*0.47, top - ah, w*0.06, ah);
-                    if (nightFactor > 0.3) {
-                        const blink = 0.4 + 0.6 * Math.abs(Math.sin(Date.now() * 0.0018));
-                        ctx.fillStyle = `rgba(255,50,50,${nightFactor * blink})`;
-                        ctx.beginPath();
-                        ctx.arc(x + w*0.50, top - ah, 2.5, 0, Math.PI*2);
-                        ctx.fill();
-                    }
-                }
-            });
-
-            // Земля под зданиями
-            ctx.fillStyle = nightFactor > 0.5 ? 'rgba(4,4,7,1)' : 'rgba(18,16,14,1)';
+            // Земля
+            const groundDay   = 'rgba(22,18,14,1)';
+            const groundNight = 'rgba(5,5,10,1)';
+            ctx.fillStyle = nightFactor > 0.5 ? groundNight : groundDay;
             ctx.fillRect(0, baseY, W, H - baseY);
-        }
-
-        // ---- ОКНА (генерируются при первом показе ночью) ----
-        let windows = [];
-        function generateWindows() {
-            windows = [];
-            const bldgs = getWarsawBuildings();
-            const baseY = H * 0.78;
 
             bldgs.forEach(b => {
-                if (b.palace) return; // у дворца особая геометрия
                 const x   = b.xFrac * W;
                 const w   = b.wFrac * W;
                 const h   = b.hFrac * H;
                 const top = baseY - h;
 
-                const cols = Math.max(1, Math.floor(w / 9));
-                const rows = Math.max(1, Math.floor(h / 11));
-                const winW = Math.max(2, (w / cols) * 0.45);
-                const winH = Math.max(2, (h / rows) * 0.45);
+                // Дневной силуэт чуть светлее горизонта, ночью — тёмнее
+                const dayC   = `rgba(28,24,20,1)`;
+                const nightC = `rgba(10,10,16,1)`;
+                ctx.fillStyle = nightFactor > 0.5 ? nightC : dayC;
+
+                if (b.palace) {
+                    // Pałac Kultury — ступенчато + шпиль
+                    ctx.fillRect(x,           top + h*0.55, w,       h*0.45);
+                    ctx.fillRect(x + w*0.10,  top + h*0.32, w*0.80,  h*0.23);
+                    ctx.fillRect(x + w*0.22,  top + h*0.14, w*0.56,  h*0.18);
+                    // Шпиль
+                    ctx.beginPath();
+                    ctx.moveTo(x + w*0.50, top);
+                    ctx.lineTo(x + w*0.40, top + h*0.14);
+                    ctx.lineTo(x + w*0.60, top + h*0.14);
+                    ctx.closePath();
+                    ctx.fill();
+                    // Часы (маленький квадрат на башне)
+                    ctx.fillStyle = nightFactor > 0.4
+                        ? `rgba(255,230,100,${nightFactor * 0.6})`
+                        : `rgba(60,55,50,1)`;
+                    ctx.fillRect(x + w*0.42, top + h*0.14, w*0.16, w*0.10);
+                    ctx.fillStyle = nightFactor > 0.5 ? nightC : dayC;
+
+                } else if (b.stepped) {
+                    ctx.fillRect(x, top, w, h);
+                    ctx.fillRect(x + w*0.12, top - h*0.07, w*0.76, h*0.07);
+
+                } else if (b.slant) {
+                    // Złota 44
+                    ctx.beginPath();
+                    ctx.moveTo(x,           baseY);
+                    ctx.lineTo(x,           top + h*0.18);
+                    ctx.lineTo(x + w*0.48,  top);
+                    ctx.lineTo(x + w,       top + h*0.06);
+                    ctx.lineTo(x + w,       baseY);
+                    ctx.closePath();
+                    ctx.fill();
+
+                } else {
+                    ctx.fillRect(x, top, w, h);
+                }
+
+                // Warsaw Spire — шпиль
+                if (b.hasSpire) {
+                    const sh = b.spireH * H;
+                    ctx.beginPath();
+                    ctx.moveTo(x + w*0.50, top - sh);
+                    ctx.lineTo(x + w*0.40, top);
+                    ctx.lineTo(x + w*0.60, top);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                // Varso Tower — антенна + мигающий огонёк
+                if (b.hasAntenna) {
+                    const ah = b.antennaH * H;
+                    ctx.fillStyle = nightFactor > 0.5 ? nightC : dayC;
+                    ctx.fillRect(x + w*0.46, top - ah, w*0.08, ah);
+                    if (nightFactor > 0.25) {
+                        const blink = 0.35 + 0.65 * Math.abs(Math.sin(ts * 0.0018));
+                        ctx.fillStyle = `rgba(255,40,40,${nightFactor * blink})`;
+                        ctx.beginPath();
+                        ctx.arc(x + w*0.50, top - ah, 2.8, 0, Math.PI*2);
+                        ctx.fill();
+                    }
+                }
+            });
+        }
+
+        // ── ОКНА ────────────────────────────────────────────────
+        let windows = [];
+        function generateWindows() {
+            windows = [];
+            const bldgs = getBuildings();
+            const baseY = H * HORIZON;
+
+            bldgs.forEach(b => {
+                if (b.palace) return;
+                const x   = b.xFrac * W;
+                const w   = b.wFrac * W;
+                const h   = b.hFrac * H;
+                const top = baseY - h;
+                const cols = Math.max(1, Math.floor(w / 8));
+                const rows = Math.max(1, Math.floor(h / 10));
+                const ww   = Math.max(1.5, (w / cols) * 0.42);
+                const wh   = Math.max(1.5, (h / rows) * 0.42);
 
                 for (let row = 0; row < rows; row++) {
                     for (let col = 0; col < cols; col++) {
-                        if (Math.random() < 0.52) {
+                        if (Math.random() < 0.50) {
                             windows.push({
-                                x:    x + (col + 0.3) * (w / cols),
-                                y:    top + (row + 0.3) * (h / rows),
-                                w:    winW,
-                                h:    winH,
+                                x:    x + (col + 0.29) * (w / cols),
+                                y:    top + (row + 0.29) * (h / rows),
+                                w:    ww,  h: wh,
                                 brightness: 0.4 + Math.random() * 0.6,
-                                phase: Math.random() * 100,
-                                warm: Math.random() > 0.3, // жёлтый или синеватый
+                                phase: Math.random() * 80,
+                                warm: Math.random() > 0.35,
                             });
                         }
                     }
@@ -1075,7 +1091,7 @@
             });
         }
 
-        // ---- ПОМОЩНИКИ ----
+        // ── HELPERS ─────────────────────────────────────────────
         const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
         const lerp  = (a,b,t) => a + (b-a)*t;
         function lerpHex(h1, h2, t) {
@@ -1084,103 +1100,98 @@
             return `rgb(${~~lerp(r1,r2,t)},${~~lerp(g1,g2,t)},${~~lerp(b1,b2,t)})`;
         }
 
-        // ---- ВРЕМЯ → ФАКТОРЫ ----
+        // ── ВРЕМЯ ───────────────────────────────────────────────
         function localMin() {
             const now = new Date();
             return (now.getUTCHours()*60 + now.getUTCMinutes() + now.getUTCSeconds()/60 + TZ_OFFSET*60 + 1440) % 1440;
         }
-
         function getFactors() {
-            const lm = localMin();
-            const sr = SUNRISE_HOUR * 60, ss = SUNSET_HOUR * 60, h = TRANSITION_MIN / 2;
+            const lm=localMin(), sr=SUNRISE_HOUR*60, ss=SUNSET_HOUR*60, h=TRANSITION_MIN/2;
             let night;
             if      (lm >= sr+h && lm <= ss-h) night = 0;
-            else if (lm < sr-h  || lm > ss+h)  night = 1;
+            else if (lm <  sr-h || lm >  ss+h) night = 1;
             else if (lm >= sr-h && lm <= sr+h) night = 1 - (lm-(sr-h)) / TRANSITION_MIN;
             else                                night =     (lm-(ss-h))  / TRANSITION_MIN;
-
             let sf = 0;
-            if (lm >= sr-h && lm <= sr+h) sf = 1 - Math.abs(lm-sr)/h;
+            if      (lm >= sr-h && lm <= sr+h) sf = 1 - Math.abs(lm-sr)/h;
             else if (lm >= ss-h && lm <= ss+h) sf = 1 - Math.abs(lm-ss)/h;
-
             return { night: clamp(night,0,1), sunsetF: clamp(sf,0,1) };
         }
-
-        function getSunT() {
+        function getSunT()  {
             const lm=localMin(), sr=SUNRISE_HOUR*60, ss=SUNSET_HOUR*60;
             return clamp((lm-sr)/(ss-sr), 0, 1);
         }
-
         function getMoonT() {
             const lm=localMin(), ss=SUNSET_HOUR*60;
-            const nightLen = SUNRISE_HOUR*60 + 1440 - ss;
-            const nm = lm >= ss ? lm-ss : lm+(1440-ss);
-            return clamp(nm/nightLen, 0, 1);
+            const nl=SUNRISE_HOUR*60+1440-ss;
+            const nm=lm>=ss ? lm-ss : lm+(1440-ss);
+            return clamp(nm/nl, 0, 1);
         }
-
-        function pos(t) {
+        function celestialPos(t) {
+            // Дуга: солнце/луна движется вдоль верхней части экрана
+            // максимальная высота — 8% от H, по краям — 20% от H
             return {
                 x: lerp(-W*0.04, W*1.04, t),
-                y: lerp(H*0.18,  H*0.06, Math.sin(t*Math.PI)),
+                y: lerp(H*0.20,  H*0.07, Math.sin(t*Math.PI)),
             };
         }
 
-        // ---- РЕНДЕР ----
+        // ── РЕНДЕР ──────────────────────────────────────────────
         let raf=null, running=false;
 
         function tick(ts) {
             if (!running) return;
-
             const { night, sunsetF } = getFactors();
             const sunT=getSunT(), moonT=getMoonT();
 
             // НЕБО
-            const skyGrad = ctx.createLinearGradient(0,0,0,H);
-            skyGrad.addColorStop(0, lerpHex(lerpHex('#050300','#180800',sunsetF),'#00000e',night));
-            skyGrad.addColorStop(0.5, lerpHex(lerpHex('#0c0600','#7a1e00',sunsetF),'#000012',night));
-            skyGrad.addColorStop(1, lerpHex('#060300','#000008',night));
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, H * HORIZON);
+            skyGrad.addColorStop(0,   lerpHex(lerpHex('#050300','#1a0800',sunsetF),'#00000e',night));
+            skyGrad.addColorStop(0.6, lerpHex(lerpHex('#0c0600','#7a1e00',sunsetF),'#000012',night));
+            skyGrad.addColorStop(1,   lerpHex('#0a0500','#00000a',night));
             ctx.fillStyle = skyGrad;
-            ctx.fillRect(0,0,W,H);
+            ctx.fillRect(0, 0, W, H * HORIZON);
 
             // ЗАКАТНЫЙ ОРЕОЛ
             if (sunsetF > 0.02) {
-                const sx = pos(sunT).x;
-                const gr = ctx.createRadialGradient(sx,H*0.88,0, sx,H*0.88,W*1.1);
+                const sx = celestialPos(sunT).x;
+                const gr = ctx.createRadialGradient(sx, H*0.90, 0, sx, H*0.90, W*1.1);
                 gr.addColorStop(0,    `rgba(255,110,10,${0.62*sunsetF})`);
                 gr.addColorStop(0.18, `rgba(230,55,0,${0.46*sunsetF})`);
                 gr.addColorStop(0.42, `rgba(155,10,55,${0.28*sunsetF})`);
                 gr.addColorStop(0.72, `rgba(65,0,110,${0.14*sunsetF})`);
                 gr.addColorStop(1,    'rgba(0,0,0,0)');
-                ctx.fillStyle=gr; ctx.fillRect(0,0,W,H);
+                ctx.fillStyle=gr;
+                ctx.fillRect(0, 0, W, H);
 
-                const stripe = ctx.createLinearGradient(0,H*0.70,0,H*0.90);
+                const stripe = ctx.createLinearGradient(0, H*0.65, 0, H*0.82);
                 stripe.addColorStop(0,    'rgba(255,160,40,0)');
-                stripe.addColorStop(0.35, `rgba(255,120,15,${0.52*sunsetF})`);
-                stripe.addColorStop(0.75, `rgba(180,40,0,${0.30*sunsetF})`);
+                stripe.addColorStop(0.35, `rgba(255,120,15,${0.50*sunsetF})`);
+                stripe.addColorStop(0.75, `rgba(180,40,0,${0.28*sunsetF})`);
                 stripe.addColorStop(1,    'rgba(0,0,0,0)');
-                ctx.fillStyle=stripe; ctx.fillRect(0,H*0.70,W,H*0.20);
+                ctx.fillStyle=stripe;
+                ctx.fillRect(0, H*0.65, W, H*0.17);
             }
 
             // ЗВЁЗДЫ
             if (night > 0.05) {
                 stars.forEach(s => {
                     ctx.globalAlpha = night * (0.5+0.5*Math.sin(ts*0.001*s.speed+s.phase)) * 0.92;
-                    ctx.fillStyle='#cce8ff';
-                    ctx.beginPath(); ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2); ctx.fill();
+                    ctx.fillStyle = '#cce8ff';
+                    ctx.beginPath(); ctx.arc(s.x*W, s.y*H*HORIZON, s.r, 0, Math.PI*2); ctx.fill();
                 });
-                ctx.globalAlpha=1;
+                ctx.globalAlpha = 1;
             }
 
-            // СОЛНЦЕ (тёплый желтый)
+            // СОЛНЦЕ
             if (night < 0.97) {
-                const sp=pos(sunT), R=Math.min(W,H)*0.085, sa=clamp(1-night*2,0,1);
-
-                const glow=ctx.createRadialGradient(sp.x,sp.y,R*0.3,sp.x,sp.y,R*3.5);
-                glow.addColorStop(0,   `rgba(255,220,20,${0.55*sa})`);
-                glow.addColorStop(0.35,`rgba(255,160,0,${0.25*sa})`);
-                glow.addColorStop(1,   'rgba(200,40,0,0)');
+                const sp=celestialPos(sunT), R=Math.min(W,H)*0.075, sa=clamp(1-night*2,0,1);
+                const glow=ctx.createRadialGradient(sp.x,sp.y,R*0.3,sp.x,sp.y,R*3.2);
+                glow.addColorStop(0,    `rgba(255,220,20,${0.55*sa})`);
+                glow.addColorStop(0.35, `rgba(255,160,0,${0.25*sa})`);
+                glow.addColorStop(1,    'rgba(200,40,0,0)');
                 ctx.globalAlpha=sa; ctx.fillStyle=glow;
-                ctx.beginPath(); ctx.arc(sp.x,sp.y,R*3.5,0,Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(sp.x,sp.y,R*3.2,0,Math.PI*2); ctx.fill();
 
                 const rim=ctx.createRadialGradient(sp.x,sp.y,R*0.78,sp.x,sp.y,R);
                 rim.addColorStop(0,'#ffeb3b'); rim.addColorStop(1,'#ff9800');
@@ -1189,64 +1200,52 @@
                 const core=ctx.createRadialGradient(sp.x-R*0.25,sp.y-R*0.25,0,sp.x,sp.y,R*0.9);
                 core.addColorStop(0,'#fffde0'); core.addColorStop(0.4,'#ffd600'); core.addColorStop(1,'#f57c00');
                 ctx.fillStyle=core; ctx.beginPath(); ctx.arc(sp.x,sp.y,R*0.88,0,Math.PI*2); ctx.fill();
-
                 ctx.globalAlpha=1;
             }
 
             // ЛУНА
             if (night > 0.05) {
-                const mp=pos(moonT), R=Math.min(W,H)*0.042, ma=clamp(night*1.6,0,1);
-
-                const mg=ctx.createRadialGradient(mp.x,mp.y,R*0.4,mp.x,mp.y,R*4);
-                mg.addColorStop(0,  `rgba(110,175,255,${0.30*ma})`);
-                mg.addColorStop(0.5,`rgba(55,95,220,${0.10*ma})`);
-                mg.addColorStop(1,  'rgba(20,40,180,0)');
+                const mp=celestialPos(moonT), R=Math.min(W,H)*0.038, ma=clamp(night*1.6,0,1);
+                const mg=ctx.createRadialGradient(mp.x,mp.y,R*0.4,mp.x,mp.y,R*3.8);
+                mg.addColorStop(0,   `rgba(110,175,255,${0.28*ma})`);
+                mg.addColorStop(0.5, `rgba(55,95,220,${0.10*ma})`);
+                mg.addColorStop(1,   'rgba(20,40,180,0)');
                 ctx.globalAlpha=ma; ctx.fillStyle=mg;
-                ctx.beginPath(); ctx.arc(mp.x,mp.y,R*4,0,Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(mp.x,mp.y,R*3.8,0,Math.PI*2); ctx.fill();
 
                 const md=ctx.createRadialGradient(mp.x-R*0.28,mp.y-R*0.28,0,mp.x,mp.y,R);
                 md.addColorStop(0,'#eef5ff'); md.addColorStop(0.55,'#b0caf0'); md.addColorStop(1,'#5880c0');
                 ctx.fillStyle=md; ctx.beginPath(); ctx.arc(mp.x,mp.y,R,0,Math.PI*2); ctx.fill();
-
-                ctx.fillStyle='rgba(0,4,20,0.62)';
-                ctx.beginPath(); ctx.arc(mp.x+R*0.27,mp.y,R*0.87,0,Math.PI*2); ctx.fill();
-
+                ctx.fillStyle='rgba(0,4,20,0.60)';
+                ctx.beginPath(); ctx.arc(mp.x+R*0.26,mp.y,R*0.86,0,Math.PI*2); ctx.fill();
                 ctx.globalAlpha=1;
             }
 
-            // ГОРОД ВАРШАВА
-            drawCity(night);
+            // ГОРОД (внизу экрана)
+            drawCity(night, ts);
 
-            if (night > 0.2) {
-       if (windows.length === 0) generateWindows();
-       const windowAlpha = clamp((night - 0.2) * 2, 0, 1);
-       windows.forEach(w => {
-           const twinkle = 0.6 + 0.4 * Math.sin(ts * 0.008 * (w.phase % 3 + 0.5));
-           // Тёплые окна — жёлтые, холодные — голубоватые (офисы)
-           const color = w.warm
-               ? `rgba(255,215,90,${windowAlpha * w.brightness * twinkle})`
-               : `rgba(180,220,255,${windowAlpha * w.brightness * twinkle * 0.7})`;
-           ctx.fillStyle = color;
-           ctx.fillRect(w.x, w.y, w.w, w.h);
-       });
-   }
+            // ОКНА
+            if (night > 0.15) {
+                if (windows.length === 0) generateWindows();
+                const wa = clamp((night - 0.15) * 2.2, 0, 1);
+                windows.forEach(w => {
+                    const twinkle = 0.6 + 0.4 * Math.sin(ts * 0.007 * (w.phase % 3 + 0.5));
+                    ctx.fillStyle = w.warm
+                        ? `rgba(255,215,85,${wa * w.brightness * twinkle})`
+                        : `rgba(170,215,255,${wa * w.brightness * twinkle * 0.65})`;
+                    ctx.fillRect(w.x, w.y, w.w, w.h);
+                });
+            }
 
             raf = requestAnimationFrame(tick);
         }
 
-        // Перегенерировать город при ресайзе
-        const originalResize = resize;
-        resize = function() {
-       originalResize();
-       windows = [];
-   };
-        // ── API ──────────────────────────────────────────────────────────
+        // ── API ──────────────────────────────────────────────────
         window.initDesertAnimation = function() {
             if (running) return;
             running=true; canvas.style.display='block';
             raf=requestAnimationFrame(tick);
         };
-
         window.stopDesertAnimation = function() {
             running=false; canvas.style.display='none';
             if (raf) { cancelAnimationFrame(raf); raf=null; }
