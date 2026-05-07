@@ -696,15 +696,16 @@
 }
 /* --- Главное меню (без скролла, чёрный фон, canvas анимации на весь экран) --- */
         #mainMenu {
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            max-height: 100vh;
-            gap: 20px;
-            position: relative;
-            overflow: hidden;
-            background: #000;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    max-height: 100vh;
+    gap: 20px;
+    position: relative;
+    overflow: hidden;
+    background: transparent;    /* ← теперь фон прозрачный */
+}
         }
         #mainMenu canvas {
             position: absolute;
@@ -715,7 +716,7 @@
             pointer-events: none;
             z-index: 0;
             }
-        #mainMenu button {
+        # button {
     width: 100%;
     max-width: 320px;
     padding: 20px;
