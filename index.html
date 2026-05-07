@@ -898,10 +898,7 @@
     let selectedLat = null, selectedLng = null;
     let map = null, marker = null;
 
-   ```
-// ═══════════════════════════════════════════
-// АНИМАЦИЯ НЕБА + ВАРШАВА (v5.1 — ФИНАЛ)
-// ═══════════════════════════════════════════
+
 (function() {
     const TZ_OFFSET = 2, SUNRISE_HOUR = 5.5, SUNSET_HOUR = 21.0, TRANSITION_MIN = 60;
 
@@ -1192,11 +1189,8 @@
         if (raf) { cancelAnimationFrame(raf); raf=null; }
     };
 })();
-// ═══════════════════════════════════════════
-// КОНЕЦ АНИМАЦИИ
-// ═══════════════════════════════════════════
-```
-    // --- НАВИГАЦИЯ ---
+
+
     function showScreen(id) {
     ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
         document.getElementById(s).style.display = 'none';
