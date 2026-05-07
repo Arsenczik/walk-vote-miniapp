@@ -784,17 +784,7 @@ body.no-scroll {
     width: 100%;
 }
 
-        /* Живое небо в главном меню */
-#mainMenu {
-    background: linear-gradient(180deg, #0a1220 0%, #1a2a40 100%);
-    animation: dayNightCycle 30s ease-in-out infinite alternate;
-}
 
-@keyframes dayNightCycle {
-    0% { background: linear-gradient(180deg, #0a1220 0%, #1a2a40 100%); }
-    50% { background: linear-gradient(180deg, #2a3a50 0%, #4a6070 100%); }
-    100% { background: linear-gradient(180deg, #0a1a30 0%, #0d1b2a 100%); }
-}
 
     </style>
 </head>
@@ -1213,6 +1203,12 @@ body.no-scroll {
     if (!target) return;
     let isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen' || id === 'archiveScreen');
     target.style.display = isFlex ? 'flex' : 'block';
+
+      if (id === 'mainMenu') {
+        initDesertAnimation();
+    } else {
+        stopDesertAnimation();
+    }
 
       // ✅ Жёсткая блокировка скролла при главном меню
     if (id === 'mainMenu') {
