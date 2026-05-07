@@ -856,55 +856,6 @@ body.no-scroll {
     <div id="eventsScreen" style="display: none;">
         <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
         <div id="eventsHeader">События 💭</div>
-        <div class="create-form" id="createForm" style="display: none;">
-            <div class="form-card">
-                <div class="form-header">
-                    <div class="header-title-wrapper"><h2>Новое событие</h2></div>
-                    <div onclick="hideCreateForm()" style="width: 36px; height: 36px; border-radius: 50%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.3); color: #aaa; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 8px rgba(255,255,255,0.05);" onmousedown="this.style.background='#fff'; this.style.color='#000';" onmouseup="this.style.background='#1a1a1a'; this.style.color='#aaa';" ontouchstart="this.style.background='#fff'; this.style.color='#000';" ontouchend="this.style.background='#1a1a1a'; this.style.color='#aaa';">✕</div>
-                </div>
-                <input type="text" id="eventName" placeholder="Название" maxlength="40">
-                <input type="text" id="eventDesc" placeholder="Описание" maxlength="120">
-                <label>Тип встречи</label>
-                <div class="category-picker">
-                    <span class="cat-option active" data-cat="🍖">🍖</span>
-                    <span class="cat-option" data-cat="🎬">🎬</span>
-                    <span class="cat-option" data-cat="🌊">🌊</span>
-                    <span class="cat-option" data-cat="🍻">🍻</span>
-                    <span class="cat-option" data-cat="🎲">🎲</span>
-                    <span class="cat-option" data-cat="🎂">🎂</span>
-                    <span class="cat-option" data-cat="🎸">🎸</span>
-                    <span class="cat-option" data-cat="🏀">🏀</span>
-                </div>
-                <label>КОГДА</label>
-                <input type="datetime-local" id="eventDate">
-                <div class="special-achievements-section" style="margin-top:16px;">
-    <label style="color:#ffd700; font-size:12px; letter-spacing:1px;">🏆 Достижения для события (до 3)</label>
-    <div id="achievementInputs">
-        <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
-            <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
-            <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
-            <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
-        </div>
-        <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
-            <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
-            <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
-            <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
-        </div>
-        <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
-            <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
-            <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
-            <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
-        </div>
-    </div>
-</div>
-                <label style="margin-top: 12px;">МЕСТО ВСТРЕЧИ</label>
-                <div class="location-row">
-                    <button class="location-btn" onclick="openMapModal()">🗺️ Указать</button>
-                    <span class="location-preview" id="locationText">Не выбрано</span>
-                </div>
-                <button onclick="submitEvent()" class="submit-btn-full">Создать</button>
-            </div>
-        </div>
         <div class="events-grid" id="eventsGrid"><p>Загрузка...</p></div>
         <button class="add-event-btn" onclick="showCreateForm()"><span class="add-icon">+</span><span>Добавить событие</span></button>
     </div>
@@ -1797,6 +1748,55 @@ function closeAssignmentModal() {
     function showAchievementDescription(name, desc) {
     alert(name + '\n\n' + desc);
 }
+    <div class="create-form" id="createForm" style="display: none;">
+            <div class="form-card">
+                <div class="form-header">
+                    <div class="header-title-wrapper"><h2>Новое событие</h2></div>
+                    <div onclick="hideCreateForm()" style="width: 36px; height: 36px; border-radius: 50%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.3); color: #aaa; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 8px rgba(255,255,255,0.05);" onmousedown="this.style.background='#fff'; this.style.color='#000';" onmouseup="this.style.background='#1a1a1a'; this.style.color='#aaa';" ontouchstart="this.style.background='#fff'; this.style.color='#000';" ontouchend="this.style.background='#1a1a1a'; this.style.color='#aaa';">✕</div>
+                </div>
+                <input type="text" id="eventName" placeholder="Название" maxlength="40">
+                <input type="text" id="eventDesc" placeholder="Описание" maxlength="120">
+                <label>Тип встречи</label>
+                <div class="category-picker">
+                    <span class="cat-option active" data-cat="🍖">🍖</span>
+                    <span class="cat-option" data-cat="🎬">🎬</span>
+                    <span class="cat-option" data-cat="🌊">🌊</span>
+                    <span class="cat-option" data-cat="🍻">🍻</span>
+                    <span class="cat-option" data-cat="🎲">🎲</span>
+                    <span class="cat-option" data-cat="🎂">🎂</span>
+                    <span class="cat-option" data-cat="🎸">🎸</span>
+                    <span class="cat-option" data-cat="🏀">🏀</span>
+                </div>
+                <label>КОГДА</label>
+                <input type="datetime-local" id="eventDate">
+                <div class="special-achievements-section" style="margin-top:16px;">
+    <label style="color:#ffd700; font-size:12px; letter-spacing:1px;">🏆 Достижения для события (до 3)</label>
+    <div id="achievementInputs">
+        <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
+            <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
+            <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
+            <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
+        </div>
+        <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
+            <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
+            <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
+            <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
+        </div>
+        <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
+            <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
+            <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
+            <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
+        </div>
+    </div>
+</div>
+                <label style="margin-top: 12px;">МЕСТО ВСТРЕЧИ</label>
+                <div class="location-row">
+                    <button class="location-btn" onclick="openMapModal()">🗺️ Указать</button>
+                    <span class="location-preview" id="locationText">Не выбрано</span>
+                </div>
+                <button onclick="submitEvent()" class="submit-btn-full">Создать</button>
+            </div>
+        </div>
 </script>
 </body>
 </html>
