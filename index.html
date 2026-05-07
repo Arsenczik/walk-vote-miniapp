@@ -735,6 +735,10 @@
     position: relative;
     z-index: 3;
 }
+        html, body {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
 
     </style>
 </head>
@@ -1109,7 +1113,7 @@
     })();
 
 
-    function showScreen(id) {
+  function showScreen(id) {
     ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
         document.getElementById(s).style.display = 'none';
     });
@@ -1117,6 +1121,9 @@
     if (!target) return;
     let isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen' || id === 'archiveScreen');
     target.style.display = isFlex ? 'flex' : 'block';
+
+    // ✅ Блокировка скролла для главного меню
+    document.body.style.overflow = (id === 'mainMenu') ? 'hidden' : '';
 
     if (id === 'mainMenu') {
         initDesertAnimation();
@@ -1126,7 +1133,6 @@
 
     if (id === 'loginScreen') { startFallingEmojis(); setRandomPlaceholder(); } else stopFallingEmojis();
 
-    // Управление кнопками внизу
     document.getElementById('archiveFab').style.display = (id === 'eventsScreen') ? 'flex' : 'none';
 
     if (id === 'eventsScreen') loadEvents();
