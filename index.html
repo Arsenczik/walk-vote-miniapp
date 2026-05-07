@@ -791,7 +791,7 @@
     <!-- 5. ЭКРАН ПРОФИЛЯ (ЭЛИТНЫЙ) -->
     <div id="profileScreen" style="display: none;">
     <div class="profile-container">
-        <button class="back-arrow back-arrow-profile" onclick="showScreen('')">←</button>
+        <button class="back-arrow back-arrow-profile" onclick="showScreen('mainMenu')">←</button>
         
         <!-- Аватарка -->
         <div class="profile-avatar-wrapper">
@@ -1251,8 +1251,8 @@
     <span class="ach-emoji">${a.emoji}</span>
     <span class="ach-name">${a.name}</span>
 </div>`;
-            });        
-        } else {
+            });
+        } else {   // ← перед else должна быть закрывающая скобка if
             achievementsHtml = '<p style="color:#666;">Пока нет ачивок. Участвуй в движухах!</p>';
         }
         document.getElementById('achievementsList').innerHTML = achievementsHtml;
@@ -1947,6 +1947,9 @@ async function submitAssignment(eventId, achievementIndex) {
 
 function closeAssignmentModal() {
     document.getElementById('assignmentModal').style.display = 'none';
+}
+    function showAchievementDescription(name, desc) {
+    alert(name + '\n\n' + desc);
 }
 </script>
 </body>
