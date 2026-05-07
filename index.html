@@ -929,46 +929,145 @@
             speed: 0.5 + Math.random() * 1.5,
         }));
 
-        // ---- ГОРОД (силуэт) ----
-        // Массивы зданий: { x, width, height } (относительно ширины экрана)
-        const buildings = [];
-        function generateCity() {
-            buildings.length = 0;
-            const count = 20 + Math.floor(W / 30);
-            for (let i = 0; i < count; i++) {
-                const w = 10 + Math.random() * 70;  // ширина в пикселях
-                const h = H * (0.05 + Math.random() * 0.15);
-                const x = Math.random() * W;
-                // Проверяем, чтобы не накладывались сильно
-                const overlap = buildings.some(b => Math.abs(b.x - x) < (b.w + w) * 0.5);
-                if (!overlap) buildings.push({ x, w, h });
-            }
-        }
-        function drawCity(alpha = 1) {
-            ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
-            buildings.forEach(b => {
-                ctx.fillRect(b.x, H - b.h, b.w, b.h);
-            });
+        // ---- ВАРШАВСКИЙ СИЛУЭТ ----
+        // Здания вдохновлены реальным skyline Варшавы:
+        // Pałac Kultury, Varso Tower, Warsaw Spire, Złota 44, Q22 и др.
+        function getWarsawBuildings() {
+            return [
+                { xFrac:0.00, wFrac:0.04, hFrac:0.10 },
+                { xFrac:0.03, wFrac:0.05, hFrac:0.13 },
+                { xFrac:0.07, wFrac:0.04, hFrac:0.09 },
+                { xFrac:0.10, wFrac:0.06, hFrac:0.14 },
+                { xFrac:0.15, wFrac:0.04, hFrac:0.11 },
+                // Złota 44 — наклонная башня
+                { xFrac:0.19, wFrac:0.055, hFrac:0.28, slant:true },
+                // Warsaw Spire
+                { xFrac:0.25, wFrac:0.06, hFrac:0.32, hasSpire:true, spireH:0.06 },
+                { xFrac:0.31, wFrac:0.04, hFrac:0.18 },
+                { xFrac:0.34, wFrac:0.05, hFrac:0.22 },
+                // Q22
+                { xFrac:0.38, wFrac:0.055, hFrac:0.30, stepped:true },
+                // Pałac Kultury i Nauki — главный, центральный
+                { xFrac:0.435, wFrac:0.10, hFrac:0.44, palace:true },
+                // Varso Tower — антенна мигает ночью
+                { xFrac:0.545, wFrac:0.055, hFrac:0.38, hasAntenna:true, antennaH:0.08 },
+                { xFrac:0.60, wFrac:0.05, hFrac:0.25 },
+                { xFrac:0.64, wFrac:0.04, hFrac:0.20 },
+                { xFrac:0.67, wFrac:0.06, hFrac:0.28, stepped:true },
+                { xFrac:0.72, wFrac:0.05, hFrac:0.22 },
+                { xFrac:0.76, wFrac:0.055, hFrac:0.18 },
+                { xFrac:0.80, wFrac:0.04, hFrac:0.14 },
+                { xFrac:0.83, wFrac:0.05, hFrac:0.16 },
+                { xFrac:0.87, wFrac:0.04, hFrac:0.12 },
+                { xFrac:0.90, wFrac:0.05, hFrac:0.10 },
+                { xFrac:0.94, wFrac:0.04, hFrac:0.13 },
+                { xFrac:0.97, wFrac:0.04, hFrac:0.09 },
+            ];
         }
 
-        // ---- ОКНА (генерируются один раз) ----
+        function drawCity(nightFactor) {
+            const bldgs = getWarsawBuildings();
+            const baseY = H * 0.78;
+
+            bldgs.forEach(b => {
+                const x  = b.xFrac * W;
+                const w  = b.wFrac * W;
+                const h  = b.hFrac * H;
+                const top = baseY - h;
+
+                // Цвет: днём тёмно-серый, ночью почти чёрный
+                const c = nightFactor > 0.5 ? 'rgba(8,8,12,1)' : 'rgba(30,28,26,1)';
+                ctx.fillStyle = c;
+
+                if (b.palace) {
+                    // Pałac Kultury — ступенчатая башня со шпилем
+                    ctx.fillRect(x,           top + h*0.55, w,       h*0.45);
+                    ctx.fillRect(x + w*0.10,  top + h*0.30, w*0.80,  h*0.25);
+                    ctx.fillRect(x + w*0.22,  top + h*0.12, w*0.56,  h*0.18);
+                    ctx.beginPath();
+                    ctx.moveTo(x + w*0.50, top);
+                    ctx.lineTo(x + w*0.38, top + h*0.12);
+                    ctx.lineTo(x + w*0.62, top + h*0.12);
+                    ctx.closePath();
+                    ctx.fill();
+                } else if (b.stepped) {
+                    ctx.fillRect(x, top, w, h);
+                    ctx.fillRect(x + w*0.15, top - h*0.08, w*0.70, h*0.08);
+                } else if (b.slant) {
+                    // Złota 44 — срезанная вершина
+                    ctx.beginPath();
+                    ctx.moveTo(x,     baseY);
+                    ctx.lineTo(x,     top + h*0.15);
+                    ctx.lineTo(x + w*0.5, top);
+                    ctx.lineTo(x + w, top + h*0.05);
+                    ctx.lineTo(x + w, baseY);
+                    ctx.closePath();
+                    ctx.fill();
+                } else {
+                    ctx.fillRect(x, top, w, h);
+                }
+
+                // Шпиль Warsaw Spire
+                if (b.hasSpire) {
+                    const sh = b.spireH * H;
+                    ctx.beginPath();
+                    ctx.moveTo(x + w*0.50, top - sh);
+                    ctx.lineTo(x + w*0.42, top);
+                    ctx.lineTo(x + w*0.58, top);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                // Антенна Varso Tower + мигающий огонёк ночью
+                if (b.hasAntenna) {
+                    const ah = b.antennaH * H;
+                    ctx.fillStyle = c;
+                    ctx.fillRect(x + w*0.47, top - ah, w*0.06, ah);
+                    if (nightFactor > 0.3) {
+                        const blink = 0.4 + 0.6 * Math.abs(Math.sin(Date.now() * 0.0018));
+                        ctx.fillStyle = `rgba(255,50,50,${nightFactor * blink})`;
+                        ctx.beginPath();
+                        ctx.arc(x + w*0.50, top - ah, 2.5, 0, Math.PI*2);
+                        ctx.fill();
+                    }
+                }
+            });
+
+            // Земля под зданиями
+            ctx.fillStyle = nightFactor > 0.5 ? 'rgba(4,4,7,1)' : 'rgba(18,16,14,1)';
+            ctx.fillRect(0, baseY, W, H - baseY);
+        }
+
+        // ---- ОКНА (генерируются при первом показе ночью) ----
         let windows = [];
         function generateWindows() {
             windows = [];
-            buildings.forEach(b => {
-                const floorH = 12;
-                const cols = Math.floor(b.w / 10);
-                const rows = Math.floor(b.h / floorH);
+            const bldgs = getWarsawBuildings();
+            const baseY = H * 0.78;
+
+            bldgs.forEach(b => {
+                if (b.palace) return; // у дворца особая геометрия
+                const x   = b.xFrac * W;
+                const w   = b.wFrac * W;
+                const h   = b.hFrac * H;
+                const top = baseY - h;
+
+                const cols = Math.max(1, Math.floor(w / 9));
+                const rows = Math.max(1, Math.floor(h / 11));
+                const winW = Math.max(2, (w / cols) * 0.45);
+                const winH = Math.max(2, (h / rows) * 0.45);
+
                 for (let row = 0; row < rows; row++) {
                     for (let col = 0; col < cols; col++) {
-                        if (Math.random() < 0.5) {
+                        if (Math.random() < 0.52) {
                             windows.push({
-                                x: b.x + col * 10 + 3,
-                                y: H - b.h + row * floorH + 4,
-                                w: 4,
-                                h: 4,
-                                brightness: Math.random() * 0.5 + 0.5,
-                                phase: Math.random() * Math.PI * 2,
+                                x:    x + (col + 0.3) * (w / cols),
+                                y:    top + (row + 0.3) * (h / rows),
+                                w:    winW,
+                                h:    winH,
+                                brightness: 0.4 + Math.random() * 0.6,
+                                phase: Math.random() * 100,
+                                warm: Math.random() > 0.3, // жёлтый или синеватый
                             });
                         }
                     }
@@ -1115,20 +1214,22 @@
                 ctx.globalAlpha=1;
             }
 
-            // ГОРОД (силуэт)
-            if (buildings.length === 0) generateCity();
-            drawCity();
+            // ГОРОД ВАРШАВА
+            drawCity(night);
 
-            // ОКНА (вечером / ночью)
             if (night > 0.2) {
-                if (windows.length === 0) generateWindows();
-                const windowAlpha = clamp((night - 0.2) * 2, 0, 1);
-                windows.forEach(w => {
-                    const twinkle = 0.5 + 0.5 * Math.sin(ts * 0.01 * w.phase);
-                    ctx.fillStyle = `rgba(255, 220, 100, ${windowAlpha * w.brightness * twinkle})`;
-                    ctx.fillRect(w.x, w.y, w.w, w.h);
-                });
-            }
+       if (windows.length === 0) generateWindows();
+       const windowAlpha = clamp((night - 0.2) * 2, 0, 1);
+       windows.forEach(w => {
+           const twinkle = 0.6 + 0.4 * Math.sin(ts * 0.008 * (w.phase % 3 + 0.5));
+           // Тёплые окна — жёлтые, холодные — голубоватые (офисы)
+           const color = w.warm
+               ? `rgba(255,215,90,${windowAlpha * w.brightness * twinkle})`
+               : `rgba(180,220,255,${windowAlpha * w.brightness * twinkle * 0.7})`;
+           ctx.fillStyle = color;
+           ctx.fillRect(w.x, w.y, w.w, w.h);
+       });
+   }
 
             raf = requestAnimationFrame(tick);
         }
@@ -1136,11 +1237,9 @@
         // Перегенерировать город при ресайзе
         const originalResize = resize;
         resize = function() {
-            originalResize();
-            buildings.length = 0;
-            windows.length = 0;
-        };
-
+       originalResize();
+       windows = [];
+   };
         // ── API ──────────────────────────────────────────────────────────
         window.initDesertAnimation = function() {
             if (running) return;
