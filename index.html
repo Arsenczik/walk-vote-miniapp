@@ -126,13 +126,14 @@
         .add-icon { font-size: 20px; font-weight: 300; line-height: 1; }
 
         /* --- Форма создания --- */
-     .create-form {
+    /* Форма создания события – всегда на весь экран */
+.create-form {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.85);   /* затемнённый фон */
+    background: rgba(0, 0, 0, 0.85);
     z-index: 200;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -141,7 +142,10 @@
     align-items: flex-start;
     padding: 12px;
     box-sizing: border-box;
+    margin: 0;               /* на всякий случай сбрасываем */
+    max-width: none;         /* убираем ограничения */
 }
+
         .form-card { background: #0a0a0a !important; border: 1px solid rgba(255,255,255,0.3) !important; box-shadow: 0 0 24px rgba(255,255,255,0.12), 0 0 48px rgba(255,255,255,0.04), inset 0 0 24px rgba(0,0,0,0.8) !important; border-radius: 24px !important; width: 100% !important; max-width: 500px !important; box-sizing: border-box !important; margin-top: 60px !important; margin-bottom: 20px !important; padding: 20px 16px !important; overflow: visible !important; position: relative !important; }
         .form-card input, .form-card input[type="text"], .form-card input[type="datetime-local"] { width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; padding: 12px !important; margin-bottom: 10px !important; -webkit-appearance: none !important; appearance: none !important; min-width: 0 !important; }
         .form-card label { font-size: 12px; font-weight: 700; letter-spacing: 2px; color: #888; text-transform: uppercase; margin-bottom: 8px; display: block; }
@@ -935,6 +939,55 @@ body.no-scroll {
 </div>
 
 <button class="archive-fab" id="archiveFab" onclick="showScreen('archiveScreen')" style="display: none;">📦</button>
+ <div class="create-form" id="createForm" style="display: none;">
+            <div class="form-card">
+                <div class="form-header">
+                    <div class="header-title-wrapper"><h2>Новое событие</h2></div>
+                    <div onclick="hideCreateForm()" style="width: 36px; height: 36px; border-radius: 50%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.3); color: #aaa; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 8px rgba(255,255,255,0.05);" onmousedown="this.style.background='#fff'; this.style.color='#000';" onmouseup="this.style.background='#1a1a1a'; this.style.color='#aaa';" ontouchstart="this.style.background='#fff'; this.style.color='#000';" ontouchend="this.style.background='#1a1a1a'; this.style.color='#aaa';">✕</div>
+                </div>
+                <input type="text" id="eventName" placeholder="Название" maxlength="40">
+                <input type="text" id="eventDesc" placeholder="Описание" maxlength="120">
+                <label>Тип встречи</label>
+                <div class="category-picker">
+                    <span class="cat-option active" data-cat="🍖">🍖</span>
+                    <span class="cat-option" data-cat="🎬">🎬</span>
+                    <span class="cat-option" data-cat="🌊">🌊</span>
+                    <span class="cat-option" data-cat="🍻">🍻</span>
+                    <span class="cat-option" data-cat="🎲">🎲</span>
+                    <span class="cat-option" data-cat="🎂">🎂</span>
+                    <span class="cat-option" data-cat="🎸">🎸</span>
+                    <span class="cat-option" data-cat="🏀">🏀</span>
+                </div>
+                <label>КОГДА</label>
+                <input type="datetime-local" id="eventDate">
+                <div class="special-achievements-section" style="margin-top:16px;">
+    <label style="color:#ffd700; font-size:12px; letter-spacing:1px;">🏆 Достижения для события (до 3)</label>
+    <div id="achievementInputs">
+        <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
+            <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
+            <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
+            <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
+        </div>
+        <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
+            <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
+            <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
+            <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
+        </div>
+        <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
+            <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
+            <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
+            <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
+        </div>
+    </div>
+</div>
+                <label style="margin-top: 12px;">МЕСТО ВСТРЕЧИ</label>
+                <div class="location-row">
+                    <button class="location-btn" onclick="openMapModal()">🗺️ Указать</button>
+                    <span class="location-preview" id="locationText">Не выбрано</span>
+                </div>
+                <button onclick="submitEvent()" class="submit-btn-full">Создать</button>
+            </div>
+        </div>
     
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -1748,55 +1801,6 @@ function closeAssignmentModal() {
     function showAchievementDescription(name, desc) {
     alert(name + '\n\n' + desc);
 }
-    <div class="create-form" id="createForm" style="display: none;">
-            <div class="form-card">
-                <div class="form-header">
-                    <div class="header-title-wrapper"><h2>Новое событие</h2></div>
-                    <div onclick="hideCreateForm()" style="width: 36px; height: 36px; border-radius: 50%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.3); color: #aaa; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 8px rgba(255,255,255,0.05);" onmousedown="this.style.background='#fff'; this.style.color='#000';" onmouseup="this.style.background='#1a1a1a'; this.style.color='#aaa';" ontouchstart="this.style.background='#fff'; this.style.color='#000';" ontouchend="this.style.background='#1a1a1a'; this.style.color='#aaa';">✕</div>
-                </div>
-                <input type="text" id="eventName" placeholder="Название" maxlength="40">
-                <input type="text" id="eventDesc" placeholder="Описание" maxlength="120">
-                <label>Тип встречи</label>
-                <div class="category-picker">
-                    <span class="cat-option active" data-cat="🍖">🍖</span>
-                    <span class="cat-option" data-cat="🎬">🎬</span>
-                    <span class="cat-option" data-cat="🌊">🌊</span>
-                    <span class="cat-option" data-cat="🍻">🍻</span>
-                    <span class="cat-option" data-cat="🎲">🎲</span>
-                    <span class="cat-option" data-cat="🎂">🎂</span>
-                    <span class="cat-option" data-cat="🎸">🎸</span>
-                    <span class="cat-option" data-cat="🏀">🏀</span>
-                </div>
-                <label>КОГДА</label>
-                <input type="datetime-local" id="eventDate">
-                <div class="special-achievements-section" style="margin-top:16px;">
-    <label style="color:#ffd700; font-size:12px; letter-spacing:1px;">🏆 Достижения для события (до 3)</label>
-    <div id="achievementInputs">
-        <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
-            <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
-            <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
-            <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
-        </div>
-        <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
-            <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
-            <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
-            <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
-        </div>
-        <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
-            <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
-            <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
-            <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
-        </div>
-    </div>
-</div>
-                <label style="margin-top: 12px;">МЕСТО ВСТРЕЧИ</label>
-                <div class="location-row">
-                    <button class="location-btn" onclick="openMapModal()">🗺️ Указать</button>
-                    <span class="location-preview" id="locationText">Не выбрано</span>
-                </div>
-                <button onclick="submitEvent()" class="submit-btn-full">Создать</button>
-            </div>
-        </div>
 </script>
 </body>
 </html>
