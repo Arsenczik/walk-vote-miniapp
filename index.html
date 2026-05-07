@@ -1122,9 +1122,16 @@
     let isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen' || id === 'archiveScreen');
     target.style.display = isFlex ? 'flex' : 'block';
 
-    // ✅ Блокировка скролла для главного меню
-    document.body.style.overflow = (id === 'mainMenu') ? 'hidden' : '';
+    // Убираем старый обработчик, если был
+    window.removeEventListener('scroll', lockScroll);
+    if (id === 'mainMenu') {
+        // Блокируем скролл: при любой попытке прокрутки возвращаем в начало
+        window.addEventListener('scroll', lockScroll);
+    }
 
+    function lockScroll() {
+        window.scrollTo(0, 0);
+    }
     if (id === 'mainMenu') {
         initDesertAnimation();
     } else {
