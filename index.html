@@ -719,7 +719,7 @@
             pointer-events: none;
             z-index: 0;
             }
-        /* Стеклянные кнопки главного меню (поверх анимации) */
+     /* Стеклянные кнопки главного меню (поверх анимации) */
 #mainMenu > button {
     width: 100%;
     max-width: 320px;
@@ -734,6 +734,15 @@
     box-shadow: 0 0 30px rgba(255,255,255,0.03);
     position: relative;
     z-index: 3;
+    transition: all 0.2s ease;          /* ← плавный переход */
+}
+
+/* Эффект при нажатии */
+#mainMenu > button:active {
+    background: #1a1a1a !important;     /* чуть светлее */
+    border-color: rgba(255,255,255,0.3) !important;
+    box-shadow: 0 0 40px rgba(255,255,255,0.08);
+    transform: scale(0.98);            /* лёгкое уменьшение */
 }
         html, body {
     overflow-x: hidden;
