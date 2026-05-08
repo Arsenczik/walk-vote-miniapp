@@ -1254,16 +1254,7 @@ body.no-scroll {
         document.body.classList.remove('no-scroll');
     }
 
-    // Убираем старый обработчик, если был
-    window.removeEventListener('scroll', lockScroll);
-    if (id === 'mainMenu') {
-        // Блокируем скролл: при любой попытке прокрутки возвращаем в начало
-        window.addEventListener('scroll', lockScroll);
-    }
-
-    function lockScroll() {
-        window.scrollTo(0, 0);
-    }
+    
     
     if (id === 'loginScreen') { startFallingEmojis(); setRandomPlaceholder(); } else stopFallingEmojis();
 
