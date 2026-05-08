@@ -909,16 +909,18 @@
 .profile-content {
     padding: 0 12px 20px;      /* боковые отступы и отступ снизу */
 }
-        #profileScreen {
+      #profileScreen {
     display: none;
     flex-direction: column;
-    min-height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: #000;
     color: #fff;
     box-sizing: border-box;
-    position: relative;
-    overflow-x: hidden;
-    overflow-y: auto;           /* скролл только по вертикали */
+    overflow-y: auto;           /* скролл внутри профиля */
 }
 
 .profile-header {
