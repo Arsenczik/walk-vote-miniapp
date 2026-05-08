@@ -959,6 +959,15 @@ body.no-scroll {
     padding: 0 12px 20px;
     flex: 1;
 }
+        /* Убираем белый overscroll на всех экранах */
+html {
+    background: #000;          /* чёрный фон под body */
+    overscroll-behavior: none; /* запрещаем стандартный белый отскок */
+}
+
+body {
+    overscroll-behavior-y: none; /* дублируем для body */
+}
 
     </style>
 </head>
