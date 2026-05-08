@@ -1309,27 +1309,27 @@ body {
     if (id === 'statsScreen') loadStatistics();
     if (id === 'archiveScreen') loadArchive();
 }
-    function celebrateAchievement() {
-        if (fireworksActive) return;
-        fireworksActive = true;
+ function celebrateAchievement() {
+    if (fireworksActive) return;
+    fireworksActive = true;
 
-        // Убедимся, что canvas существует
-        fireworksCanvas = document.getElementById('fireworksCanvas');
-        if (!fireworksCanvas) return;
+    // Убедимся, что canvas существует
+    fireworksCanvas = document.getElementById('fireworksCanvas');
+    if (!fireworksCanvas) return;
 
-        fireworksCanvas.width = fireworksCanvas.offsetWidth;
-        fireworksCanvas.height = fireworksCanvas.offsetHeight;
-        fireworksCtx = fireworksCanvas.getContext('2d');
-        fireworksParticles = [];
-        fireworksRAF = requestAnimationFrame(fireworksLoop);
+    fireworksCanvas.width = fireworksCanvas.offsetWidth;
+    fireworksCanvas.height = fireworksCanvas.offsetHeight;
+    fireworksCtx = fireworksCanvas.getContext('2d');
+    fireworksParticles = [];
+    fireworksRAF = requestAnimationFrame(fireworksLoop);
 
-        // Автоматически останавливаем через 3 секунды
-        setTimeout(() => {
-            fireworksActive = false;
-            if (fireworksRAF) cancelAnimationFrame(fireworksRAF);
-            if (fireworksCtx && fireworksCanvas) fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
-        }, 3000);
-    }
+    // Салюты горят 5 секунд
+    setTimeout(() => {
+        fireworksActive = false;
+        if (fireworksRAF) cancelAnimationFrame(fireworksRAF);
+        if (fireworksCtx && fireworksCanvas) fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+    }, 5000);   // было 3000, стало 5000
+}
 
     // --- ПРОФИЛЬ (Загрузка данных) ---
     async function loadProfileScreen() {
