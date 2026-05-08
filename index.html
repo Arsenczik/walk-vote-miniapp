@@ -92,19 +92,7 @@
     line-height: 1;
 }
 
-        /* --- Заголовок событий --- */
-        #eventsHeader {
-            margin-left: 40px; margin-right: 0; font-size: 36px; font-weight: 900; letter-spacing: 2px;
-            padding: 16px 0 12px 0; border-bottom: 2px solid #333; border-radius: 0 0 20px 20px;
-            background: #000; text-align: center;
-            box-shadow: 0 4px 12px rgba(255,255,255,0.06), inset 0 -2px 8px rgba(255,255,255,0.08);
-            position: relative;
-        }
-        #eventsHeader::after {
-            content: ""; position: absolute; left: 0; bottom: -2px; width: 100%; height: 2px;
-            background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0.15) 80%, transparent 100%);
-            border-radius: 0 0 20px 20px; box-shadow: 0 0 6px rgba(255,255,255,0.1); z-index: 5;
-        }
+       
 
 
         /* --- Карточки событий --- */
@@ -996,7 +984,7 @@ body {
     padding: 0 12px 20px;
     flex: 1;
 }
- /* Единый стиль заголовков экранов */
+/* Единый заголовок экранов */
 .screen-title {
     font-size: 36px;
     font-weight: 900;
@@ -1005,17 +993,17 @@ body {
     text-align: center;
     margin: 0;
     position: relative;
-    display: inline-block;          /* чтобы полоска была по ширине текста */
+    display: inline-block;          /* полоска будет по ширине текста */
 }
 
-/* Светящаяся полоска снизу (как у #eventsHeader) */
+/* Светящаяся полоска под заголовком */
 .screen-title::after {
     content: "";
     position: absolute;
     left: 0;
-    bottom: -2px;
+    bottom: -6px;                  /* чуть ниже текста */
     width: 100%;
-    height: 2px;
+    height: 2px;                   /* тонкая */
     background: linear-gradient(to right,
         transparent 0%,
         rgba(255, 255, 255, 0.15) 20%,
@@ -1028,6 +1016,28 @@ body {
     z-index: 5;
 }
 
+/* Обёртка для заголовка с полоской (используется в профиле и событиях) */
+.screen-header {
+    display: flex;
+    align-items: center;
+    padding: 16px 12px;
+    background: #000;
+    position: sticky;
+    top: 0;
+    z-index: 15;
+}
+
+.screen-header .back-arrow {
+    position: static;       /* убираем absolute, чтобы не налезал */
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.screen-header .title-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
     </style>
 </head>
 <body>
@@ -1094,20 +1104,19 @@ body {
     </div>
     
     <!-- 4. ЭКРАН СОБЫТИЙ -->
-    <div id="eventsScreen" style="display: none;">
-        <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
-        <h1 class="screen-title">События💭</h1>
-        <div class="events-grid" id="eventsGrid"><p>Загрузка...</p></div>
-        <button class="add-event-btn" onclick="showCreateForm()"><span class="add-icon">+</span><span>Добавить событие</span></button>
+    <div class="screen-header">
+    <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
+    <div class="title-wrapper">
+        <h1 class="screen-title">События 💭</h1>
     </div>
+</div>
 
     <!-- 5. ЭКРАН ПРОФИЛЯ (ЭЛИТНЫЙ) -->
 <div id="profileScreen" style="display: none;">
     <!-- Фиксированная шапка (стрелка + заголовок) -->
-    <div class="profile-header">
-        <div class="profile-header-top">
+   <div class="profile-header screen-header">
     <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
-    <div style="flex:1; display:flex; justify-content:center;">
+    <div class="title-wrapper">
         <h1 class="screen-title">Профиль</h1>
     </div>
 </div>
