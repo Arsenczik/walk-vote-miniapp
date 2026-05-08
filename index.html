@@ -1031,46 +1031,53 @@ body.no-scroll {
     </div>
 
     <!-- 5. ЭКРАН ПРОФИЛЯ (ЭЛИТНЫЙ) -->
-    <div id="profileScreen" style="display: none;">
+<div id="profileScreen" style="display: none;">
+    <!-- Фиксированная шапка (стрелка + заголовок) -->
     <div class="profile-header">
         <div class="profile-header-top">
-        <button class="back-arrow back-arrow-profile" onclick="showScreen('mainMenu')">←</button>
-        
-        <!-- Аватарка -->
-        <div class="profile-avatar-wrapper">
-            <div class="profile-avatar-bg" id="profileAvatar" onclick="selectEmoji()">👤</div>
-            <div class="avatar-hint">Нажми, чтобы изменить аватар</div>
+            <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
+            <h1>Профиль</h1>
         </div>
-        
-        <!-- Имя + иконка редактирования (карандаш) -->
-        <div class="profile-name-row">
-            <span class="profile-name-display" id="profileNameDisplay">Гость</span>
-            <span class="edit-icon" onclick="editProfile()">✎</span>
-        </div>
-        
-        <!-- Статистика -->
-        <div class="profile-stats-row">
-            <div class="profile-stat-item">
-                <div class="stat-number" id="profileCreated">0</div>
-                <div class="stat-label">Создано</div>
-            </div>
-            <div class="profile-stat-item">
-                <div class="stat-number" id="profileAttended">0</div>
-                <div class="stat-label">Посещено</div>
-            </div>
-        </div>
-        
-        <!-- Ачивки -->
-        <div class="profile-achievements" id="profileAchievements">
-            <div class="section-title">🏆 Ачивки</div>
-            <div id="achievementsList"></div>
-        </div>
-        
-        <!-- Кнопка выхода -->
-        <button class="profile-logout-btn" onclick="logout()">Выйти из аккаунта</button>
     </div>
-</div>   
 
+    <!-- Скроллируемый контент профиля -->
+    <div class="profile-content">
+        <div class="profile-container">
+            <!-- Аватарка -->
+            <div class="profile-avatar-wrapper">
+                <div class="profile-avatar-bg" id="profileAvatar" onclick="selectEmoji()">👤</div>
+                <div class="avatar-hint">Нажми, чтобы изменить аватар</div>
+            </div>
+
+            <!-- Имя + карандаш -->
+            <div class="profile-name-row">
+                <span class="profile-name-display" id="profileNameDisplay">Гость</span>
+                <span class="edit-icon" onclick="editProfile()">✎</span>
+            </div>
+
+            <!-- Статистика -->
+            <div class="profile-stats-row">
+                <div class="profile-stat-item">
+                    <div class="stat-number" id="profileCreated">0</div>
+                    <div class="stat-label">Создано</div>
+                </div>
+                <div class="profile-stat-item">
+                    <div class="stat-number" id="profileAttended">0</div>
+                    <div class="stat-label">Посещено</div>
+                </div>
+            </div>
+
+            <!-- Ачивки -->
+            <div class="profile-achievements" id="profileAchievements">
+                <div class="section-title">🏆 Ачивки</div>
+                <div id="achievementsList"></div>
+            </div>
+
+            <!-- Кнопка выхода -->
+            <button class="profile-logout-btn" onclick="logout()">Выйти из аккаунта</button>
+        </div>
+    </div>
+</div>
     <!-- 6. ЭКРАН СТАТИСТИКИ -->
     <div id="statsScreen" style="display: none;">
         <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
