@@ -969,6 +969,13 @@ html {
 
 body {
 }
+        /* Внутренний скролл для контентных экранов */
+#profileScreen,
+#eventsScreen,
+#archiveScreen,
+#statsScreen {
+    overflow-y: auto;
+}
 
     </style>
 </head>
@@ -1260,13 +1267,14 @@ body {
 
     
 
-      // ✅ Жёсткая блокировка скролла при главном меню
+    // Главное меню — полностью блокируем скролл
     if (id === 'mainMenu') {
         document.body.classList.add('no-scroll');
     } else {
+        // На всех остальных экранах скроллим только внутри, а body не скроллим
         document.body.classList.remove('no-scroll');
+        document.body.style.overflow = 'hidden';   // <-- вот это главное
     }
-
     
     
     if (id === 'loginScreen') { startFallingEmojis(); setRandomPlaceholder(); } else stopFallingEmojis();
