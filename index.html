@@ -716,8 +716,7 @@
     background: #444;
     border-radius: 4px;
 }
-/* --- Главное меню (без скролла, чёрный фон, canvas анимации на весь экран) --- */
-        #mainMenu {
+#mainMenu {
     position: absolute;
     top: 0;
     left: 0;
@@ -729,7 +728,8 @@
     justify-content: center;
     gap: 20px;
     background: transparent;
-    overflow: hidden;
+    overflow-y: scroll;          /* ← включаем скролл */
+    -webkit-overflow-scrolling: touch;  /* плавный overscroll */
     z-index: 1;
 }
         #mainMenu canvas {
