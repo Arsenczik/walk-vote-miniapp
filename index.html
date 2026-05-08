@@ -944,33 +944,26 @@ body {
     background: #000;
     z-index: -1;
 }
-       
-/* Профиль – жёсткое разделение шапки и контента (без sticky) */
-#profileScreen {
+
+        #profileScreen {
     display: none;
-    position: fixed;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 500px;
-    height: 100%;
+    flex-direction: column;
+    min-height: 100vh;          /* занимает весь экран */
     background: #000;
     color: #fff;
-    overflow-y: auto;
-    z-index: 10;
-    flex-direction: column;
+    overflow-y: auto;           /* скролл внутри профиля */
+    position: relative;         /* для sticky */
 }
 
-/* Шапка фиксированная */
 .profile-header {
-    flex-shrink: 0;                /* не сжимается */
+    position: sticky;
+    top: 0;
+    z-index: 15;
     background: #000;
     padding: 16px 12px 0;
-    z-index: 10;
+    flex-shrink: 0;
 }
 
-/* Строка со стрелкой и заголовком */
 .profile-header-top {
     display: flex;
     align-items: center;
@@ -999,7 +992,6 @@ body {
     flex: 1;
 }
 
-/* Разделительная полоска */
 .profile-divider {
     height: 1px;
     margin: 10px 0 0 0;
@@ -1007,12 +999,11 @@ body {
     box-shadow: 0 1px 4px rgba(255,255,255,0.05);
 }
 
-/* Скроллируемый контент */
 .profile-content {
-    flex: 1;                       /* занимает всё свободное место */
-    overflow-y: auto;              /* скролл внутри */
     padding: 0 12px 20px;
+    flex: 1;
 }
+ 
 
     </style>
 </head>
