@@ -728,9 +728,13 @@
     justify-content: center;
     gap: 20px;
     background: transparent;
-    overflow-y: scroll;          /* ← включаем скролл */
-    -webkit-overflow-scrolling: touch;  /* плавный overscroll */
+    overflow-y: scroll;                        /* ← имитируем скроллируемый контейнер */
+    -webkit-overflow-scrolling: touch;         /* ← нативный пружинный overscroll */
+    overscroll-behavior-y: contain;            /* ← чтобы пружина не уходила в body */
+    touch-action: pan-y;                       /* ← разрешаем вертикальные жесты */
     z-index: 1;
+    height: 100%;                              /* ← точно по высоте экрана */
+    max-height: 100%;                          /* ← запрещаем выход за пределы */
 }
         #mainMenu canvas {
             position: absolute;
@@ -778,11 +782,12 @@
 }
         /* Блокировка скролла для главного меню */
 body.no-scroll {
-    overflow: hidden;
+    overflow: hidden;                /* body не скроллится */
     position: fixed;
     width: 100%;
     height: 100%;
     background: #000;
+    touch-action: none;              /* запрещаем жесты на body, чтобы меню обрабатывало их */
 }
 }
 /* Шаги формы */
@@ -2128,65 +2133,7 @@ function resetAchievements() {
         addAchievement(); // сразу одно поле
     }
 }
-   // Пружинный эффект для главного меню (только при попытке скролла вверх)
-(function() {
-    const menu = document.getElementById('mainMenu');
-    if (!menu) return;
 
-    let startY = 0;
-    let currentTranslate = 0;
-    let dragging = false;
-
-    function springBack() {
-        if (!menu) return;
-        menu.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2)';
-        menu.style.transform = 'translateY(0px)';
-        currentTranslate = 0;
-        setTimeout(() => {
-            if (menu) menu.style.transition = '';
-        }, 350);
-    }
-
-    menu.addEventListener('touchstart', function(e) {
-        if (menu.style.display === 'none') return;
-        startY = e.touches[0].clientY;
-        dragging = true;
-        menu.style.transition = 'none';
-    }, { passive: true });
-
-    menu.addEventListener('touchmove', function(e) {
-        if (!dragging) return;
-        const currentY = e.touches[0].clientY;
-        const deltaY = currentY - startY;
-
-        // Работаем только если палец движется вверх (пытаемся скроллить вверх)
-        if (deltaY >= 0) {
-            // Движение вниз – игнорируем, меню стоит на месте
-            currentTranslate = 0;
-            menu.style.transform = 'translateY(0px)';
-            return;
-        }
-
-        // Движение вверх – разрешаем небольшой сдвиг
-        const maxPull = 25;                  // максимальное смещение вверх
-        const resistance = 0.4;              // сопротивление
-        let translate = deltaY * resistance;
-        if (translate < -maxPull) {
-            translate = -maxPull + (translate + maxPull) * 0.15;
-        }
-
-        currentTranslate = translate;
-        menu.style.transform = `translateY(${translate}px)`;
-    }, { passive: true });
-
-    const endHandler = function(e) {
-        if (!dragging) return;
-        dragging = false;
-        springBack();
-    };
-    menu.addEventListener('touchend', endHandler);
-    menu.addEventListener('touchcancel', endHandler);
-})();
 </script>
 </body>
 </html>
