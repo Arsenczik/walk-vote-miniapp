@@ -993,10 +993,17 @@ body {
 }
 
 .profile-divider {
-    height: 1px;
+    height: 2px;
     margin: 10px 0 0 0;
-    background: rgba(255,255,255,0.25);
-    box-shadow: 0 1px 4px rgba(255,255,255,0.05);
+    background: linear-gradient(to right,
+        transparent 0%,
+        rgba(255, 255, 255, 0.15) 20%,
+        rgba(255, 255, 255, 0.35) 50%,
+        rgba(255, 255, 255, 0.15) 80%,
+        transparent 100%
+    );
+    border-radius: 0 0 20px 20px;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
 }
 
 .profile-content {
