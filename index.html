@@ -985,7 +985,7 @@ body {
     overflow-y: auto;
 }
         /* Экраны с контентом занимают весь body */
-#profileScreen, #eventsScreen, #archiveScreen, #statsScreen, #loginScreen, #onboardingScreen {
+#eventsScreen, #archiveScreen, #statsScreen, #loginScreen, #onboardingScreen {
     position: absolute;
     top: 0;
     left: 0;
@@ -1004,6 +1004,26 @@ body {
     z-index: -1;
 }
         .profile-divider {
+    height: 1px;
+    margin: 10px 0 0 0;
+    background: linear-gradient(to right,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.25) 20%,
+        rgba(255,255,255,0.4) 50%,
+        rgba(255,255,255,0.25) 80%,
+        rgba(255,255,255,0) 100%
+    );
+    box-shadow: 0 1px 4px rgba(255,255,255,0.05);
+}
+        .profile-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: #000;
+    padding: 16px 12px 0;
+}
+
+.profile-divider {
     height: 1px;
     margin: 10px 0 0 0;
     background: linear-gradient(to right,
