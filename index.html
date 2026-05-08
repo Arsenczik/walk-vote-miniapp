@@ -2128,55 +2128,57 @@ function resetAchievements() {
         addAchievement(); // сразу одно поле
     }
 }
-    // Пружинный эффект для главного меню (без реального скролла)
+   // Пружинный эффект для главного меню (только при попытке скролла вверх)
 (function() {
     const menu = document.getElementById('mainMenu');
     if (!menu) return;
 
-    let startY = 0;          // начальная позиция пальца
-    let currentTranslate = 0; // текущее смещение контента
+    let startY = 0;
+    let currentTranslate = 0;
     let dragging = false;
 
-    // Функция возврата в исходное положение
     function springBack() {
         if (!menu) return;
         menu.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2)';
         menu.style.transform = 'translateY(0px)';
         currentTranslate = 0;
-        // Убираем transition после завершения анимации
         setTimeout(() => {
             if (menu) menu.style.transition = '';
         }, 350);
     }
 
-    // Начало касания
     menu.addEventListener('touchstart', function(e) {
-        // Работаем только если это главное меню и оно видимо
         if (menu.style.display === 'none') return;
         startY = e.touches[0].clientY;
         dragging = true;
-        // Сбрасываем transition при касании, чтобы движение было прямым
         menu.style.transition = 'none';
     }, { passive: true });
 
-    // Движение пальца
     menu.addEventListener('touchmove', function(e) {
         if (!dragging) return;
         const currentY = e.touches[0].clientY;
         const deltaY = currentY - startY;
 
-        // Ограничиваем максимальное смещение (например, ±30px)
-        const maxPull = 30;
-        const resistance = 0.5; // коэффициент сопротивления (делает пружину мягче)
+        // Работаем только если палец движется вверх (пытаемся скроллить вверх)
+        if (deltaY >= 0) {
+            // Движение вниз – игнорируем, меню стоит на месте
+            currentTranslate = 0;
+            menu.style.transform = 'translateY(0px)';
+            return;
+        }
+
+        // Движение вверх – разрешаем небольшой сдвиг
+        const maxPull = 25;                  // максимальное смещение вверх
+        const resistance = 0.4;              // сопротивление
         let translate = deltaY * resistance;
-        if (translate > maxPull) translate = maxPull + (translate - maxPull) * 0.2;
-        if (translate < -maxPull) translate = -maxPull + (translate + maxPull) * 0.2;
+        if (translate < -maxPull) {
+            translate = -maxPull + (translate + maxPull) * 0.15;
+        }
 
         currentTranslate = translate;
         menu.style.transform = `translateY(${translate}px)`;
     }, { passive: true });
 
-    // Конец касания
     const endHandler = function(e) {
         if (!dragging) return;
         dragging = false;
