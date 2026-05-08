@@ -651,16 +651,8 @@
     min-height: 100vh;
     background: #000;
     color: #fff;
-    padding: 16px 12px;
-    box-sizing: border-box;
     position: relative;
-    overflow-y: auto;
-}
-#archiveScreen h1 {
-    font-size: 32px;
-    font-weight: 800;
-    text-align: center;
-    margin: 20px 0 30px;
+    overflow: hidden;
 }
         .delete-event-btn {
     width: 100%;
@@ -908,7 +900,6 @@ body {
     overscroll-behavior-y: contain;    /* эластичность с чёрным фоном */
 }
         /* Внутренний скролл для контентных экранов */
-#eventsScreen,
 #archiveScreen,
 #statsScreen {
     overflow-y: auto;
@@ -942,7 +933,25 @@ body {
     overflow-y: auto;           /* скролл внутри профиля */
     position: relative;         /* для sticky */
 }
-
+        #statsScreen {
+    display: none;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #000;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+#eventsScreen {
+    display: none;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #000;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+        
 .profile-header {
     position: sticky;
     top: 0;
@@ -1001,7 +1010,7 @@ body {
     content: "";
     position: absolute;
     left: 0;
-    bottom: -6px;                  /* чуть ниже текста */
+    bottom: -8px;                  /* чуть ниже текста */
     width: 100%;
     height: 2px;                   /* тонкая */
     background: linear-gradient(to right,
@@ -1103,13 +1112,20 @@ body {
 </button>
     </div>
     
-    <!-- 4. ЭКРАН СОБЫТИЙ -->
-    <div class="screen-header">
-    <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
-    <div class="title-wrapper">
-        <h1 class="screen-title">События 💭</h1>
+   <!-- 4. ЭКРАН СОБЫТИЙ -->
+    <div id="eventsScreen" style="display: none;">
+        <div class="screen-header">
+            <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
+            <div class="title-wrapper">
+                <h1 class="screen-title">События 💭</h1>
+            </div>
+        </div>
+        <!-- Контент событий (именно он был потерян) -->
+        <div style="padding: 0 12px; overflow-y: auto; flex: 1;">
+            <div class="events-grid" id="eventsGrid"><p>Загрузка...</p></div>
+            <button class="add-event-btn" onclick="showCreateForm()"><span class="add-icon">+</span><span>Добавить событие</span></button>
+        </div>
     </div>
-</div>
 
     <!-- 5. ЭКРАН ПРОФИЛЯ (ЭЛИТНЫЙ) -->
 <div id="profileScreen" style="display: none;">
@@ -1163,9 +1179,13 @@ body {
 </div>
     <!-- 6. ЭКРАН СТАТИСТИКИ -->
     <div id="statsScreen" style="display: none;">
-        <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
-        <h1 class="screen-title">📊 Статистика</h1>
-        <div id="statsContent"></div>
+        <div class="screen-header">
+            <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
+            <div class="title-wrapper">
+                <h1 class="screen-title">📊 Статистика</h1>
+            </div>
+        </div>
+        <div id="statsContent" style="padding: 0 12px; overflow-y: auto; flex: 1;"></div>
     </div>
 
     <!-- МОДАЛКИ -->
@@ -1180,19 +1200,16 @@ body {
         </div>
     </div>
 
-    <!-- 7. ЭКРАН АРХИВА -->
-<div id="archiveScreen" style="display: none;">
-    <button class="back-arrow" onclick="showScreen('eventsScreen')">←</button>
-    <h1>📦 Архив</h1>
-    <div class="events-grid" id="archiveGrid"><p>Загрузка...</p></div>
-</div>
-    <div class="modal-overlay" id="assignmentModal">
-    <div class="modal-card" style="max-width:400px; width:95%;">
-        <button class="modal-close-btn" onclick="closeAssignmentModal()">✕</button>
-        <h2>Присвоение ачивок</h2>
-        <div id="assignmentContent"></div>
+   <!-- 7. ЭКРАН АРХИВА -->
+    <div id="archiveScreen" style="display: none;">
+        <div class="screen-header">
+            <button class="back-arrow" onclick="showScreen('eventsScreen')">←</button>
+            <div class="title-wrapper">
+                <h1 class="screen-title">📦 Архив</h1>
+            </div>
+        </div>
+        <div class="events-grid" id="archiveGrid" style="padding: 0 12px; overflow-y: auto; flex: 1;"><p>Загрузка...</p></div>
     </div>
-</div>
 </div>
 
 <button class="archive-fab" id="archiveFab" onclick="showScreen('archiveScreen')" style="display: none;">📦</button>
