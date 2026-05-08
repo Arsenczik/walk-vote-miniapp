@@ -1509,19 +1509,7 @@ body.no-scroll {
     function closeMapModal() { document.getElementById('mapModal').style.display = 'none'; }
     function selectLocation() { closeMapModal(); }
 
-    // --- СОБЫТИЯ ---
-   function showCreateForm() {
-    const form = document.getElementById('createForm');
-    form.style.display = 'flex';
-    form.scrollTop = 0;   // принудительно прокручиваем в самый верх
 
-    // Установка даты по умолчанию
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(16, 0, 0, 0);
-    document.getElementById('eventDate').value = tomorrow.toISOString().slice(0, 16);
-}
-    function hideCreateForm() { document.getElementById('createForm').style.display = 'none'; }
    async function submitEvent() {
     let name = document.getElementById('eventName').value.trim();
     let desc = document.getElementById('eventDesc').value.trim();
