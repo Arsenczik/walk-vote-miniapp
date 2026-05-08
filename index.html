@@ -2128,7 +2128,7 @@ function resetAchievements() {
         addAchievement(); // сразу одно поле
     }
 }
-    // Мягкая пружина вверх для главного меню (без скролла)
+   // Универсальная пружина для главного меню (вверх и вниз)
 (function() {
     const menu = document.getElementById('mainMenu');
     if (!menu) return;
@@ -2155,16 +2155,15 @@ function resetAchievements() {
         if (!dragging) return;
         const dy = e.touches[0].clientY - startY;
 
-        // Работаем только при движении пальца ВВЕРХ (dy < 0)
-        if (dy >= 0) {
-            // Палец идёт вниз – убираем любое смещение
-            menu.style.transform = '';
-            pull = 0;
-            return;
-        }
+        // Ограничиваем смещение в обе стороны (±30px) с лёгким сопротивлением
+        const maxPull = 30;
+        const resistance = 0.35;
+        let translate = dy * resistance;
 
-        // Движение вверх: ограничим смещение и добавим сопротивление
-        pull = Math.max(dy * 0.35, -35);
+        if (translate > maxPull) translate = maxPull + (translate - maxPull) * 0.15;
+        if (translate < -maxPull) translate = -maxPull + (translate + maxPull) * 0.15;
+
+        pull = translate;
         menu.style.transform = `translateY(${pull}px)`;
     }, { passive: true });
 
