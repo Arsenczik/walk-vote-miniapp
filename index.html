@@ -171,15 +171,15 @@
  
         /* --- Профиль (ПРЕМИУМ СТЕКЛО) --- */
 #profileScreen {
-    display: none;                 /* скрыт по умолчанию */
+    display: none;
     flex-direction: column;
     min-height: 100vh;
-    background: #000;             /* чёрный фон за стеклом */
+    background: #000;
     color: #fff;
-    padding: 16px 12px;
+    padding: 0;                /* убираем padding, чтобы sticky работал корректно */
     box-sizing: border-box;
     position: relative;
-    overflow-y: auto;
+    overflow-y: auto;          /* скролл внутри экрана */
 }
 
 /* Контейнер больше не используется как карточка, но оставим для структуры */
@@ -907,6 +907,47 @@ body.no-scroll {
 .add-achievement-btn.hidden {
     display: none;
 }
+        /* Фиксированная шапка профиля */
+.profile-header {
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    background: #000;          /* такой же фон, как у экрана */
+    padding: 16px 12px 10px;   /* отступы внутри шапки */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Стрелка и заголовок в одной строке */
+.profile-header-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    min-height: 40px;
+}
+
+/* Стрелка внутри sticky */
+.profile-header .back-arrow {
+    position: static;          /* отменяем абсолютное позиционирование */
+    margin: 0;
+    flex-shrink: 0;
+}
+
+/* Заголовок */
+.profile-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0;
+    text-align: left;
+    flex: 1;
+}
+
+/* Контент профиля (всё, что ниже шапки) */
+.profile-content {
+    padding: 0 12px 20px;      /* боковые отступы и отступ снизу */
+}
 
     </style>
 </head>
@@ -983,7 +1024,8 @@ body.no-scroll {
 
     <!-- 5. ЭКРАН ПРОФИЛЯ (ЭЛИТНЫЙ) -->
     <div id="profileScreen" style="display: none;">
-    <div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-header-top">
         <button class="back-arrow back-arrow-profile" onclick="showScreen('mainMenu')">←</button>
         
         <!-- Аватарка -->
