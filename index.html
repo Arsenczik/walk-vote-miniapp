@@ -905,63 +905,7 @@
     display: none;
 }
        
-/* Контент профиля (всё, что ниже шапки) */
-.profile-content {
-    padding: 0 12px 20px;      /* боковые отступы и отступ снизу */
-}
-    #profileScreen {
-    display: none;
-    flex-direction: column;
-    height: 100%;                /* ← строгая высота на весь экран */
-    background: #000;
-    color: #fff;
-    box-sizing: border-box;
-    overflow-y: auto;            /* скролл внутри */
-}
-        
-.profile-header {
-    position: sticky;
-    top: 0;
-    z-index: 15;
-    background: #000;
-    padding: 16px 12px 0;
-    display: flex;
-    flex-direction: column;
-}
-
-.profile-header-top {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 40px;
-}
-
-.profile-header .back-arrow {
-    position: static;          /* убираем абсолютное позиционирование */
-    margin: 0;
-    flex-shrink: 0;
-    font-size: 28px;
-    color: #888;
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0;
-    line-height: 1;
-}
-
-.profile-header h1 {
-    font-size: 28px;
-    font-weight: 800;
-    margin: 0;
-    text-align: left;
-    flex: 1;
-}
-
-.profile-content {
-    padding: 0 12px 20px;
-    flex: 1;
-}
-        /* Убираем белый overscroll на всех экранах */
+    /* Убираем белый overscroll на всех экранах */
 html {
     background: #000 !important;      /* чёрный фон под body */
     overflow: hidden;                 /* body не скроллится сам */
@@ -1001,32 +945,74 @@ body {
     background: #000;
     z-index: -1;
 }
-        .profile-divider {
-    height: 1px;
-    margin: 10px 0 0 0;
-    background: rgba(255, 255, 255, 0.25);
-    box-shadow: 0 1px 4px rgba(255, 255, 255, 0.05);
-}
-        .profile-header {
-    position: sticky;
+       
+/* Профиль – жёсткое разделение шапки и контента (без sticky) */
+#profileScreen {
+    display: none;
+    flex-direction: column;
+    position: absolute;             /* занимаем весь экран */
     top: 0;
-    z-index: 20;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: #000;
-    padding: 16px 12px 0;
+    color: #fff;
+    box-sizing: border-box;
+    overflow: hidden;              /* сам экран не скроллится */
 }
 
+/* Шапка фиксированная */
+.profile-header {
+    flex-shrink: 0;                /* не сжимается */
+    background: #000;
+    padding: 16px 12px 0;
+    z-index: 10;
+}
+
+/* Строка со стрелкой и заголовком */
+.profile-header-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 40px;
+}
+
+.profile-header .back-arrow {
+    position: static;
+    margin: 0;
+    flex-shrink: 0;
+    font-size: 28px;
+    color: #888;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
+}
+
+.profile-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0;
+    text-align: left;
+    flex: 1;
+}
+
+/* Разделительная полоска */
 .profile-divider {
     height: 1px;
     margin: 10px 0 0 0;
-    background: linear-gradient(to right,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0.25) 20%,
-        rgba(255,255,255,0.4) 50%,
-        rgba(255,255,255,0.25) 80%,
-        rgba(255,255,255,0) 100%
-    );
+    background: rgba(255,255,255,0.25);
     box-shadow: 0 1px 4px rgba(255,255,255,0.05);
 }
+
+/* Скроллируемый контент */
+.profile-content {
+    flex: 1;                       /* занимает всё свободное место */
+    overflow-y: auto;              /* скролл внутри */
+    padding: 0 12px 20px;
+}
+
     </style>
 </head>
 <body>
@@ -1108,9 +1094,10 @@ body {
             <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
             <h1>Профиль</h1>
         </div>
+         <div class="profile-divider"></div>
     </div>
 
-    <div class="profile-divider"></div>
+   
 
     <!-- Скроллируемый контент профиля -->
     <div class="profile-content">
