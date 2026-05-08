@@ -909,18 +909,14 @@
 .profile-content {
     padding: 0 12px 20px;      /* боковые отступы и отступ снизу */
 }
-      #profileScreen {
+    #profileScreen {
     display: none;
     flex-direction: column;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    min-height: 100vh;
     background: #000;
     color: #fff;
     box-sizing: border-box;
-    overflow-y: auto;           /* скролл внутри профиля */
+    overflow-y: auto;          /* скролл внутри самого профиля */
 }
 
 .profile-header {
@@ -1008,14 +1004,8 @@ body {
         .profile-divider {
     height: 1px;
     margin: 10px 0 0 0;
-    background: linear-gradient(to right,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0.25) 20%,
-        rgba(255,255,255,0.4) 50%,
-        rgba(255,255,255,0.25) 80%,
-        rgba(255,255,255,0) 100%
-    );
-    box-shadow: 0 1px 4px rgba(255,255,255,0.05);
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 1px 4px rgba(255, 255, 255, 0.05);
 }
         .profile-header {
     position: sticky;
