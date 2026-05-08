@@ -992,9 +992,30 @@ body {
     flex: 1;
 }
 
-.profile-divider {
-    height: 1px;
-    margin: 10px 0 0 0;
+.profile-content {
+    padding: 0 12px 20px;
+    flex: 1;
+}
+ /* Единый стиль заголовков экранов */
+.screen-title {
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #fff;
+    text-align: center;
+    margin: 0;
+    position: relative;
+    display: inline-block;          /* чтобы полоска была по ширине текста */
+}
+
+/* Светящаяся полоска снизу (как у #eventsHeader) */
+.screen-title::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 2px;
     background: linear-gradient(to right,
         transparent 0%,
         rgba(255, 255, 255, 0.15) 20%,
@@ -1004,13 +1025,8 @@ body {
     );
     border-radius: 0 0 20px 20px;
     box-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
+    z-index: 5;
 }
-
-.profile-content {
-    padding: 0 12px 20px;
-    flex: 1;
-}
- 
 
     </style>
 </head>
@@ -1080,7 +1096,7 @@ body {
     <!-- 4. ЭКРАН СОБЫТИЙ -->
     <div id="eventsScreen" style="display: none;">
         <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
-        <div id="eventsHeader">События 💭</div>
+        <h1 class="screen-title">События💭</h1>
         <div class="events-grid" id="eventsGrid"><p>Загрузка...</p></div>
         <button class="add-event-btn" onclick="showCreateForm()"><span class="add-icon">+</span><span>Добавить событие</span></button>
     </div>
@@ -1090,11 +1106,11 @@ body {
     <!-- Фиксированная шапка (стрелка + заголовок) -->
     <div class="profile-header">
         <div class="profile-header-top">
-            <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
-            <h1>Профиль</h1>
-        </div>
-         <div class="profile-divider"></div>
+    <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
+    <div style="flex:1; display:flex; justify-content:center;">
+        <h1 class="screen-title">Профиль</h1>
     </div>
+</div>
 
    
 
@@ -1139,7 +1155,7 @@ body {
     <!-- 6. ЭКРАН СТАТИСТИКИ -->
     <div id="statsScreen" style="display: none;">
         <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
-        <h1>📊 Статистика</h1>
+        <h1 class="screen-title">📊 Статистика</h1>
         <div id="statsContent"></div>
     </div>
 
