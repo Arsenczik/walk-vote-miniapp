@@ -1007,7 +1007,7 @@ body.no-scroll {
                 <span class="cat-option" data-cat="🏀">🏀</span>
             </div>
             <div class="step-btns">
-                <button onclick="hideCreateForm()" class="cancel-btn">Отмена</button>
+                <button onclick="previousStep()" class="cancel-btn">Назад</button>
                 <button onclick="nextStep(3)" class="submit-btn">Далее</button>
             </div>
         </div>
@@ -1020,7 +1020,7 @@ body.no-scroll {
             </div>
             <input type="datetime-local" id="eventDate">
             <div class="step-btns">
-                <button onclick="hideCreateForm()" class="cancel-btn">Отмена</button>
+                <button onclick="previousStep()" class="cancel-btn">Назад</button>
                 <button onclick="nextStep(4)" class="submit-btn">Далее</button>
             </div>
         </div>
@@ -1036,7 +1036,7 @@ body.no-scroll {
                 <span class="location-preview" id="locationText">Не выбрано</span>
             </div>
             <div class="step-btns">
-                <button onclick="hideCreateForm()" class="cancel-btn">Отмена</button>
+                <button onclick="previousStep()" class="cancel-btn">Назад</button>
                 <button onclick="nextStep(5)" class="submit-btn">Далее</button>
             </div>
         </div>
@@ -1068,7 +1068,7 @@ body.no-scroll {
                 </div>
             </div>
             <div class="step-btns">
-                <button onclick="hideCreateForm()" class="cancel-btn">Отмена</button>
+                <button onclick="previousStep()" class="cancel-btn">Назад</button>
                 <button onclick="submitEvent()" class="submit-btn-full">Создать</button>
             </div>
         </div>
@@ -1920,6 +1920,13 @@ function nextStep(step) {
     document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
     document.getElementById('step' + step).classList.add('active');
     currentStep = step;
+}
+    function previousStep() {
+    if (currentStep > 1) {
+        document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+        document.getElementById('step' + (currentStep - 1)).classList.add('active');
+        currentStep--;
+    }
 }
 
 function hideCreateForm() {
