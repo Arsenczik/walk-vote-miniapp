@@ -824,7 +824,89 @@ body.no-scroll {
     text-transform: uppercase;
     cursor: pointer;
 }
+/* Карточка одной ачивки в списке */
+.achievement-item {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
 
+/* Контейнер с полями */
+.ach-fields {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Поля ввода – широкие и красивые */
+.ach-fields input {
+    width: 100%;
+    padding: 12px 14px;
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+/* Поле эмодзи – узкое */
+.ach-fields .ach-emoji {
+    width: 70px;
+    text-align: center;
+    font-size: 20px;
+}
+
+/* Кнопка удаления ачивки */
+.remove-ach-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    border: 1px solid rgba(255,100,100,0.4);
+    color: #ff6b6b;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    align-self: center;
+    transition: all 0.2s;
+}
+.remove-ach-btn:active {
+    background: #ff6b6b;
+    color: #fff;
+}
+
+/* Кнопка "Добавить ачивку" */
+.add-achievement-btn {
+    width: 100%;
+    padding: 14px;
+    background: rgba(255,215,0,0.08);
+    border: 1px dashed rgba(255,215,0,0.25);
+    border-radius: 12px;
+    color: #ffd700;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 12px 0 20px;
+    transition: all 0.2s;
+}
+.add-achievement-btn:active {
+    background: rgba(255,215,0,0.15);
+    border-color: rgba(255,215,0,0.4);
+}
+/* Скрываем кнопку, если достигнут лимит */
+.add-achievement-btn.hidden {
+    display: none;
+}
 
     </style>
 </head>
@@ -1041,37 +1123,24 @@ body.no-scroll {
             </div>
         </div>
 
-        <!-- Шаг 5: Достижения -->
-        <div class="form-step" id="step5">
-            <div class="form-header">
-                <div class="header-title-wrapper"><h2>Достижения</h2></div>
-                <div onclick="hideCreateForm()" style="width: 36px; height: 36px; border-radius: 50%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.3); color: #aaa; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 8px rgba(255,255,255,0.05);" onmousedown="this.style.background='#fff'; this.style.color='#000';" onmouseup="this.style.background='#1a1a1a'; this.style.color='#aaa';" ontouchstart="this.style.background='#fff'; this.style.color='#000';" ontouchend="this.style.background='#1a1a1a'; this.style.color='#aaa';">✕</div>
-            </div>
-            <div class="achievements-form-inputs">
-                <label style="color:#ffd700; font-size:12px; letter-spacing:1px;">🏆 Достижения для события (до 3)</label>
-                <div id="achievementInputs">
-                    <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
-                        <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
-                        <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
-                        <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
-                    </div>
-                    <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
-                        <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
-                        <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
-                        <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
-                    </div>
-                    <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
-                        <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
-                        <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
-                        <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
-                    </div>
-                </div>
-            </div>
-            <div class="step-btns">
-                <button onclick="previousStep()" class="cancel-btn">Назад</button>
-                <button onclick="submitEvent()" class="submit-btn-full">Создать</button>
-            </div>
-        </div>
+       <!-- Шаг 5: Достижения -->
+<div class="form-step" id="step5">
+    <div class="form-header">
+        <div class="header-title-wrapper"><h2>Достижения</h2></div>
+        <div onclick="hideCreateForm()" style="width: 36px; height: 36px; border-radius: 50%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.3); color: #aaa; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 8px rgba(255,255,255,0.05);" onmousedown="this.style.background='#fff'; this.style.color='#000';" onmouseup="this.style.background='#1a1a1a'; this.style.color='#aaa';" ontouchstart="this.style.background='#fff'; this.style.color='#000';" ontouchend="this.style.background='#1a1a1a'; this.style.color='#aaa';">✕</div>
+    </div>
+
+    <!-- Контейнер для списка достижений -->
+    <div id="achievementInputs" style="flex:1; overflow-y:auto; padding:0 4px;"></div>
+
+    <!-- Кнопка "Добавить ачивку" -->
+    <button class="add-achievement-btn" id="addAchBtn" onclick="addAchievement()">+ Добавить ачивку (осталось 3)</button>
+
+    <div class="step-btns">
+        <button onclick="previousStep()" class="cancel-btn">Назад</button>
+        <button onclick="submitEvent()" class="submit-btn-full">Создать</button>
+    </div>
+</div>
     </div>
 </div>
     
@@ -1895,6 +1964,7 @@ function showCreateForm() {
     currentStep = 1;
     document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
     document.getElementById('step1').classList.add('active');
+    resetAchievements();
     document.getElementById('createForm').style.display = 'flex';
     // Предзаполнение даты по умолчанию
     const tomorrow = new Date();
@@ -1936,6 +2006,47 @@ function hideCreateForm() {
     document.getElementById('eventName').value = '';
     document.getElementById('eventDesc').value = '';
     document.getElementById('eventDate').value = '';
+}
+    // Количество добавленных ачивок (отслеживаем динамически)
+let achievementCount = 0;
+
+// Добавить пустую ачивку
+function addAchievement() {
+    if (document.querySelectorAll('.achievement-item').length >= 3) return;
+
+    const container = document.getElementById('achievementInputs');
+    const item = document.createElement('div');
+    item.className = 'achievement-item';
+    item.innerHTML = `
+        <div class="ach-fields">
+            <input type="text" class="ach-emoji" placeholder="😊" maxlength="2" style="width:70px;text-align:center;">
+            <input type="text" class="ach-name" placeholder="Название ачивки" maxlength="30">
+            <input type="text" class="ach-desc" placeholder="Описание (за что?)" maxlength="60">
+        </div>
+        <button class="remove-ach-btn" onclick="this.parentElement.remove(); updateAchButton();">✕</button>
+    `;
+    container.appendChild(item);
+    updateAchButton();
+}
+
+// Обновить текст и видимость кнопки "+"
+function updateAchButton() {
+    const btn = document.getElementById('addAchBtn');
+    if (!btn) return;
+    const count = document.querySelectorAll('.achievement-item').length;
+    const left = 3 - count;
+    btn.textContent = `+ Добавить ачивку (осталось ${left})`;
+    if (count >= 3) btn.classList.add('hidden');
+    else btn.classList.remove('hidden');
+}
+
+// При открытии формы сбрасываем список до одной пустой ачивки
+function resetAchievements() {
+    const container = document.getElementById('achievementInputs');
+    if (container) {
+        container.innerHTML = '';
+        addAchievement(); // сразу одно поле
+    }
 }
 </script>
 </body>
