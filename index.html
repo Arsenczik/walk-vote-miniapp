@@ -1392,7 +1392,7 @@ body {
 
     // --- ВХОД / РЕГИСТРАЦИЯ ---
     function startRegistration() { showScreen('loginScreen'); }
-    function saveName() {
+   function saveName() {
     let name = document.getElementById('nameInput').value.trim();
     if (!name) return showToast('Введи имя!');
 
@@ -1425,10 +1425,14 @@ body {
     showScreen('mainMenu');
 
     // Запускаем салют после открытия меню (если первый вход)
-    if (!localStorage.getItem('achievement_welcome_shown')) {
+    if (localStorage.getItem('achievement_welcome_shown') === '1') {
+        // Флаг уже есть, но нам нужно запустить салют прямо сейчас
         setTimeout(() => {
             celebrateAchievement();
         }, 200);
+        // Удаляем флаг, чтобы в следующий раз салют не сработал
+        localStorage.setItem('achievement_welcome_shown', '2');
+    }
 }
     function logout() {
         ['userName','userId','userEmoji'].forEach(k => localStorage.removeItem(k));
