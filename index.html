@@ -170,17 +170,7 @@
       
  
         /* --- Профиль (ПРЕМИУМ СТЕКЛО) --- */
-#profileScreen {
-    display: none;
-    flex-direction: column;
-    min-height: 100vh;
-    background: #000;
-    color: #fff;
-    padding: 0;                /* убираем padding, чтобы sticky работал корректно */
-    box-sizing: border-box;
-    position: relative;
-    overflow-y: auto;          /* скролл внутри экрана */
-}
+
 
 /* Контейнер больше не используется как карточка, но оставим для структуры */
 .profile-container {
@@ -907,35 +897,53 @@ body.no-scroll {
 .add-achievement-btn.hidden {
     display: none;
 }
-        /* Фиксированная шапка профиля */
+       
+/* Контент профиля (всё, что ниже шапки) */
+.profile-content {
+    padding: 0 12px 20px;      /* боковые отступы и отступ снизу */
+}
+        #profileScreen {
+    display: none;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #000;
+    color: #fff;
+    box-sizing: border-box;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;           /* скролл только по вертикали */
+}
+
 .profile-header {
     position: sticky;
     top: 0;
     z-index: 15;
-    background: #000;          /* такой же фон, как у экрана */
-    padding: 16px 12px 10px;   /* отступы внутри шапки */
+    background: #000;
+    padding: 16px 12px 0;
     display: flex;
     flex-direction: column;
-    gap: 10px;
 }
 
-/* Стрелка и заголовок в одной строке */
 .profile-header-top {
     display: flex;
     align-items: center;
     gap: 12px;
-    position: relative;
     min-height: 40px;
 }
 
-/* Стрелка внутри sticky */
 .profile-header .back-arrow {
-    position: static;          /* отменяем абсолютное позиционирование */
+    position: static;          /* убираем абсолютное позиционирование */
     margin: 0;
     flex-shrink: 0;
+    font-size: 28px;
+    color: #888;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
 }
 
-/* Заголовок */
 .profile-header h1 {
     font-size: 28px;
     font-weight: 800;
@@ -944,9 +952,9 @@ body.no-scroll {
     flex: 1;
 }
 
-/* Контент профиля (всё, что ниже шапки) */
 .profile-content {
-    padding: 0 12px 20px;      /* боковые отступы и отступ снизу */
+    padding: 0 12px 20px;
+    flex: 1;
 }
 
     </style>
