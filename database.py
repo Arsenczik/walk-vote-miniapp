@@ -133,30 +133,11 @@ def get_user_vibe(user_id):
     achievements = []
     achievements.append({"emoji": "🐪", "name": "Организованный верблюд"})
 
-    if len(events_created) >= 2:
+    if len(events_created) >= 1:
         achievements.append({"emoji": "📢", "name": "Заводила"})
 
-    cat_count = {}
-    for e in events_attended:
-        cat = e.get('category', '🫥')
-        cat_count[cat] = cat_count.get(cat, 0) + 1
-
-    if cat_count:
-        favorite_cat = max(cat_count, key=cat_count.get)
-        cat_achievements = {
-            "🍖": {"emoji": "🔥", "name": "Король Шашлыка"},
-            "🌊": {"emoji": "💧", "name": "Водный маг"},
-            "🎲": {"emoji": "🎯", "name": "Повелитель Подземелий"},
-            "🎬": {"emoji": "🍿", "name": "Киноман"},
-            "🍻": {"emoji": "🍺", "name": "Барный завсегдатай"},
-            "🎂": {"emoji": "🎉", "name": "Душа компании"},
-            "🎸": {"emoji": "🎵", "name": "Рок-звезда"},
-            "🏀": {"emoji": "⛹️", "name": "Спортсмен"},
-        }
-        if favorite_cat in cat_achievements:
-            achievements.append(cat_achievements[favorite_cat])
-
-    if len(events_attended) >= 5:
+    
+    if len(events_attended) >= 3:
         achievements.append({"emoji": "⭐", "name": "Старожил"})
     # Добавляем специальные достижения
     if 'special_achievements' in user:
