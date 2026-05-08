@@ -1276,6 +1276,7 @@ body {
     let archiveEvents = [];
     let USER_NAMES = {};
     let fireworksActive = false;
+    let fireworksFading = false;
     let fallingEmojis = [];
     let loginEmojiInterval = null;
     let selectedLat = null, selectedLng = null;
@@ -1309,11 +1310,11 @@ body {
     if (id === 'statsScreen') loadStatistics();
     if (id === 'archiveScreen') loadArchive();
 }
- function celebrateAchievement() {
+function celebrateAchievement() {
     if (fireworksActive) return;
     fireworksActive = true;
+    fireworksFading = false;               // сбрасываем режим затухания
 
-    // Убедимся, что canvas существует
     fireworksCanvas = document.getElementById('fireworksCanvas');
     if (!fireworksCanvas) return;
 
@@ -1323,12 +1324,10 @@ body {
     fireworksParticles = [];
     fireworksRAF = requestAnimationFrame(fireworksLoop);
 
-    // Салюты горят 5 секунд
+    // Через 5 секунд запрещаем новые взрывы – старые догорят
     setTimeout(() => {
-        fireworksActive = false;
-        if (fireworksRAF) cancelAnimationFrame(fireworksRAF);
-        if (fireworksCtx && fireworksCanvas) fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
-    }, 5000);   // было 3000, стало 5000
+        fireworksFading = true;
+    }, 5000);
 }
 
     // --- ПРОФИЛЬ (Загрузка данных) ---
@@ -1538,46 +1537,58 @@ body {
         fireworksCanvas.height = fireworksCanvas.offsetHeight;
     }
 
-    function fireworksLoop() {
-        if (!fireworksActive) return;
-        fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+  function fireworksLoop() {
+    if (!fireworksActive) return;
+    fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
 
-        // Взрывы теперь появляются в случайных точках по ВСЕЙ высоте и ширине экрана
-        if (Math.random() < 0.06) {
-            const x = Math.random() * fireworksCanvas.width;
-            const y = Math.random() * fireworksCanvas.height;
-            createFireworkExplosion(x, y);
-        }
-
-        // Обновление частиц с медленной гравитацией
-        for (let i = fireworksParticles.length - 1; i >= 0; i--) {
-            const p = fireworksParticles[i];
-            p.vy += 0.04; // лёгкая гравитация
-            p.vx *= 0.98;
-            p.vy *= 0.98;
-            p.x += p.vx;
-            p.y += p.vy;
-            p.life -= 0.015;
-            if (p.life <= 0) {
-                fireworksParticles.splice(i, 1);
-                continue;
-            }
-            const alpha = Math.min(p.life, 0.7);
-            fireworksCtx.beginPath();
-            fireworksCtx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
-            fireworksCtx.fillStyle = p.color;
-            fireworksCtx.globalAlpha = alpha;
-            fireworksCtx.fill();
-            // лёгкое свечение
-            fireworksCtx.beginPath();
-            fireworksCtx.arc(p.x, p.y, 5, 0, Math.PI * 2);
-            fireworksCtx.fillStyle = p.color;
-            fireworksCtx.globalAlpha = alpha * 0.3;
-            fireworksCtx.fill();
-        }
-        fireworksCtx.globalAlpha = 1;
-        fireworksRAF = requestAnimationFrame(fireworksLoop);
+    // Новые взрывы только если не режим затухания
+    if (!fireworksFading && Math.random() < 0.06) {
+        const x = Math.random() * fireworksCanvas.width;
+        const y = Math.random() * fireworksCanvas.height;
+        createFireworkExplosion(x, y);
     }
+
+    // Обновление частиц
+    for (let i = fireworksParticles.length - 1; i >= 0; i--) {
+        const p = fireworksParticles[i];
+        p.vy += 0.04;
+        p.vx *= 0.98;
+        p.vy *= 0.98;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 0.015;
+        if (p.life <= 0) {
+            fireworksParticles.splice(i, 1);
+            continue;
+        }
+        const alpha = Math.min(p.life, 0.7);
+        fireworksCtx.beginPath();
+        fireworksCtx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+        fireworksCtx.fillStyle = p.color;
+        fireworksCtx.globalAlpha = alpha;
+        fireworksCtx.fill();
+        fireworksCtx.beginPath();
+        fireworksCtx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+        fireworksCtx.fillStyle = p.color;
+        fireworksCtx.globalAlpha = alpha * 0.3;
+        fireworksCtx.fill();
+    }
+    fireworksCtx.globalAlpha = 1;
+
+    // Если режим затухания и частицы кончились – останавливаем
+    if (fireworksFading && fireworksParticles.length === 0) {
+        fireworksActive = false;
+        fireworksFading = false;
+        if (fireworksRAF) {
+            cancelAnimationFrame(fireworksRAF);
+            fireworksRAF = null;
+        }
+        fireworksCtx.clearRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+        return;
+    }
+
+    fireworksRAF = requestAnimationFrame(fireworksLoop);
+}
 
     function createFireworkExplosion(x, y) {
         const count = 30 + Math.floor(Math.random() * 20);
