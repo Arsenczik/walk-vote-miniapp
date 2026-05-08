@@ -783,7 +783,6 @@ body.no-scroll {
     width: 100%;
     height: 100%;
     background: #000;
-    overscroll-behavior-y: contain;   /* ← добавляем эластичность с чёрным фоном */
 }
 }
 /* Шаги формы */
@@ -2129,6 +2128,63 @@ function resetAchievements() {
         addAchievement(); // сразу одно поле
     }
 }
+    // Пружинный эффект для главного меню (без реального скролла)
+(function() {
+    const menu = document.getElementById('mainMenu');
+    if (!menu) return;
+
+    let startY = 0;          // начальная позиция пальца
+    let currentTranslate = 0; // текущее смещение контента
+    let dragging = false;
+
+    // Функция возврата в исходное положение
+    function springBack() {
+        if (!menu) return;
+        menu.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2)';
+        menu.style.transform = 'translateY(0px)';
+        currentTranslate = 0;
+        // Убираем transition после завершения анимации
+        setTimeout(() => {
+            if (menu) menu.style.transition = '';
+        }, 350);
+    }
+
+    // Начало касания
+    menu.addEventListener('touchstart', function(e) {
+        // Работаем только если это главное меню и оно видимо
+        if (menu.style.display === 'none') return;
+        startY = e.touches[0].clientY;
+        dragging = true;
+        // Сбрасываем transition при касании, чтобы движение было прямым
+        menu.style.transition = 'none';
+    }, { passive: true });
+
+    // Движение пальца
+    menu.addEventListener('touchmove', function(e) {
+        if (!dragging) return;
+        const currentY = e.touches[0].clientY;
+        const deltaY = currentY - startY;
+
+        // Ограничиваем максимальное смещение (например, ±30px)
+        const maxPull = 30;
+        const resistance = 0.5; // коэффициент сопротивления (делает пружину мягче)
+        let translate = deltaY * resistance;
+        if (translate > maxPull) translate = maxPull + (translate - maxPull) * 0.2;
+        if (translate < -maxPull) translate = -maxPull + (translate + maxPull) * 0.2;
+
+        currentTranslate = translate;
+        menu.style.transform = `translateY(${translate}px)`;
+    }, { passive: true });
+
+    // Конец касания
+    const endHandler = function(e) {
+        if (!dragging) return;
+        dragging = false;
+        springBack();
+    };
+    menu.addEventListener('touchend', endHandler);
+    menu.addEventListener('touchcancel', endHandler);
+})();
 </script>
 </body>
 </html>
