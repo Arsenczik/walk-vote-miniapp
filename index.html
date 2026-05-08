@@ -976,6 +976,15 @@ body {
 #statsScreen {
     overflow-y: auto;
 }
+        /* Экраны с контентом занимают весь body */
+#profileScreen, #eventsScreen, #archiveScreen, #statsScreen, #loginScreen, #onboardingScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+}
 
     </style>
 </head>
@@ -1267,13 +1276,20 @@ body {
 
     
 
-    // Главное меню — полностью блокируем скролл
-    if (id === 'mainMenu') {
+   if (id === 'mainMenu') {
         document.body.classList.add('no-scroll');
+        document.body.style.position = 'fixed';
+        document.body.style.top = '0';
+        document.body.style.left = '0';
+        document.body.style.right = '0';
     } else {
-        // На всех остальных экранах скроллим только внутри, а body не скроллим
         document.body.classList.remove('no-scroll');
-        document.body.style.overflow = 'hidden';   // <-- вот это главное
+        document.body.style.position = 'fixed';
+        document.body.style.top = '0';
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.bottom = '0';
+        document.body.style.overflow = 'hidden';
     }
     
     
