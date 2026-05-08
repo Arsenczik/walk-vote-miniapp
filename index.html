@@ -788,7 +788,42 @@ body.no-scroll {
     position: fixed;
     width: 100%;
 }
-
+/* Шаги формы */
+.form-step {
+    display: none;
+    flex-direction: column;
+    min-height: 60vh;
+}
+.form-step.active {
+    display: flex;
+}
+.step-btns {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 20px;
+}
+.cancel-btn {
+    flex: 1;
+    padding: 14px;
+    background: #1a1a1a;
+    color: #ccc;
+    border: 1px solid #333;
+    border-radius: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.submit-btn {
+    flex: 1;
+    padding: 14px;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+}
 
 
     </style>
@@ -940,54 +975,105 @@ body.no-scroll {
 
 <button class="archive-fab" id="archiveFab" onclick="showScreen('archiveScreen')" style="display: none;">📦</button>
  <div class="create-form" id="createForm" style="display: none;">
-            <div class="form-card">
-                <div class="form-header">
-                    <div class="header-title-wrapper"><h2>Новое событие</h2></div>
-                    <div onclick="hideCreateForm()" style="width: 36px; height: 36px; border-radius: 50%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.3); color: #aaa; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 8px rgba(255,255,255,0.05);" onmousedown="this.style.background='#fff'; this.style.color='#000';" onmouseup="this.style.background='#1a1a1a'; this.style.color='#aaa';" ontouchstart="this.style.background='#fff'; this.style.color='#000';" ontouchend="this.style.background='#1a1a1a'; this.style.color='#aaa';">✕</div>
-                </div>
-                <input type="text" id="eventName" placeholder="Название" maxlength="40">
-                <input type="text" id="eventDesc" placeholder="Описание" maxlength="120">
-                <label>Тип встречи</label>
-                <div class="category-picker">
-                    <span class="cat-option active" data-cat="🍖">🍖</span>
-                    <span class="cat-option" data-cat="🎬">🎬</span>
-                    <span class="cat-option" data-cat="🌊">🌊</span>
-                    <span class="cat-option" data-cat="🍻">🍻</span>
-                    <span class="cat-option" data-cat="🎲">🎲</span>
-                    <span class="cat-option" data-cat="🎂">🎂</span>
-                    <span class="cat-option" data-cat="🎸">🎸</span>
-                    <span class="cat-option" data-cat="🏀">🏀</span>
-                </div>
-                <label>КОГДА</label>
-                <input type="datetime-local" id="eventDate">
-                <div class="special-achievements-section" style="margin-top:16px;">
-    <label style="color:#ffd700; font-size:12px; letter-spacing:1px;">🏆 Достижения для события (до 3)</label>
-    <div id="achievementInputs">
-        <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
-            <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
-            <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
-            <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
+    <div class="form-card" id="formCard">
+        <!-- Шаг 1: Название и описание -->
+        <div class="form-step active" id="step1">
+            <div class="form-header">
+                <div class="header-title-wrapper"><h2>Название</h2></div>
+                <div onclick="hideCreateForm()" style="width: 36px; height: 36px; border-radius: 50%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.3); color: #aaa; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 8px rgba(255,255,255,0.05);" onmousedown="this.style.background='#fff'; this.style.color='#000';" onmouseup="this.style.background='#1a1a1a'; this.style.color='#aaa';" ontouchstart="this.style.background='#fff'; this.style.color='#000';" ontouchend="this.style.background='#1a1a1a'; this.style.color='#aaa';">✕</div>
+            </div>
+            <input type="text" id="eventName" placeholder="Введите название" maxlength="40">
+            <input type="text" id="eventDesc" placeholder="Описание (опционально)" maxlength="120">
+            <div class="step-btns">
+                <button onclick="hideCreateForm()" class="cancel-btn">Отмена</button>
+                <button onclick="nextStep(2)" class="submit-btn">Далее</button>
+            </div>
         </div>
-        <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
-            <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
-            <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
-            <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
+
+        <!-- Шаг 2: Тип встречи -->
+        <div class="form-step" id="step2">
+            <div class="form-header">
+                <div class="header-title-wrapper"><h2>Тип встречи</h2></div>
+                <div onclick="hideCreateForm()" style="width: 36px; height: 36px; border-radius: 50%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.3); color: #aaa; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 8px rgba(255,255,255,0.05);" onmousedown="this.style.background='#fff'; this.style.color='#000';" onmouseup="this.style.background='#1a1a1a'; this.style.color='#aaa';" ontouchstart="this.style.background='#fff'; this.style.color='#000';" ontouchend="this.style.background='#1a1a1a'; this.style.color='#aaa';">✕</div>
+            </div>
+            <div class="category-picker">
+                <span class="cat-option" data-cat="🍖">🍖</span>
+                <span class="cat-option" data-cat="🎬">🎬</span>
+                <span class="cat-option" data-cat="🌊">🌊</span>
+                <span class="cat-option" data-cat="🍻">🍻</span>
+                <span class="cat-option" data-cat="🎲">🎲</span>
+                <span class="cat-option" data-cat="🎂">🎂</span>
+                <span class="cat-option" data-cat="🎸">🎸</span>
+                <span class="cat-option" data-cat="🏀">🏀</span>
+            </div>
+            <div class="step-btns">
+                <button onclick="hideCreateForm()" class="cancel-btn">Отмена</button>
+                <button onclick="nextStep(3)" class="submit-btn">Далее</button>
+            </div>
         </div>
-        <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
-            <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
-            <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
-            <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
+
+        <!-- Шаг 3: Дата и время -->
+        <div class="form-step" id="step3">
+            <div class="form-header">
+                <div class="header-title-wrapper"><h2>Дата</h2></div>
+                <div onclick="hideCreateForm()" style="width: 36px; height: 36px; border-radius: 50%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.3); color: #aaa; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 8px rgba(255,255,255,0.05);" onmousedown="this.style.background='#fff'; this.style.color='#000';" onmouseup="this.style.background='#1a1a1a'; this.style.color='#aaa';" ontouchstart="this.style.background='#fff'; this.style.color='#000';" ontouchend="this.style.background='#1a1a1a'; this.style.color='#aaa';">✕</div>
+            </div>
+            <input type="datetime-local" id="eventDate">
+            <div class="step-btns">
+                <button onclick="hideCreateForm()" class="cancel-btn">Отмена</button>
+                <button onclick="nextStep(4)" class="submit-btn">Далее</button>
+            </div>
         </div>
-    </div>
-</div>
-                <label style="margin-top: 12px;">МЕСТО ВСТРЕЧИ</label>
-                <div class="location-row">
-                    <button class="location-btn" onclick="openMapModal()">🗺️ Указать</button>
-                    <span class="location-preview" id="locationText">Не выбрано</span>
+
+        <!-- Шаг 4: Место встречи -->
+        <div class="form-step" id="step4">
+            <div class="form-header">
+                <div class="header-title-wrapper"><h2>Место</h2></div>
+                <div onclick="hideCreateForm()" style="width: 36px; height: 36px; border-radius: 50%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.3); color: #aaa; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 8px rgba(255,255,255,0.05);" onmousedown="this.style.background='#fff'; this.style.color='#000';" onmouseup="this.style.background='#1a1a1a'; this.style.color='#aaa';" ontouchstart="this.style.background='#fff'; this.style.color='#000';" ontouchend="this.style.background='#1a1a1a'; this.style.color='#aaa';">✕</div>
+            </div>
+            <div class="location-row">
+                <button class="location-btn" onclick="openMapModal()">🗺️ Указать</button>
+                <span class="location-preview" id="locationText">Не выбрано</span>
+            </div>
+            <div class="step-btns">
+                <button onclick="hideCreateForm()" class="cancel-btn">Отмена</button>
+                <button onclick="nextStep(5)" class="submit-btn">Далее</button>
+            </div>
+        </div>
+
+        <!-- Шаг 5: Достижения -->
+        <div class="form-step" id="step5">
+            <div class="form-header">
+                <div class="header-title-wrapper"><h2>Достижения</h2></div>
+                <div onclick="hideCreateForm()" style="width: 36px; height: 36px; border-radius: 50%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.3); color: #aaa; font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 0 8px rgba(255,255,255,0.05);" onmousedown="this.style.background='#fff'; this.style.color='#000';" onmouseup="this.style.background='#1a1a1a'; this.style.color='#aaa';" ontouchstart="this.style.background='#fff'; this.style.color='#000';" ontouchend="this.style.background='#1a1a1a'; this.style.color='#aaa';">✕</div>
+            </div>
+            <div class="achievements-form-inputs">
+                <label style="color:#ffd700; font-size:12px; letter-spacing:1px;">🏆 Достижения для события (до 3)</label>
+                <div id="achievementInputs">
+                    <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
+                        <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
+                        <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
+                        <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
+                    </div>
+                    <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
+                        <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
+                        <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
+                        <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
+                    </div>
+                    <div class="ach-input-row" style="display:flex; gap:8px; margin-bottom:8px;">
+                        <input type="text" class="ach-emoji" placeholder="Эмодзи" maxlength="2" style="width:50px;">
+                        <input type="text" class="ach-name" placeholder="Название" maxlength="30" style="flex:1;">
+                        <input type="text" class="ach-desc" placeholder="Описание" maxlength="60" style="flex:2;">
+                    </div>
                 </div>
+            </div>
+            <div class="step-btns">
+                <button onclick="hideCreateForm()" class="cancel-btn">Отмена</button>
                 <button onclick="submitEvent()" class="submit-btn-full">Создать</button>
             </div>
         </div>
+    </div>
+</div>
     
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -1800,6 +1886,49 @@ function closeAssignmentModal() {
 }
     function showAchievementDescription(name, desc) {
     alert(name + '\n\n' + desc);
+}
+    // Логика шагов
+let currentStep = 1;
+
+function showCreateForm() {
+    // Сброс шагов
+    currentStep = 1;
+    document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+    document.getElementById('step1').classList.add('active');
+    document.getElementById('createForm').style.display = 'flex';
+    // Предзаполнение даты по умолчанию
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(16, 0, 0, 0);
+    document.getElementById('eventDate').value = tomorrow.toISOString().slice(0, 16);
+    // Очистить прошлый выбор местоположения
+    document.getElementById('locationText').textContent = 'Не выбрано';
+    selectedLat = null;
+    selectedLng = null;
+}
+
+function nextStep(step) {
+    // Простейшая валидация (можно добавить)
+    if (step === 2 && !document.getElementById('eventName').value.trim()) {
+        showToast('Введи название');
+        return;
+    }
+    if (step === 3 && !document.getElementById('eventDate').value) {
+        showToast('Выбери дату');
+        return;
+    }
+    document.querySelectorAll('.form-step').forEach(el => el.classList.remove('active'));
+    document.getElementById('step' + step).classList.add('active');
+    currentStep = step;
+}
+
+function hideCreateForm() {
+    document.getElementById('createForm').style.display = 'none';
+    // Очистить поля достижений
+    document.querySelectorAll('.ach-emoji, .ach-name, .ach-desc').forEach(el => el.value = '');
+    document.getElementById('eventName').value = '';
+    document.getElementById('eventDesc').value = '';
+    document.getElementById('eventDate').value = '';
 }
 </script>
 </body>
