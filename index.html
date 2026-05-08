@@ -1419,11 +1419,16 @@ body {
         document.body.appendChild(toast);
         localStorage.setItem('achievement_welcome_shown', '1');
         setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
-        celebrateAchievement();
     }
 
     initUser();
     showScreen('mainMenu');
+
+    // Запускаем салют после открытия меню (если первый вход)
+    if (!localStorage.getItem('achievement_welcome_shown')) {
+        setTimeout(() => {
+            celebrateAchievement();
+        }, 200);
 }
     function logout() {
         ['userName','userId','userEmoji'].forEach(k => localStorage.removeItem(k));
