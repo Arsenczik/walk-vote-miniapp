@@ -1003,6 +1003,18 @@ body {
     background: #000;
     z-index: -1;
 }
+        .profile-divider {
+    height: 1px;
+    margin: 10px 0 0 0;
+    background: linear-gradient(to right,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.25) 20%,
+        rgba(255,255,255,0.4) 50%,
+        rgba(255,255,255,0.25) 80%,
+        rgba(255,255,255,0) 100%
+    );
+    box-shadow: 0 1px 4px rgba(255,255,255,0.05);
+}
     </style>
 </head>
 <body>
@@ -1085,6 +1097,8 @@ body {
             <h1>Профиль</h1>
         </div>
     </div>
+
+    <div class="profile-divider"></div>
 
     <!-- Скроллируемый контент профиля -->
     <div class="profile-content">
