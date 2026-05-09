@@ -1061,6 +1061,12 @@ body {
 .collapsible-content {
     margin-top: 12px;
 }
+
+    /* Карточки ачивок – как заголовок "Ачивки" */
+#profileScreen .profile-achievements .achievement-card {
+    background: #0a0a0a !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
     </style>
 </head>
 <body>
@@ -1429,8 +1435,7 @@ async function loadProfileScreen() {
                 card.style.display = 'flex';
                 card.style.alignItems = 'center';
                 card.style.gap = '14px';
-                card.style.background = 'rgba(0, 0, 0, 0.1)';                   // ← почти чёрный фон
-                card.style.border = '1px solid #1a1a1a';            // ← почти чёрная обводка
+                card.style.border = '1px solid rgba(255,255,255,0.1)';
                 card.style.borderRadius = '20px';
                 card.style.padding = '16px 18px';
                 card.style.marginBottom = '10px';
