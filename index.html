@@ -1061,19 +1061,6 @@ body {
 .collapsible-content {
     margin-top: 12px;
 }
-        /* Стиль для карточек ачивок – гарантированное переопределение */
-#profileScreen .profile-achievements .achievement-card.achievement-card-glass {
-    display: flex !important;
-    align-items: center !important;
-    gap: 14px !important;
-    background: #0a0a0a !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    border-radius: 20px !important;
-    padding: 16px 18px !important;
-    margin-bottom: 10px !important;
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.03), inset 0 0 8px rgba(0,0,0,0.5) !important;
-    cursor: pointer;
-}
     </style>
 </head>
 <body>
@@ -1437,23 +1424,40 @@ async function loadProfileScreen() {
 
         if (data.achievements && data.achievements.length) {
             data.achievements.forEach(a => {
-                // Создаём карточку через DOM
+                // --- Создаём карточку ---
                 const card = document.createElement('div');
-                card.className = 'achievement-card';                              // основной класс
-                card.classList.add('achievement-card-glass');                     // наш стеклянный класс
+                // Задаём все стили напрямую
+                card.style.display = 'flex';
+                card.style.alignItems = 'center';
+                card.style.gap = '14px';
+                card.style.background = '#0a0a0a';           // <-- тот самый тёмный стеклянный фон
+                card.style.border = '1px solid rgba(255, 255, 255, 0.12)';  // <-- та самая обводка
+                card.style.borderRadius = '20px';            // <-- такое же скругление как у панелей статистики
+                card.style.padding = '16px 18px';
+                card.style.marginBottom = '10px';
+                card.style.boxShadow = '0 0 15px rgba(255, 255, 255, 0.03), inset 0 0 8px rgba(0,0,0,0.5)';
                 card.style.cursor = 'pointer';
+
                 card.onclick = function() {
                     showAchievementDescription(a.name, a.description || 'Нет описания');
                 };
 
+                // --- Эмодзи ---
                 const emoji = document.createElement('span');
-                emoji.className = 'ach-emoji';
                 emoji.textContent = a.emoji;
+                emoji.style.fontSize = '30px';
+                emoji.style.width = '44px';
+                emoji.style.textAlign = 'center';
+                emoji.style.color = '#fff';
 
+                // --- Название ---
                 const name = document.createElement('span');
-                name.className = 'ach-name';
                 name.textContent = a.name;
+                name.style.fontWeight = '600';
+                name.style.color = '#ccc';
+                name.style.fontSize = '15px';
 
+                // Собираем карточку
                 card.appendChild(emoji);
                 card.appendChild(name);
                 listContainer.appendChild(card);
