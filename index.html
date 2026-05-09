@@ -1025,8 +1025,6 @@ body {
     box-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
     z-index: 5;
 }
-
-/* Обёртка для заголовка с полоской (используется в профиле и событиях) */
 .screen-header {
     display: flex;
     align-items: center;
@@ -1035,13 +1033,13 @@ body {
     position: sticky;
     top: 0;
     z-index: 15;
-    position: relative;   /* ← добавляем */
+    justify-content: flex-start;   /* стрелка слева */
 }
 
 .screen-header .back-arrow {
-    position: static !important;   /* уже было */
+    position: static !important;
+    flex-shrink: 0;               /* не сжимается */
     margin: 0;
-    flex-shrink: 0;
     font-size: 28px;
     color: #888;
     cursor: pointer;
@@ -1052,13 +1050,12 @@ body {
 }
 
 .screen-header .title-wrapper {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    margin: 0;
-    width: auto;
+    flex: 1;                      /* занимает всё свободное место */
+    display: flex;
+    justify-content: center;      /* выравниваем заголовок по центру */
+    align-items: center;
 }
+
     </style>
 </head>
 <body>
