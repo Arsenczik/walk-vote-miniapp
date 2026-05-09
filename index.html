@@ -1061,7 +1061,60 @@ body {
 .collapsible-content {
     margin-top: 12px;
 }
+/* ---- 3D-переворот ачивок ---- */
+.achievement-flip-container {
+    perspective: 800px;                /* глубина сцены */
+    margin-bottom: 10px;              /* чтобы тени не обрезались */
+}
 
+.achievement-flipper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s ease-in-out;
+    transform-style: preserve-3d;
+}
+
+/* Перевёрнутое состояние */
+.achievement-flipper.flipped {
+    transform: rotateY(180deg);
+}
+
+/* Передняя и задняя стороны */
+.achievement-front,
+.achievement-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;       /* прячем обратную сторону */
+    display: flex;
+    align-items: center;
+    border-radius: 20px;
+    padding: 16px 18px;
+    box-sizing: border-box;
+}
+
+/* Передняя сторона (исходный вид) */
+.achievement-front {
+    background: #000000;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.03), inset 0 0 8px rgba(0,0,0,0.5);
+    cursor: pointer;
+}
+
+/* Задняя сторона (описание) */
+.achievement-back {
+    background: #050505;               /* чуть темнее / светлее передней */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ccc;
+    font-size: 14px;
+    line-height: 1.5;
+    transform: rotateY(180deg);        /* сразу разворачиваем */
+    text-align: center;
+    justify-content: center;
+}
     </style>
 </head>
 <body>
@@ -1424,40 +1477,53 @@ async function loadProfileScreen() {
         listContainer.innerHTML = '';
 
         if (data.achievements && data.achievements.length) {
-            data.achievements.forEach(a => {
-                const card = document.createElement('div');
-                card.style.display = 'flex';
-                card.style.alignItems = 'center';
-                card.style.gap = '14px';
-                // Точь-в-точь как .profile-stat-item:
-                card.style.background = '#000000';
-                card.style.border = '1px solid rgba(255, 255, 255, 0.08)';
-                card.style.boxShadow = '0 0 15px rgba(255, 255, 255, 0.03), inset 0 0 8px rgba(0,0,0,0.5)';
-                card.style.borderRadius = '20px';
-                card.style.padding = '16px 18px';   // чуть меньше, чем у статистики, чтобы не перегружать
-                card.style.marginBottom = '10px';
+    data.achievements.forEach(a => {
+        // Внешний контейнер с perspective
+        const container = document.createElement('div');
+        container.className = 'achievement-flip-container';
 
-                card.onclick = function() {
-                    showAchievementDescription(a.name, a.description || 'Нет описания');
-                };
+        // Внутренний переворачивающийся блок
+        const flipper = document.createElement('div');
+        flipper.className = 'achievement-flipper';
 
-                const emoji = document.createElement('span');
-                emoji.textContent = a.emoji;
-                emoji.style.fontSize = '30px';
-                emoji.style.width = '44px';
-                emoji.style.textAlign = 'center';
+        // ----- Передняя сторона (эмодзи + название) -----
+        const front = document.createElement('div');
+        front.className = 'achievement-front';
+        front.style.gap = '14px';   // flex задан в CSS, здесь только gap
 
-                const name = document.createElement('span');
-                name.textContent = a.name;
-                name.style.fontWeight = '600';
-                name.style.color = '#ccc';
-                name.style.fontSize = '15px';
+        const emoji = document.createElement('span');
+        emoji.textContent = a.emoji;
+        emoji.style.fontSize = '30px';
+        emoji.style.width = '44px';
+        emoji.style.textAlign = 'center';
 
-                card.appendChild(emoji);
-                card.appendChild(name);
-                listContainer.appendChild(card);
-            });
-        } else {
+        const name = document.createElement('span');
+        name.textContent = a.name;
+        name.style.fontWeight = '600';
+        name.style.color = '#ccc';
+        name.style.fontSize = '15px';
+
+        front.appendChild(emoji);
+        front.appendChild(name);
+
+        // ----- Задняя сторона (описание) -----
+        const back = document.createElement('div');
+        back.className = 'achievement-back';
+        back.textContent = a.description || 'Нет описания';
+
+        // Собираем flipper
+        flipper.appendChild(front);
+        flipper.appendChild(back);
+        container.appendChild(flipper);
+
+        // Обработчик клика – переключаем класс .flipped
+        container.addEventListener('click', function() {
+            flipper.classList.toggle('flipped');
+        });
+
+        listContainer.appendChild(container);
+    });
+} else {
             listContainer.innerHTML = '<p style="color:#666;">Пока нет ачивок. Участвуй в движухах!</p>';
         }
     } catch(e) {
@@ -2161,9 +2227,7 @@ async function submitAssignment(eventId, achievementIndex) {
 function closeAssignmentModal() {
     document.getElementById('assignmentModal').style.display = 'none';
 }
-    function showAchievementDescription(name, desc) {
-    alert(name + '\n\n' + desc);
-}
+
     // Логика шагов
 let currentStep = 1;
 
