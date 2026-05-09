@@ -284,16 +284,6 @@
     color: #aaa;
     margin-bottom: 14px;
 }
-.achievement-card .ach-emoji {
-    font-size: 30px;
-    width: 44px;
-    text-align: center;
-}
-.achievement-card .ach-name {
-    font-weight: 600;
-    color: #ddd;
-    font-size: 15px;
-}
 
 /* Кнопка выхода – стеклянная, с акцентом */
 .profile-logout-btn {
@@ -1071,8 +1061,8 @@ body {
 .collapsible-content {
     margin-top: 12px;
 }
-        /* Карточки ачивок — точно как панели статистики */
-#profileScreen .profile-achievements .achievement-card {
+      /* Карточки ачивок — точно как панели статистики (МАКСИМУМ СИЛЫ) */
+#profileScreen .achievement-card {
     display: flex !important;
     align-items: center !important;
     gap: 14px !important;
@@ -1082,18 +1072,20 @@ body {
     padding: 16px 18px !important;
     margin-bottom: 10px !important;
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.03), inset 0 0 8px rgba(0,0,0,0.5) !important;
-    transition: transform 0.2s, border-color 0.2s !important;
-    font-size: unset !important;
-    font-weight: unset !important;
-    color: unset !important;
+    cursor: pointer;
 }
 
-#profileScreen .profile-achievements .achievement-card:hover {
-    transform: none !important;
-    border-color: rgba(255, 255, 255, 0.12) !important;
+#profileScreen .achievement-card .ach-emoji {
+    font-size: 30px;
+    width: 44px;
+    text-align: center;
+    color: #fff;
 }
-        .achievement-card {
-    cursor: pointer;
+
+#profileScreen .achievement-card .ach-name {
+    font-weight: 600;
+    color: #ddd;
+    font-size: 15px;
 }
     </style>
 </head>
