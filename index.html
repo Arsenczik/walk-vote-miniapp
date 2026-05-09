@@ -1424,25 +1424,24 @@ async function loadProfileScreen() {
 
         if (data.achievements && data.achievements.length) {
             data.achievements.forEach(a => {
-                // --- Создаём карточку ---
+                // Создаём карточку
                 const card = document.createElement('div');
-                // Задаём все стили напрямую
+                card.className = 'achievement-card';   // можно оставить, но стили задаём явно
                 card.style.display = 'flex';
                 card.style.alignItems = 'center';
                 card.style.gap = '14px';
-                card.style.background = '#0a0a0a';           // <-- тот самый тёмный стеклянный фон
-                card.style.border = '1px solid rgba(255, 255, 255, 0.12)';  // <-- та самая обводка
-                card.style.borderRadius = '20px';            // <-- такое же скругление как у панелей статистики
+                // ★ Единственное, что меняем – обводка ★
+                card.style.border = '1px solid #1a1a1a';   // почти чёрная рамка
+                card.style.borderRadius = '20px';
                 card.style.padding = '16px 18px';
                 card.style.marginBottom = '10px';
-                card.style.boxShadow = '0 0 15px rgba(255, 255, 255, 0.03), inset 0 0 8px rgba(0,0,0,0.5)';
+                // фон, тень и т.д. не задаём – они будут как у родителя или прозрачными
                 card.style.cursor = 'pointer';
 
                 card.onclick = function() {
                     showAchievementDescription(a.name, a.description || 'Нет описания');
                 };
 
-                // --- Эмодзи ---
                 const emoji = document.createElement('span');
                 emoji.textContent = a.emoji;
                 emoji.style.fontSize = '30px';
@@ -1450,14 +1449,12 @@ async function loadProfileScreen() {
                 emoji.style.textAlign = 'center';
                 emoji.style.color = '#fff';
 
-                // --- Название ---
                 const name = document.createElement('span');
                 name.textContent = a.name;
                 name.style.fontWeight = '600';
                 name.style.color = '#ccc';
                 name.style.fontSize = '15px';
 
-                // Собираем карточку
                 card.appendChild(emoji);
                 card.appendChild(name);
                 listContainer.appendChild(card);
