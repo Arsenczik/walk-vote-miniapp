@@ -131,22 +131,39 @@ def get_user_vibe(user_id):
     events_attended = [e for e in events_db if user_id in e.get('participants', [])]
 
     achievements = []
-    achievements.append({"emoji": "🐪", "name": "Организованный верблюд"})
 
+    # 1. Приветственная ачивка
+    achievements.append({
+        "emoji": "🐪",
+        "name": "Организованный верблюд",
+        "description": "Первый шаг в большое путешествие. Добро пожаловать в Караван!"
+    })
+
+    # 2. За создание события
     if len(events_created) >= 1:
-        achievements.append({"emoji": "📢", "name": "Заводила"})
+        achievements.append({
+            "emoji": "📢",
+            "name": "Заводила",
+            "description": "Вожак каравана! Ты сделал первый шаг, чтобы собрать друзей вместе."
+        })
 
-    
+    # 3. За посещение трёх событий
     if len(events_attended) >= 3:
-        achievements.append({"emoji": "⭐", "name": "Старожил"})
-    # Добавляем специальные достижения
+        achievements.append({
+            "emoji": "⭐",
+            "name": "Старожил",
+            "description": "Пыль дорог на твоих сандалиях. Ты видел многое и готов к новым приключениям."
+        })
+
+    # Добавляем специальные достижения (если есть)
     if 'special_achievements' in user:
         for ach_key, ach in user['special_achievements'].items():
             achievements.append({
                 "emoji": ach['emoji'],
                 "name": ach['name'],
-                "description": ach.get('description', '')  # описание!
+                "description": ach.get('description', '')
             })
+
     return {
         "user": user,
         "achievements": achievements,
