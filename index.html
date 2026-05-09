@@ -1429,11 +1429,12 @@ async function loadProfileScreen() {
                 card.style.display = 'flex';
                 card.style.alignItems = 'center';
                 card.style.gap = '14px';
-                card.style.background = '#050505';   // ← такой же фон, как у заголовка "Ачивки"
-                // Только обводка (светло-серая) и скругление — больше НИЧЕГО
-                card.style.border = '1px solid rgba(255, 255, 255, 0.08)';
-                card.style.borderRadius = '18px';
-                card.style.padding = '14px 16px';
+                // Точь-в-точь как .profile-stat-item:
+                card.style.background = '#0a0a0a';
+                card.style.border = '1px solid rgba(255, 255, 255, 0.12)';
+                card.style.boxShadow = '0 0 15px rgba(255, 255, 255, 0.03), inset 0 0 8px rgba(0,0,0,0.5)';
+                card.style.borderRadius = '20px';
+                card.style.padding = '16px 18px';   // чуть меньше, чем у статистики, чтобы не перегружать
                 card.style.marginBottom = '10px';
 
                 card.onclick = function() {
