@@ -182,17 +182,16 @@
     margin-bottom: 20px;
 }
 .profile-avatar-bg {
-    width: 100px;
-    height: 100px;
+    width: 160px;           /* ~1/3 экрана при max-width 500px */
+    height: 160px;
     border-radius: 50%;
-    /* Стеклянная основа */
     background: #0a0a0a;
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.06), inset 0 0 12px rgba(0,0,0,0.6);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 48px;
+    font-size: 72px;        /* эмодзи пропорционально */
     transition: transform 0.2s, box-shadow 0.2s;
     cursor: pointer;
 }
@@ -223,13 +222,13 @@
     margin-bottom: 28px;
 }
 .profile-name-display {
-    font-size: 24px;
+    font-size: 32px;        /* было 24px */
     font-weight: 800;
     letter-spacing: 1px;
     color: #fff;
 }
 .edit-icon {
-    font-size: 26px;
+    font-size: 30px;
     color: #888;
     cursor: pointer;
     line-height: 1;
@@ -990,6 +989,7 @@ body {
 .profile-content {
     padding: 0 12px 20px;
     flex: 1;
+    padding-top: 24px;
 }
 /* Единый заголовок экранов */
 .screen-title {
