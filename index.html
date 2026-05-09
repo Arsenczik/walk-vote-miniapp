@@ -1092,6 +1092,9 @@ body {
     transform: none !important;
     border-color: rgba(255, 255, 255, 0.12) !important;
 }
+        .achievement-card {
+    cursor: pointer;
+}
     </style>
 </head>
 <body>
@@ -1453,7 +1456,7 @@ function celebrateAchievement() {
         let achievementsHtml = '';
         if (data.achievements && data.achievements.length) {
             data.achievements.forEach(a => {
-               achievementsHtml += `<div class="achievement-card" onclick="showAchievementDescription('${a.name}', '${a.description || 'Нет описания'}')" style="cursor:pointer;">
+             achievementsHtml += `<div class="achievement-card" onclick="showAchievementDescription('${a.name}', '${a.description || 'Нет описания'}')">
     <span class="ach-emoji">${a.emoji}</span>
     <span class="ach-name">${a.name}</span>
 </div>`;
