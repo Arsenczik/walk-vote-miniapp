@@ -993,15 +993,15 @@ body {
 }
 /* Единый заголовок экранов */
 .screen-title {
-    font-size: 36px;
-    font-weight: 900;
-    letter-spacing: 2px;
+    font-size: 28px;            /* было 36px */
+    font-weight: 800;           /* было 900 */
+    letter-spacing: 1px;        /* было 2px */
     color: #fff;
     text-align: center;
     margin: 0;
     position: relative;
     display: inline-block;
-    white-space: nowrap;            /* ← не даём эмодзи переноситься */
+    white-space: nowrap;
 }
 
 /* Светящаяся полоска под заголовком */
@@ -1025,9 +1025,9 @@ body {
 }
 .screen-header {
     display: grid;
-    grid-template-columns: 48px 1fr 48px;   /* левый отступ под стрелку, центр, правый отступ для симметрии */
+    grid-template-columns: 48px 1fr 48px;
     align-items: center;
-    padding: 16px 12px;
+    padding: 12px 12px 8px;     /* было 16px 12px */
     background: #000;
     position: sticky;
     top: 0;
