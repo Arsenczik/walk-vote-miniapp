@@ -335,8 +335,6 @@
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.12);
 }
         /* --- Статистика --- */
-        #statsScreen { padding-top: 20px; }
-        #statsScreen h1 { font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 30px; }
         .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .leaderboard-table th, .leaderboard-table td { padding: 12px; text-align: left; border-bottom: 1px solid #222; }
         .leaderboard-table th { color: #aaa; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
@@ -1026,19 +1024,20 @@ body {
     z-index: 5;
 }
 .screen-header {
-    display: flex;
+    display: grid;
+    grid-template-columns: 48px 1fr 48px;   /* левый отступ под стрелку, центр, правый отступ для симметрии */
     align-items: center;
     padding: 16px 12px;
     background: #000;
     position: sticky;
     top: 0;
     z-index: 15;
-    justify-content: flex-start;   /* стрелка слева */
 }
 
 .screen-header .back-arrow {
+    grid-column: 1;
+    justify-self: start;
     position: static !important;
-    flex-shrink: 0;               /* не сжимается */
     margin: 0;
     font-size: 28px;
     color: #888;
@@ -1047,12 +1046,13 @@ body {
     border: none;
     padding: 0;
     line-height: 1;
+    flex-shrink: 0;
 }
 
 .screen-header .title-wrapper {
-    flex: 1;                      /* занимает всё свободное место */
+    grid-column: 2;
+    justify-self: center;
     display: flex;
-    justify-content: center;      /* выравниваем заголовок по центру */
     align-items: center;
 }
 
