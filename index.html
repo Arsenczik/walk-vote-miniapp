@@ -1423,7 +1423,7 @@ function celebrateAchievement() {
 }
 
     // --- ПРОФИЛЬ (Загрузка данных) ---
-    async function loadProfileScreen() {
+async function loadProfileScreen() {
     document.getElementById('profileNameDisplay').textContent = userName;
     document.getElementById('profileAvatar').textContent = userEmoji;
     try {
@@ -1432,18 +1432,35 @@ function celebrateAchievement() {
         document.getElementById('profileCreated').textContent = data.stats.created;
         document.getElementById('profileAttended').textContent = data.stats.attended;
 
-        let achievementsHtml = '';
+        const listContainer = document.getElementById('achievementsList');
+        listContainer.innerHTML = ''; // очищаем
+
         if (data.achievements && data.achievements.length) {
             data.achievements.forEach(a => {
-           achievementsHtml += `<div class="achievement-card achievement-card-glass" onclick="showAchievementDescription('${a.name}', '${a.description || 'Нет описания'}')">
-    <span class="ach-emoji">${a.emoji}</span>
-    <span class="ach-name">${a.name}</span>
-</div>`;
+                // Создаём карточку через DOM
+                const card = document.createElement('div');
+                card.className = 'achievement-card';                              // основной класс
+                card.classList.add('achievement-card-glass');                     // наш стеклянный класс
+                card.style.cursor = 'pointer';
+                card.onclick = function() {
+                    showAchievementDescription(a.name, a.description || 'Нет описания');
+                };
+
+                const emoji = document.createElement('span');
+                emoji.className = 'ach-emoji';
+                emoji.textContent = a.emoji;
+
+                const name = document.createElement('span');
+                name.className = 'ach-name';
+                name.textContent = a.name;
+
+                card.appendChild(emoji);
+                card.appendChild(name);
+                listContainer.appendChild(card);
             });
-        } else {   // ← перед else должна быть закрывающая скобка if
-            achievementsHtml = '<p style="color:#666;">Пока нет ачивок. Участвуй в движухах!</p>';
+        } else {
+            listContainer.innerHTML = '<p style="color:#666;">Пока нет ачивок. Участвуй в движухах!</p>';
         }
-        document.getElementById('achievementsList').innerHTML = achievementsHtml;
     } catch(e) {
         document.getElementById('achievementsList').innerHTML = '<p style="color:#666;">Ошибка загрузки ачивок</p>';
     }
