@@ -1061,10 +1061,11 @@ body {
 .collapsible-content {
     margin-top: 12px;
 }
-/* ---- 3D-переворот ачивок ---- */
+        /* ---- 3D-переворот ачивок (фикс высоты) ---- */
 .achievement-flip-container {
-    perspective: 800px;                /* глубина сцены */
-    margin-bottom: 10px;              /* чтобы тени не обрезались */
+    perspective: 800px;
+    height: 62px;                  /* фиксированная высота под 1 строку */
+    margin-bottom: 10px;
 }
 
 .achievement-flipper {
@@ -1075,12 +1076,10 @@ body {
     transform-style: preserve-3d;
 }
 
-/* Перевёрнутое состояние */
 .achievement-flipper.flipped {
     transform: rotateY(180deg);
 }
 
-/* Передняя и задняя стороны */
 .achievement-front,
 .achievement-back {
     position: absolute;
@@ -1088,37 +1087,31 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    backface-visibility: hidden;       /* прячем обратную сторону */
+    backface-visibility: hidden;
     display: flex;
     align-items: center;
     border-radius: 20px;
-    padding: 16px 18px;
+    padding: 0 18px;               /* горизонтальные отступы, вертикальные не нужны */
     box-sizing: border-box;
 }
 
-/* Передняя сторона (исходный вид) */
 .achievement-front {
     background: #000000;
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.03), inset 0 0 8px rgba(0,0,0,0.5);
     cursor: pointer;
+    gap: 14px;
 }
 
-/* Задняя сторона (описание) */
 .achievement-back {
-    background: #050505;               /* чуть темнее / светлее передней */
+    background: #050505;
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: #ccc;
     font-size: 14px;
-    line-height: 1.5;
-    transform: rotateY(180deg);        /* сразу разворачиваем */
+    line-height: 1.4;
+    transform: rotateY(180deg);
     text-align: center;
     justify-content: center;
-}
-        /* Фикс высоты переворачивающихся карточек */
-.achievement-flip-container {
-    min-height: 64px;            /* достаточно для строки с эмодзи 30px + паддинги */
-    margin-bottom: 10px;         /* отступ между карточками */
 }
 
 /* Отступ от кнопки "Выйти из аккаунта" */
