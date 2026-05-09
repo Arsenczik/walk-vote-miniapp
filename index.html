@@ -1061,6 +1061,19 @@ body {
 .collapsible-content {
     margin-top: 12px;
 }
+        /* Стиль для карточек ачивок – гарантированное переопределение */
+#profileScreen .profile-achievements .achievement-card.achievement-card-glass {
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    background: #0a0a0a !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 20px !important;
+    padding: 16px 18px !important;
+    margin-bottom: 10px !important;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.03), inset 0 0 8px rgba(0,0,0,0.5) !important;
+    cursor: pointer;
+}
     </style>
 </head>
 <body>
@@ -1422,7 +1435,7 @@ function celebrateAchievement() {
         let achievementsHtml = '';
         if (data.achievements && data.achievements.length) {
             data.achievements.forEach(a => {
-            achievementsHtml += `<div class="achievement-card" onclick="showAchievementDescription('${a.name}', '${a.description || 'Нет описания'}')" style="display: flex; align-items: center; gap: 14px; background: #0a0a0a; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; padding: 16px 18px; margin-bottom: 10px; box-shadow: 0 0 15px rgba(255, 255, 255, 0.03), inset 0 0 8px rgba(0,0,0,0.5);">
+           achievementsHtml += `<div class="achievement-card achievement-card-glass" onclick="showAchievementDescription('${a.name}', '${a.description || 'Нет описания'}')">
     <span class="ach-emoji">${a.emoji}</span>
     <span class="ach-name">${a.name}</span>
 </div>`;
