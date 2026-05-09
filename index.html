@@ -1062,11 +1062,6 @@ body {
     margin-top: 12px;
 }
 
-    /* Карточки ачивок – как заголовок "Ачивки" */
-#profileScreen .profile-achievements .achievement-card {
-    background: #0a0a0a !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
     </style>
 </head>
 <body>
@@ -1431,15 +1426,14 @@ async function loadProfileScreen() {
         if (data.achievements && data.achievements.length) {
             data.achievements.forEach(a => {
                 const card = document.createElement('div');
-                card.className = 'achievement-card';
                 card.style.display = 'flex';
                 card.style.alignItems = 'center';
                 card.style.gap = '14px';
-                card.style.border = '1px solid rgba(255,255,255,0.1)';
-                card.style.borderRadius = '20px';
-                card.style.padding = '16px 18px';
+                // Только обводка (светло-серая) и скругление — больше НИЧЕГО
+                card.style.border = '1px solid rgba(255, 255, 255, 0.25)';
+                card.style.borderRadius = '18px';
+                card.style.padding = '14px 16px';
                 card.style.marginBottom = '10px';
-                card.style.cursor = 'pointer';
 
                 card.onclick = function() {
                     showAchievementDescription(a.name, a.description || 'Нет описания');
@@ -1450,7 +1444,6 @@ async function loadProfileScreen() {
                 emoji.style.fontSize = '30px';
                 emoji.style.width = '44px';
                 emoji.style.textAlign = 'center';
-                emoji.style.color = '#fff';
 
                 const name = document.createElement('span');
                 name.textContent = a.name;
