@@ -179,7 +179,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 8px;
 }
 .profile-avatar-bg {
     width: 160px;           /* ~1/3 экрана при max-width 500px */
@@ -219,7 +219,7 @@
     align-items: baseline;
     justify-content: center;
     gap: 8px;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
 }
 .profile-name-display {
     font-size: 32px;        /* было 24px */
@@ -1054,7 +1054,39 @@ body {
     display: flex;
     align-items: center;
 }
+/* Складные секции */
+.collapsible-section {
+    margin-bottom: 12px;
+}
 
+.collapsible-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0a0a0a;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-weight: 600;
+    font-size: 16px;
+    color: #ccc;
+    user-select: none;
+}
+
+.collapsible-header:active {
+    background: #1a1a1a;
+}
+
+.collapsible-arrow {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.collapsible-content {
+    margin-top: 10px;
+}
     </style>
 </head>
 <body>
@@ -1137,17 +1169,13 @@ body {
 
     <!-- 5. ЭКРАН ПРОФИЛЯ (ЭЛИТНЫЙ) -->
 <div id="profileScreen" style="display: none;">
-    <!-- Фиксированная шапка (стрелка + заголовок) -->
-   <div class="profile-header screen-header">
-    <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
-    <div class="title-wrapper">
-        <h1 class="screen-title">Профиль</h1>
+    <div class="profile-header screen-header">
+        <button class="back-arrow" onclick="showScreen('mainMenu')">←</button>
+        <div class="title-wrapper">
+            <h1 class="screen-title">Профиль</h1>
+        </div>
     </div>
-</div>
 
-   
-
-    <!-- Скроллируемый контент профиля -->
     <div class="profile-content">
         <div class="profile-container">
             <!-- Аватарка -->
@@ -1162,22 +1190,37 @@ body {
                 <span class="edit-icon" onclick="editProfile()">✎</span>
             </div>
 
-            <!-- Статистика -->
-            <div class="profile-stats-row">
-                <div class="profile-stat-item">
-                    <div class="stat-number" id="profileCreated">0</div>
-                    <div class="stat-label">Создано</div>
+            <!-- Складная секция "Активность" -->
+            <div class="collapsible-section">
+                <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                    <span>📊 Активность</span>
+                    <span class="collapsible-arrow">▼</span>
                 </div>
-                <div class="profile-stat-item">
-                    <div class="stat-number" id="profileAttended">0</div>
-                    <div class="stat-label">Посещено</div>
+                <div class="collapsible-content" style="display: none;">
+                    <div class="profile-stats-row">
+                        <div class="profile-stat-item">
+                            <div class="stat-number" id="profileCreated">0</div>
+                            <div class="stat-label">Создано</div>
+                        </div>
+                        <div class="profile-stat-item">
+                            <div class="stat-number" id="profileAttended">0</div>
+                            <div class="stat-label">Посещено</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Ачивки -->
-            <div class="profile-achievements" id="profileAchievements">
-                <div class="section-title">🏆 Ачивки</div>
-                <div id="achievementsList"></div>
+            <!-- Складная секция "Ачивки" -->
+            <div class="collapsible-section">
+                <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                    <span>🏆 Ачивки</span>
+                    <span class="collapsible-arrow">▼</span>
+                </div>
+                <div class="collapsible-content" style="display: none;">
+                    <div class="profile-achievements" id="profileAchievements">
+                        <div id="achievementsList"></div>
+                    </div>
+                </div>
             </div>
 
             <!-- Кнопка выхода -->
@@ -2257,6 +2300,17 @@ function resetAchievements() {
     menu.addEventListener('touchend', end);
     menu.addEventListener('touchcancel', end);
 })();
+    function toggleCollapsible(header) {
+    const content = header.nextElementSibling;
+    const arrow = header.querySelector('.collapsible-arrow');
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        arrow.textContent = '▲';
+    } else {
+        content.style.display = 'none';
+        arrow.textContent = '▼';
+    }
+}
 </script>
 </body>
 </html>
