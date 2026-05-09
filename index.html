@@ -289,12 +289,17 @@
     align-items: center;
     gap: 14px;
     background: #0a0a0a;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 18px;
-    padding: 14px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    padding: 16px 18px;
     margin-bottom: 10px;
-    box-shadow: 0 0 12px rgba(255, 255, 255, 0.02), inset 0 0 8px rgba(0,0,0,0.5);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.03), inset 0 0 8px rgba(0,0,0,0.5);
     transition: transform 0.2s, border-color 0.2s;
+}
+
+.achievement-card:active {
+    transform: scale(0.98);
+    border-color: rgba(255,255,255,0.25);
 }
 .achievement-card:hover {
     border-color: rgba(255, 255, 255, 0.18);
@@ -1085,7 +1090,7 @@ body {
 }
 
 .collapsible-content {
-    margin-top: 10px;
+    margin-top: 12px;
 }
     </style>
 </head>
