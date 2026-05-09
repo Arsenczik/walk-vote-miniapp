@@ -1034,18 +1034,29 @@ body {
     position: sticky;
     top: 0;
     z-index: 15;
+    position: relative;   /* ← добавляем */
 }
 
 .screen-header .back-arrow {
-    position: static;       /* убираем absolute, чтобы не налезал */
+    position: static !important;   /* уже было */
     margin: 0;
     flex-shrink: 0;
+    font-size: 28px;
+    color: #888;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    line-height: 1;
 }
 
 .screen-header .title-wrapper {
-    flex: 1;
-    display: flex;
-    justify-content: center;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    width: auto;
 }
     </style>
 </head>
