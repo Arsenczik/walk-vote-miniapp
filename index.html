@@ -1420,22 +1420,20 @@ async function loadProfileScreen() {
         document.getElementById('profileAttended').textContent = data.stats.attended;
 
         const listContainer = document.getElementById('achievementsList');
-        listContainer.innerHTML = ''; // очищаем
+        listContainer.innerHTML = '';
 
         if (data.achievements && data.achievements.length) {
             data.achievements.forEach(a => {
-                // Создаём карточку
                 const card = document.createElement('div');
-                card.className = 'achievement-card';   // можно оставить, но стили задаём явно
+                card.className = 'achievement-card';
                 card.style.display = 'flex';
                 card.style.alignItems = 'center';
                 card.style.gap = '14px';
-                // ★ Единственное, что меняем – обводка ★
-                card.style.border = '1px solid #1a1a1a';   // почти чёрная рамка
+                card.style.background = '#0d0d0d';                    // ← фон между черным и обводкой
+                card.style.border = '1px solid #1a1a1a';            // ← почти чёрная обводка
                 card.style.borderRadius = '20px';
                 card.style.padding = '16px 18px';
                 card.style.marginBottom = '10px';
-                // фон, тень и т.д. не задаём – они будут как у родителя или прозрачными
                 card.style.cursor = 'pointer';
 
                 card.onclick = function() {
