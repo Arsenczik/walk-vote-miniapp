@@ -1115,6 +1115,16 @@ body {
     text-align: center;
     justify-content: center;
 }
+        /* Фикс высоты переворачивающихся карточек */
+.achievement-flip-container {
+    min-height: 64px;            /* достаточно для строки с эмодзи 30px + паддинги */
+    margin-bottom: 10px;         /* отступ между карточками */
+}
+
+/* Отступ от кнопки "Выйти из аккаунта" */
+.profile-achievements {
+    padding-bottom: 20px;        /* чтобы последняя ачивка не прилипала к кнопке */
+}
     </style>
 </head>
 <body>
