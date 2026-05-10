@@ -1178,7 +1178,7 @@ body {
 .archive-fab {
     background: transparent;
     border: none;
-    font-size: 44px;            /* крупно, как просили */
+    font-size: 34px;            /* крупно, как просили */
     line-height: 1;
     cursor: pointer;
     padding: 0;
@@ -1195,7 +1195,7 @@ body {
 .archive-hint-fab {
     background: transparent;
     border: none;
-    font-size: 30px;            /* 44 * 2/3 ≈ 29, округлили до 30 */
+    font-size: 24px;            /* 44 * 2/3 ≈ 29, округлили до 30 */
     line-height: 1;
     cursor: pointer;
     color: #fff;
@@ -1544,11 +1544,20 @@ function showScreen(id) {
         return;
     }
 
-    // Открытие архива с анимацией
+   // Открытие архива с анимацией
     if (id === 'archiveScreen' && currentVisible !== 'archiveScreen') {
         if (archiveAnimFrame) cancelAnimationFrame(archiveAnimFrame);
         animateArchiveOpen();
-        // Остальная логика для меню (скролл и т.п.)
+
+        // Меняем иконки на открытую папку и стрелку вниз
+        const fab = document.getElementById('archiveFab');
+        const hint = document.getElementById('archiveHintFab');
+        if (fab) fab.textContent = '📂';
+        if (hint) {
+            hint.textContent = '▼';
+            hint.style.display = 'flex';
+        }
+
         document.body.classList.remove('no-scroll');
         return;
     }
