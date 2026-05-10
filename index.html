@@ -1167,6 +1167,21 @@ body {
 .logout-confirm-btn:active {
     background: #ccc;
 }
+        /* Прижимаем кнопку выхода к низу */
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;          /* растягиваем на всю высоту */
+}
+
+.profile-logout-btn {
+    margin-top: auto;          /* прижимаем к низу */
+}
+        .profile-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
     </style>
 </head>
 <body>
