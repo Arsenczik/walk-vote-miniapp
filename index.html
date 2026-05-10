@@ -1491,13 +1491,6 @@ body {
     let map = null, marker = null;
 
 function showScreen(id) {
-    // Сначала останавливаем любую активную анимацию архива
-    if (archiveAnimFrame) {
-        cancelAnimationFrame(archiveAnimFrame);
-        archiveAnimFrame = null;
-    }
-    archiveAnimActive = false;   // сбрасываем флаг активности
-
     // Определяем текущий видимый экран
     let currentVisible = null;
     ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
@@ -1509,7 +1502,11 @@ function showScreen(id) {
 
     // Закрытие архива с анимацией
     if (currentVisible === 'archiveScreen' && id !== 'archiveScreen') {
+        // Останавливаем возможную текущую анимацию
+        if (archiveAnimFrame) cancelAnimationFrame(archiveAnimFrame);
+        archiveAnimActive = true; // разрешаем анимацию закрытия
         animateArchiveClose(() => {
+            // Показываем целевой экран без анимации
             showScreenFinal(id, true);
         });
         return;
@@ -1517,13 +1514,50 @@ function showScreen(id) {
 
     // Открытие архива с анимацией
     if (id === 'archiveScreen' && currentVisible !== 'archiveScreen') {
+        if (archiveAnimFrame) cancelAnimationFrame(archiveAnimFrame);
         animateArchiveOpen();
-        document.body.classList.remove('no-scroll'); // архив не блокирует скролл
+        // Остальная логика для меню (скролл и т.п.)
+        document.body.classList.remove('no-scroll');
         return;
     }
 
-    // Обычное переключение экранов
+    // Обычное переключение
     showScreenFinal(id, false);
+}
+
+function showScreenFinal(id, skipAnimation) {
+    ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
+        document.getElementById(s).style.display = 'none';
+    });
+
+    const target = document.getElementById(id);
+    if (!target) return;
+    const isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen' || id === 'archiveScreen');
+    target.style.display = isFlex ? 'flex' : 'block';
+
+    // Анимация выезда справа (кроме архива)
+    if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
+        target.classList.add('screen-slide-in');
+        target.addEventListener('animationend', function handler() {
+            target.removeEventListener('animationend', handler);
+            target.classList.remove('screen-slide-in');
+        });
+    }
+
+    // Блокировка скролла для меню
+    if (id === 'mainMenu') {
+        document.body.classList.add('no-scroll');
+    } else {
+        document.body.classList.remove('no-scroll');
+    }
+
+    if (id === 'loginScreen') { startFallingEmojis(); setRandomPlaceholder(); } else stopFallingEmojis();
+    document.getElementById('archiveFab').style.display = (id === 'eventsScreen') ? 'flex' : 'none';
+
+    if (id === 'eventsScreen') loadEvents();
+    if (id === 'profileScreen') loadProfileScreen();
+    if (id === 'statsScreen') loadStatistics();
+    // Архив загружается внутри animateArchiveOpen
 }
 function celebrateAchievement() {
     if (fireworksActive) return;
@@ -2495,46 +2529,41 @@ let archiveAnimFrame = null;
 let archiveAnimActive = false;
 
 function animateArchiveOpen() {
-    // Если уже запущена анимация – не стартуем повторно
-    if (archiveAnimActive) return;
-
     const archive = document.getElementById('archiveScreen');
     const fab = document.querySelector('.archive-fab');
-    if (!archive || !fab) {
-        showScreenFinal('archiveScreen', true);
-        return;
-    }
+    if (!archive || !fab) return showScreenFinal('archiveScreen', true);
 
-    // Скрываем все экраны, показываем только архив
-    ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen'].forEach(s => {
+    // Прячем все экраны, будем показывать только архив
+    ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
         document.getElementById(s).style.display = 'none';
     });
     archive.style.display = 'flex';
     archive.style.willChange = 'transform, opacity, filter';
 
+    // Получаем размеры и позицию кнопки Архива
     const fabRect = fab.getBoundingClientRect();
-    const originX = fabRect.left + fabRect.width / 2;
-    const originY = fabRect.top + fabRect.height / 2;
+    const originX = fabRect.left + fabRect.width / 2;   // центр кнопки по X
+    const originY = fabRect.top + fabRect.height / 2;    // центр кнопки по Y
+    const fabWidth = fabRect.width;
+    const fabHeight = fabRect.height;
 
-    // Начальное состояние – размер и позиция как у кнопки
+    // Начальное состояние: размер как у кнопки, прозрачность 30%, лёгкий блюр
     archive.style.transformOrigin = `${originX}px ${originY}px`;
     archive.style.transform = `translate(${originX}px, ${originY}px) scale(0)`;
-    archive.style.width = `${fabRect.width}px`;
-    archive.style.height = `${fabRect.height}px`;
+    archive.style.width = `${fabWidth}px`;
+    archive.style.height = `${fabHeight}px`;
     archive.style.opacity = '0.3';
     archive.style.filter = 'blur(4px)';
 
-    // Принудительный рефлоу
+    // Форсируем перерасчёт стилей
     archive.getBoundingClientRect();
 
     const startTime = performance.now();
-    const duration = 400; // чуть увеличена длительность для большей мягкости
-
-    archiveAnimActive = true;
+    const duration = 380; // чуть больше для мягкости
 
     function step(timestamp) {
         if (!archiveAnimActive) {
-            // Если анимацию прервали, сбрасываем стили
+            // Если анимацию прервали – сбрасываем
             archive.style.width = '';
             archive.style.height = '';
             archive.style.opacity = '';
@@ -2547,17 +2576,24 @@ function animateArchiveOpen() {
 
         const elapsed = timestamp - startTime;
         const t = Math.min(elapsed / duration, 1);
-        // ease-out cubic
+        // ease-out
         const progress = 1 - Math.pow(1 - t, 3);
 
+        // Масштаб: от 0 → 1
         const scale = progress;
+
+        // Смещение: плавно уходим от translate(originX, originY) к translate(0,0)
         const tx = originX * (1 - progress);
         const ty = originY * (1 - progress);
 
-        const currentW = fabRect.width + (window.innerWidth - fabRect.width) * progress;
-        const currentH = fabRect.height + (window.innerHeight - fabRect.height) * progress;
+        // Размер: начинаем с размеров кнопки, заканчиваем на 100%
+        const currentW = fabWidth + (window.innerWidth - fabWidth) * progress;
+        const currentH = fabHeight + (window.innerHeight - fabHeight) * progress;
 
-        const opacity = t < 0.15 ? 0.3 + (t / 0.15) * 0.7 : 1;
+        // Прозрачность: резко поднимается до 1 за первые 20% времени
+        const opacity = t < 0.2 ? 0.3 + (t / 0.2) * 0.7 : 1;
+
+        // Блюр: уменьшается от 4px до 0
         const blurValue = 4 * (1 - progress);
 
         archive.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
@@ -2569,7 +2605,7 @@ function animateArchiveOpen() {
         if (t < 1) {
             archiveAnimFrame = requestAnimationFrame(step);
         } else {
-            // Финальное состояние
+            // Финальное состояние — возвращаем всё на место
             archive.style.transform = '';
             archive.style.width = '';
             archive.style.height = '';
@@ -2582,12 +2618,11 @@ function animateArchiveOpen() {
         }
     }
 
+    archiveAnimActive = true;
     archiveAnimFrame = requestAnimationFrame(step);
 }
 
 function animateArchiveClose(callback) {
-    if (archiveAnimActive) return; // уже закрывается
-
     const archive = document.getElementById('archiveScreen');
     const fab = document.querySelector('.archive-fab');
     if (!archive || !fab) {
@@ -2595,20 +2630,17 @@ function animateArchiveClose(callback) {
         return;
     }
 
-    // Убеждаемся, что архив в полноэкранном режиме без лишних трансформаций
+    const fabRect = fab.getBoundingClientRect();
+    const targetX = fabRect.left + fabRect.width / 2;
+    const targetY = fabRect.top + fabRect.height / 2;
+
     archive.style.transform = '';
     archive.style.filter = 'blur(0)';
     archive.style.transformOrigin = 'center center';
     archive.style.willChange = 'transform, filter, opacity';
 
-    const fabRect = fab.getBoundingClientRect();
-    const targetX = fabRect.left + fabRect.width / 2;
-    const targetY = fabRect.top + fabRect.height / 2;
-
     const startTime = performance.now();
-    const duration = 250;
-
-    archiveAnimActive = true;
+    const duration = 250; // чуть быстрее при закрытии
 
     function step(timestamp) {
         if (!archiveAnimActive) return;
@@ -2638,6 +2670,7 @@ function animateArchiveClose(callback) {
         }
     }
 
+    archiveAnimActive = true;
     archiveAnimFrame = requestAnimationFrame(step);
 }
 </script>
