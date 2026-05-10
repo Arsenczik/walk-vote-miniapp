@@ -2533,66 +2533,87 @@ function animateArchiveOpen() {
     const fab = document.querySelector('.archive-fab');
     if (!archive || !fab) return showScreenFinal('archiveScreen', true);
 
-    // Прячем все, показываем архив
+    // Прячем все экраны, будем показывать только архив
     ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
         document.getElementById(s).style.display = 'none';
     });
     archive.style.display = 'flex';
-    archive.style.opacity = '1';
-    archive.style.transform = '';
-    archive.style.filter = 'blur(8px)';
-    archive.style.transformOrigin = '0 0';
-    archive.style.willChange = 'transform, filter';
+    archive.style.willChange = 'transform, opacity, filter';
 
-    // Центр кнопки
+    // Получаем размеры и позицию кнопки Архива
     const fabRect = fab.getBoundingClientRect();
-    const originX = fabRect.left + fabRect.width / 2;
-    const originY = fabRect.top + fabRect.height / 2;
+    const originX = fabRect.left + fabRect.width / 2;   // центр кнопки по X
+    const originY = fabRect.top + fabRect.height / 2;    // центр кнопки по Y
+    const fabWidth = fabRect.width;
+    const fabHeight = fabRect.height;
 
-    // Начальное состояние
-    archive.style.transform = `translate(${originX}px, ${originY}px) scale(0)`;
+    // Начальное состояние: размер как у кнопки, прозрачность 30%, лёгкий блюр
     archive.style.transformOrigin = `${originX}px ${originY}px`;
+    archive.style.transform = `translate(${originX}px, ${originY}px) scale(0)`;
+    archive.style.width = `${fabWidth}px`;
+    archive.style.height = `${fabHeight}px`;
+    archive.style.opacity = '0.3';
+    archive.style.filter = 'blur(4px)';
+
+    // Форсируем перерасчёт стилей
+    archive.getBoundingClientRect();
 
     const startTime = performance.now();
-    const duration = 350; // мс
+    const duration = 380; // чуть больше для мягкости
 
     function step(timestamp) {
-        if (!archiveAnimActive) return;
+        if (!archiveAnimActive) {
+            // Если анимацию прервали – сбрасываем
+            archive.style.width = '';
+            archive.style.height = '';
+            archive.style.opacity = '';
+            archive.style.filter = '';
+            archive.style.transform = '';
+            archive.style.transformOrigin = '';
+            archive.style.willChange = '';
+            return;
+        }
+
         const elapsed = timestamp - startTime;
         const t = Math.min(elapsed / duration, 1);
-        // easing: ease-out
+        // ease-out
         const progress = 1 - Math.pow(1 - t, 3);
 
-        // Масштаб от 0 до 1
+        // Масштаб: от 0 → 1
         const scale = progress;
-        // Смещение: на старте translate(originX, originY), в конце translate(0, 0)
+
+        // Смещение: плавно уходим от translate(originX, originY) к translate(0,0)
         const tx = originX * (1 - progress);
         const ty = originY * (1 - progress);
 
-        // Плавно сдвигаем transform-origin к центру экрана на последних 30% анимации
-        if (t > 0.7) {
-            const midProgress = (t - 0.7) / 0.3;
-            const currentOX = originX + ((window.innerWidth / 2) - originX) * midProgress;
-            const currentOY = originY + ((window.innerHeight / 2) - originY) * midProgress;
-            archive.style.transformOrigin = `${currentOX}px ${currentOY}px`;
-        }
+        // Размер: начинаем с размеров кнопки, заканчиваем на 100%
+        const currentW = fabWidth + (window.innerWidth - fabWidth) * progress;
+        const currentH = fabHeight + (window.innerHeight - fabHeight) * progress;
+
+        // Прозрачность: резко поднимается до 1 за первые 20% времени
+        const opacity = t < 0.2 ? 0.3 + (t / 0.2) * 0.7 : 1;
+
+        // Блюр: уменьшается от 4px до 0
+        const blurValue = 4 * (1 - progress);
 
         archive.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-
-        // Блюр
-        const blurValue = 8 * (1 - progress);
+        archive.style.width = `${currentW}px`;
+        archive.style.height = `${currentH}px`;
+        archive.style.opacity = opacity;
         archive.style.filter = `blur(${blurValue}px)`;
 
         if (t < 1) {
             archiveAnimFrame = requestAnimationFrame(step);
         } else {
-            // Финальное состояние
+            // Финальное состояние — возвращаем всё на место
             archive.style.transform = '';
+            archive.style.width = '';
+            archive.style.height = '';
+            archive.style.opacity = '';
             archive.style.filter = '';
             archive.style.transformOrigin = '';
             archive.style.willChange = '';
             archiveAnimActive = false;
-            // Загружаем данные
             loadArchive();
         }
     }
