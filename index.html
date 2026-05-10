@@ -1109,6 +1109,64 @@ body {
 .profile-achievements {
     padding-bottom: 20px;        /* чтобы последняя ачивка не прилипала к кнопке */
 }
+        /* Окно выхода из аккаунта */
+.logout-modal-card {
+    max-width: 340px;
+    padding: 28px 24px;
+    text-align: center;
+    background: #0a0a0a;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 30px rgba(255,255,255,0.04);
+    position: relative;
+}
+
+.logout-modal-text {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 24px 0;
+    color: #fff;
+    line-height: 1.5;
+}
+
+.logout-modal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.logout-cancel-btn {
+    flex: 1;
+    padding: 14px;
+    background: transparent;
+    border: 1px solid #333;
+    border-radius: 14px;
+    color: #ccc;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.logout-cancel-btn:active {
+    background: #1a1a1a;
+}
+
+.logout-confirm-btn {
+    flex: 1;
+    padding: 14px;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.logout-confirm-btn:active {
+    background: #ccc;
+}
     </style>
 </head>
 <body>
@@ -1283,13 +1341,14 @@ body {
         </div>
         <div class="events-grid" id="archiveGrid" style="padding: 0 12px; overflow-y: auto; flex: 1;"><p>Загрузка...</p></div>
     </div>
-    <!-- ОКНО ПОДТВЕРЖДЕНИЯ ВЫХОДА -->
+  <!-- ОКНО ПОДТВЕРЖДЕНИЯ ВЫХОДА (СТИЛЬНОЕ) -->
     <div class="modal-overlay" id="logoutModal" style="display: none;">
-        <div class="modal-card" style="max-width: 320px; padding: 24px; text-align: center;">
-            <p style="font-size: 16px; font-weight: 600; margin: 0 0 20px 0; color: #fff;">Ты уверен, что хочешь выйти из аккаунта?</p>
-            <div style="display: flex; gap: 10px;">
-                <button id="confirmLogoutBtn" style="flex: 1; padding: 14px; background: #fff; color: #000; border: none; border-radius: 14px; font-weight: 700; font-size: 16px; cursor: pointer;">Выйти</button>
-                <button id="cancelLogoutBtn" style="flex: 1; padding: 14px; background: transparent; border: 1px solid #333; border-radius: 14px; color: #ccc; font-size: 16px; font-weight: 600; cursor: pointer;">Отмена</button>
+        <div class="modal-card logout-modal-card">
+            <button class="modal-close-btn" id="closeLogoutModalBtn">✕</button>
+            <p class="logout-modal-text">Ты уверен, что хочешь выйти из аккаунта?</p>
+            <div class="logout-modal-actions">
+                <button id="cancelLogoutBtn" class="logout-cancel-btn">Отмена</button>
+                <button id="confirmLogoutBtn" class="logout-confirm-btn">Выйти</button>
             </div>
         </div>
     </div>
@@ -1611,43 +1670,40 @@ async function loadProfileScreen() {
         localStorage.setItem('achievement_welcome_shown', '2');
     }
 }
-    function logout() {
+function logout() {
     const modal = document.getElementById('logoutModal');
     const confirmBtn = document.getElementById('confirmLogoutBtn');
     const cancelBtn = document.getElementById('cancelLogoutBtn');
+    const closeBtn = document.getElementById('closeLogoutModalBtn');
 
-    // Показываем окно
     modal.style.display = 'flex';
 
-    // Обработчик для кнопки "Выйти"
     const handleConfirm = () => {
         ['userName','userId','userEmoji'].forEach(k => localStorage.removeItem(k));
         userName = 'Гость'; userEmoji = '👤'; USER_NAMES = {};
         modal.style.display = 'none';
         showScreen('loginScreen');
-        // Удаляем обработчики, чтобы избежать утечек памяти
-        confirmBtn.removeEventListener('click', handleConfirm);
-        cancelBtn.removeEventListener('click', handleCancel);
+        cleanup();
     };
 
-    // Обработчик для кнопки "Отмена"
     const handleCancel = () => {
         modal.style.display = 'none';
-        confirmBtn.removeEventListener('click', handleConfirm);
-        cancelBtn.removeEventListener('click', handleCancel);
+        cleanup();
     };
 
-    // Привязываем обработчики
+    const cleanup = () => {
+        confirmBtn.removeEventListener('click', handleConfirm);
+        cancelBtn.removeEventListener('click', handleCancel);
+        if (closeBtn) closeBtn.removeEventListener('click', handleCancel);
+        modal.onclick = null;
+    };
+
     confirmBtn.addEventListener('click', handleConfirm);
     cancelBtn.addEventListener('click', handleCancel);
+    if (closeBtn) closeBtn.addEventListener('click', handleCancel);
 
-    // Закрытие по клику на фон (оверлей)
     modal.onclick = function(e) {
-        if (e.target === modal) {
-            modal.style.display = 'none';
-            confirmBtn.removeEventListener('click', handleConfirm);
-            cancelBtn.removeEventListener('click', handleCancel);
-        }
+        if (e.target === modal) handleCancel();
     };
 }
     function initUser() {
