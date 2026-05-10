@@ -1171,24 +1171,14 @@ body {
     100% { transform: translateX(0); opacity: 1; }
 }
 
-/* Анимация "растягивания" для Архива (zoom in) */
-.archive-zoom-in {
-    animation: archiveZoomIn 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+/* Лёгкий блюр для анимации архива */
+.archive-blur {
+    animation: archiveBlurIn 0.35s ease-out forwards;
 }
 
-@keyframes archiveZoomIn {
-    0%   { transform: scale(0.2); opacity: 0.7; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-/* Анимация "сжатия" для Архива (zoom out) – будет вызываться из JS */
-.archive-zoom-out {
-    animation: archiveZoomOut 0.25s ease-in forwards;
-}
-
-@keyframes archiveZoomOut {
-    0%   { transform: scale(1); opacity: 1; }
-    100% { transform: scale(0.2); opacity: 0; }
+@keyframes archiveBlurIn {
+    0%   { filter: blur(8px); }
+    100% { filter: blur(0); }
 }
     </style>
 </head>
@@ -1501,7 +1491,7 @@ body {
     let map = null, marker = null;
 
 function showScreen(id) {
-    // Получаем предыдущий экран (тот, который сейчас показан)
+    // Определяем текущий видимый экран
     let currentVisible = null;
     ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
         const el = document.getElementById(s);
@@ -1510,54 +1500,32 @@ function showScreen(id) {
         }
     });
 
-    // Если мы переходим с Архива на другой экран – сначала проигрываем анимацию закрытия архива
+    // Закрытие архива с анимацией
     if (currentVisible === 'archiveScreen' && id !== 'archiveScreen') {
-        const archiveEl = document.getElementById('archiveScreen');
-        archiveEl.classList.add('archive-zoom-out');
-
-        archiveEl.addEventListener('animationend', function handler() {
-            archiveEl.removeEventListener('animationend', handler);
-            archiveEl.classList.remove('archive-zoom-out');
-            archiveEl.style.display = 'none';
-            // Теперь показываем целевой экран БЕЗ анимации
-            showScreenFinal(id, true); // второй аргумент = skipAnimation
-        });
-
-        // Немедленно скрываем все остальные (кроме архива, который сейчас анимируется)
-        ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen'].forEach(s => {
-            document.getElementById(s).style.display = 'none';
+        // Останавливаем возможную текущую анимацию
+        if (archiveAnimFrame) cancelAnimationFrame(archiveAnimFrame);
+        archiveAnimActive = true; // разрешаем анимацию закрытия
+        animateArchiveClose(() => {
+            // Показываем целевой экран без анимации
+            showScreenFinal(id, true);
         });
         return;
     }
 
-    // Если мы открываем Архив, а сейчас видно что-то другое – сначала убираем старый экран, затем показываем архив с анимацией
+    // Открытие архива с анимацией
     if (id === 'archiveScreen' && currentVisible !== 'archiveScreen') {
-        // Скрываем все, кроме будущего архива
-        ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
-            document.getElementById(s).style.display = 'none';
-        });
-        // Показываем архив
-        const archiveEl = document.getElementById('archiveScreen');
-        archiveEl.style.display = 'flex';
-        archiveEl.classList.add('archive-zoom-in');
-        archiveEl.addEventListener('animationend', function handler() {
-            archiveEl.removeEventListener('animationend', handler);
-            archiveEl.classList.remove('archive-zoom-in');
-        });
-        // Остальная логика (управление скроллом, загрузка данных)
-        if (id === 'mainMenu') { document.body.classList.add('no-scroll'); } else { document.body.classList.remove('no-scroll'); }
-        if (id === 'loginScreen') { startFallingEmojis(); setRandomPlaceholder(); } else stopFallingEmojis();
-        document.getElementById('archiveFab').style.display = (id === 'eventsScreen') ? 'flex' : 'none';
-        loadArchive();
+        if (archiveAnimFrame) cancelAnimationFrame(archiveAnimFrame);
+        animateArchiveOpen();
+        // Остальная логика для меню (скролл и т.п.)
+        document.body.classList.remove('no-scroll');
         return;
     }
 
-    // Обычное переключение (без специальных анимаций архива)
+    // Обычное переключение
     showScreenFinal(id, false);
 }
 
 function showScreenFinal(id, skipAnimation) {
-    // Скрываем все экраны
     ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
         document.getElementById(s).style.display = 'none';
     });
@@ -1567,7 +1535,7 @@ function showScreenFinal(id, skipAnimation) {
     const isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen' || id === 'archiveScreen');
     target.style.display = isFlex ? 'flex' : 'block';
 
-    // Добавляем анимацию выезда справа, если не нужно пропускать
+    // Анимация выезда справа (кроме архива)
     if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
         target.classList.add('screen-slide-in');
         target.addEventListener('animationend', function handler() {
@@ -1583,17 +1551,13 @@ function showScreenFinal(id, skipAnimation) {
         document.body.classList.remove('no-scroll');
     }
 
-    // Запуск/остановка эмодзи
     if (id === 'loginScreen') { startFallingEmojis(); setRandomPlaceholder(); } else stopFallingEmojis();
-
-    // Управление кнопкой архива
     document.getElementById('archiveFab').style.display = (id === 'eventsScreen') ? 'flex' : 'none';
 
-    // Загрузка данных
     if (id === 'eventsScreen') loadEvents();
     if (id === 'profileScreen') loadProfileScreen();
     if (id === 'statsScreen') loadStatistics();
-    if (id === 'archiveScreen') loadArchive();
+    // Архив загружается внутри animateArchiveOpen
 }
 function celebrateAchievement() {
     if (fireworksActive) return;
@@ -2557,6 +2521,136 @@ function resetAchievements() {
         content.style.display = 'none';
         arrow.textContent = '▼';
     }
+}
+    // ═══════════════════════════════════════
+// АНИМАЦИЯ АРХИВА (из кнопки + блюр)
+// ═══════════════════════════════════════
+let archiveAnimFrame = null;
+let archiveAnimActive = false;
+
+function animateArchiveOpen() {
+    const archive = document.getElementById('archiveScreen');
+    const fab = document.querySelector('.archive-fab');
+    if (!archive || !fab) return showScreenFinal('archiveScreen', true);
+
+    // Прячем все, показываем архив
+    ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
+        document.getElementById(s).style.display = 'none';
+    });
+    archive.style.display = 'flex';
+    archive.style.opacity = '1';
+    archive.style.transform = '';
+    archive.style.filter = 'blur(8px)';
+    archive.style.transformOrigin = '0 0';
+    archive.style.willChange = 'transform, filter';
+
+    // Центр кнопки
+    const fabRect = fab.getBoundingClientRect();
+    const originX = fabRect.left + fabRect.width / 2;
+    const originY = fabRect.top + fabRect.height / 2;
+
+    // Начальное состояние
+    archive.style.transform = `translate(${originX}px, ${originY}px) scale(0)`;
+    archive.style.transformOrigin = `${originX}px ${originY}px`;
+
+    const startTime = performance.now();
+    const duration = 350; // мс
+
+    function step(timestamp) {
+        if (!archiveAnimActive) return;
+        const elapsed = timestamp - startTime;
+        const t = Math.min(elapsed / duration, 1);
+        // easing: ease-out
+        const progress = 1 - Math.pow(1 - t, 3);
+
+        // Масштаб от 0 до 1
+        const scale = progress;
+        // Смещение: на старте translate(originX, originY), в конце translate(0, 0)
+        const tx = originX * (1 - progress);
+        const ty = originY * (1 - progress);
+
+        // Плавно сдвигаем transform-origin к центру экрана на последних 30% анимации
+        if (t > 0.7) {
+            const midProgress = (t - 0.7) / 0.3;
+            const currentOX = originX + ((window.innerWidth / 2) - originX) * midProgress;
+            const currentOY = originY + ((window.innerHeight / 2) - originY) * midProgress;
+            archive.style.transformOrigin = `${currentOX}px ${currentOY}px`;
+        }
+
+        archive.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+
+        // Блюр
+        const blurValue = 8 * (1 - progress);
+        archive.style.filter = `blur(${blurValue}px)`;
+
+        if (t < 1) {
+            archiveAnimFrame = requestAnimationFrame(step);
+        } else {
+            // Финальное состояние
+            archive.style.transform = '';
+            archive.style.filter = '';
+            archive.style.transformOrigin = '';
+            archive.style.willChange = '';
+            archiveAnimActive = false;
+            // Загружаем данные
+            loadArchive();
+        }
+    }
+
+    archiveAnimActive = true;
+    archiveAnimFrame = requestAnimationFrame(step);
+}
+
+function animateArchiveClose(callback) {
+    const archive = document.getElementById('archiveScreen');
+    const fab = document.querySelector('.archive-fab');
+    if (!archive || !fab) {
+        if (callback) callback();
+        return;
+    }
+
+    const fabRect = fab.getBoundingClientRect();
+    const targetX = fabRect.left + fabRect.width / 2;
+    const targetY = fabRect.top + fabRect.height / 2;
+
+    archive.style.transform = '';
+    archive.style.filter = 'blur(0)';
+    archive.style.transformOrigin = 'center center';
+    archive.style.willChange = 'transform, filter, opacity';
+
+    const startTime = performance.now();
+    const duration = 250; // чуть быстрее при закрытии
+
+    function step(timestamp) {
+        if (!archiveAnimActive) return;
+        const elapsed = timestamp - startTime;
+        const t = Math.min(elapsed / duration, 1);
+        const progress = 1 - Math.pow(1 - t, 3);
+
+        const scale = 1 - progress;
+        const tx = targetX * progress;
+        const ty = targetY * progress;
+
+        archive.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+        archive.style.filter = `blur(${8 * progress}px)`;
+        archive.style.opacity = `${1 - progress}`;
+
+        if (t < 1) {
+            archiveAnimFrame = requestAnimationFrame(step);
+        } else {
+            archive.style.display = 'none';
+            archive.style.transform = '';
+            archive.style.filter = '';
+            archive.style.opacity = '';
+            archive.style.transformOrigin = '';
+            archive.style.willChange = '';
+            archiveAnimActive = false;
+            if (callback) callback();
+        }
+    }
+
+    archiveAnimActive = true;
+    archiveAnimFrame = requestAnimationFrame(step);
 }
 </script>
 </body>
