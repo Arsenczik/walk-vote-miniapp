@@ -1573,8 +1573,9 @@ function showScreenFinal(id, skipAnimation) {
     ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
         document.getElementById(s).style.display = 'none';
     });
-
+    
     document.getElementById('createForm').style.display = 'none';
+    
     const target = document.getElementById(id);
     if (!target) return;
     const isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen' || id === 'archiveScreen');
