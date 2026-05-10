@@ -18,24 +18,6 @@
         #onboardingScreen, #loginScreen, #mainMenu, #eventsScreen, #profileScreen, #statsScreen {
     display: none;
 }
-        /* Анимация как в Telegram: выезд справа налево */
-#eventsScreen,
-#profileScreen,
-#statsScreen,
-#archiveScreen {
-    animation: slideInRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
-}
-
-@keyframes slideInRight {
-    0% {
-        transform: translateX(100%);
-        opacity: 1;
-    }
-    100% {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
 
 
         /* --- Онбординг --- */
@@ -1179,6 +1161,35 @@ body {
     flex-direction: column;
     flex: 1;
 }
+        /* Анимация выезда справа (События, Профиль, Статистика) */
+.screen-slide-in {
+    animation: slideInRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+
+@keyframes slideInRight {
+    0%   { transform: translateX(100%); opacity: 1; }
+    100% { transform: translateX(0); opacity: 1; }
+}
+
+/* Анимация "растягивания" для Архива (zoom in) */
+.archive-zoom-in {
+    animation: archiveZoomIn 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+@keyframes archiveZoomIn {
+    0%   { transform: scale(0.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Анимация "сжатия" для Архива (zoom out) – будет вызываться из JS */
+.archive-zoom-out {
+    animation: archiveZoomOut 0.25s ease-in forwards;
+}
+
+@keyframes archiveZoomOut {
+    0%   { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0.2); opacity: 0; }
+}
     </style>
 </head>
 <body>
@@ -1489,29 +1500,96 @@ body {
     let selectedLat = null, selectedLng = null;
     let map = null, marker = null;
 
-    
-  function showScreen(id) {
+function showScreen(id) {
+    // Получаем предыдущий экран (тот, который сейчас показан)
+    let currentVisible = null;
+    ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
+        const el = document.getElementById(s);
+        if (el.style.display !== 'none' && el.style.display !== '') {
+            currentVisible = s;
+        }
+    });
+
+    // Если мы переходим с Архива на другой экран – сначала проигрываем анимацию закрытия архива
+    if (currentVisible === 'archiveScreen' && id !== 'archiveScreen') {
+        const archiveEl = document.getElementById('archiveScreen');
+        archiveEl.classList.add('archive-zoom-out');
+
+        archiveEl.addEventListener('animationend', function handler() {
+            archiveEl.removeEventListener('animationend', handler);
+            archiveEl.classList.remove('archive-zoom-out');
+            archiveEl.style.display = 'none';
+            // Теперь показываем целевой экран БЕЗ анимации
+            showScreenFinal(id, true); // второй аргумент = skipAnimation
+        });
+
+        // Немедленно скрываем все остальные (кроме архива, который сейчас анимируется)
+        ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen'].forEach(s => {
+            document.getElementById(s).style.display = 'none';
+        });
+        return;
+    }
+
+    // Если мы открываем Архив, а сейчас видно что-то другое – сначала убираем старый экран, затем показываем архив с анимацией
+    if (id === 'archiveScreen' && currentVisible !== 'archiveScreen') {
+        // Скрываем все, кроме будущего архива
+        ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
+            document.getElementById(s).style.display = 'none';
+        });
+        // Показываем архив
+        const archiveEl = document.getElementById('archiveScreen');
+        archiveEl.style.display = 'flex';
+        archiveEl.classList.add('archive-zoom-in');
+        archiveEl.addEventListener('animationend', function handler() {
+            archiveEl.removeEventListener('animationend', handler);
+            archiveEl.classList.remove('archive-zoom-in');
+        });
+        // Остальная логика (управление скроллом, загрузка данных)
+        if (id === 'mainMenu') { document.body.classList.add('no-scroll'); } else { document.body.classList.remove('no-scroll'); }
+        if (id === 'loginScreen') { startFallingEmojis(); setRandomPlaceholder(); } else stopFallingEmojis();
+        document.getElementById('archiveFab').style.display = (id === 'eventsScreen') ? 'flex' : 'none';
+        loadArchive();
+        return;
+    }
+
+    // Обычное переключение (без специальных анимаций архива)
+    showScreenFinal(id, false);
+}
+
+function showScreenFinal(id, skipAnimation) {
+    // Скрываем все экраны
     ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
         document.getElementById(s).style.display = 'none';
     });
-    let target = document.getElementById(id);
+
+    const target = document.getElementById(id);
     if (!target) return;
-    let isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen' || id === 'archiveScreen');
+    const isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen' || id === 'archiveScreen');
     target.style.display = isFlex ? 'flex' : 'block';
 
-    
+    // Добавляем анимацию выезда справа, если не нужно пропускать
+    if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
+        target.classList.add('screen-slide-in');
+        target.addEventListener('animationend', function handler() {
+            target.removeEventListener('animationend', handler);
+            target.classList.remove('screen-slide-in');
+        });
+    }
 
-  if (id === 'mainMenu') {
+    // Блокировка скролла для меню
+    if (id === 'mainMenu') {
         document.body.classList.add('no-scroll');
     } else {
         document.body.classList.remove('no-scroll');
     }
-    
-    
+
+    // Запуск/остановка эмодзи
     if (id === 'loginScreen') { startFallingEmojis(); setRandomPlaceholder(); } else stopFallingEmojis();
 
+    // Управление кнопкой архива
     document.getElementById('archiveFab').style.display = (id === 'eventsScreen') ? 'flex' : 'none';
 
+    // Загрузка данных
     if (id === 'eventsScreen') loadEvents();
     if (id === 'profileScreen') loadProfileScreen();
     if (id === 'statsScreen') loadStatistics();
