@@ -1159,69 +1159,55 @@ body {
     0%   { filter: blur(8px); }
     100% { filter: blur(0); }
 }
-        /* Контейнер для плавающих кнопок архива (подсказка + основная) */
+    
+/* Контейнер кнопок архива (прозрачный, без рамок) */
 .archive-controls {
     position: fixed;
-    bottom: 24px;
+    bottom: 30px;
     right: 24px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    z-index: 100; /* поверх всего */
-}
-
-/* Кнопка-подсказка (стрелка вверх) */
-.archive-hint-fab {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    background: #1a1a1a;
-    border: 1px solid rgba(255,255,255,0.25);
-    color: #fff;
-    font-size: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.archive-hint-fab:active {
-    background: #fff;
-    color: #000;
-    border-color: #fff;
-}
-
- .archive-fab {
-    width: 52px;
-    height: 52px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    gap: 10px;
+    z-index: 100;
     background: transparent;
     border: none;
-    color: #aaa;
-    font-size: 24px;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
     padding: 0;
+}
+
+/* Кнопка-ящик – большой эмодзи */
+.archive-fab {
+    background: transparent;
+    border: none;
+    font-size: 44px;            /* крупно, как просили */
     line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    color: #fff;
+    transition: transform 0.2s;
     outline: none;
+    -webkit-tap-highlight-color: transparent;
 }
 .archive-fab:active {
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
-}       
-        
-/* Кнопка сворачивания архива (в шапке) */
-.collapse-archive-btn {
-    background: none;
-    border: none;
-    color: #888;
-    font-size: 28px;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
+    transform: scale(0.92);
 }
+
+/* Подсказка – ~2/3 от размера ящика */
+.archive-hint-fab {
+    background: transparent;
+    border: none;
+    font-size: 30px;            /* 44 * 2/3 ≈ 29, округлили до 30 */
+    line-height: 1;
+    cursor: pointer;
+    color: #fff;
+    padding: 0;
+    transition: transform 0.2s;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+.archive-hint-fab:active {
+    transform: scale(0.9);
+}
+
     </style>
 </head>
 <body>
@@ -1389,7 +1375,7 @@ body {
    <!-- 7. ЭКРАН АРХИВА -->
     <div id="archiveScreen" style="display: none;">
        <div class="screen-header">
-    <button class="collapse-archive-btn" id="collapseArchiveBtn" onclick="closeArchive()">🔽</button>
+    <div></div>   <!-- пустая ячейка для симметрии сетки -->
     <div class="title-wrapper">
         <h1 class="screen-title">Архив</h1>
     </div>
@@ -1409,7 +1395,7 @@ body {
 </div>
 
 <div class="archive-controls" id="archiveControls" style="display: none;">
-    <button class="archive-hint-fab" id="archiveHintFab" onclick="openArchive()">▲</button>
+    <button class="archive-hint-fab" id="archiveHintFab" onclick="toggleArchive()">▲</button>
     <button class="archive-fab" id="archiveFab" onclick="toggleArchive()">📦</button>
 </div>
     
@@ -1606,12 +1592,14 @@ const archiveHintFab = document.getElementById('archiveHintFab');
 
 if (id === 'eventsScreen') {
     archiveControls.style.display = 'flex';
-    archiveFab.textContent = '📦';
+    archiveFab.textContent = '📁';
     archiveHintFab.style.display = 'flex';
+    archiveHintFab.textContent = '▲';
 } else if (id === 'archiveScreen') {
     archiveControls.style.display = 'flex';
-    archiveFab.textContent = '🔽';          // стрелка вниз, показываем возможность свернуть
-    archiveHintFab.style.display = 'none';  // подсказку прячем, т.к. архив уже открыт
+    archiveFab.textContent = '📂';    // открытая коробка
+    archiveHintFab.style.display = 'flex';
+    archiveHintFab.textContent = '▼';
 } else {
     archiveControls.style.display = 'none';
 }
