@@ -1341,10 +1341,9 @@ body {
         </div>
         <div class="events-grid" id="archiveGrid" style="padding: 0 12px; overflow-y: auto; flex: 1;"><p>Загрузка...</p></div>
     </div>
-  <!-- ОКНО ПОДТВЕРЖДЕНИЯ ВЫХОДА (СТИЛЬНОЕ) -->
+<!-- ОКНО ПОДТВЕРЖДЕНИЯ ВЫХОДА (СТИЛЬНОЕ) -->
     <div class="modal-overlay" id="logoutModal" style="display: none;">
         <div class="modal-card logout-modal-card">
-            <button class="modal-close-btn" id="closeLogoutModalBtn">✕</button>
             <p class="logout-modal-text">Ты уверен, что хочешь выйти из аккаунта?</p>
             <div class="logout-modal-actions">
                 <button id="cancelLogoutBtn" class="logout-cancel-btn">Отмена</button>
@@ -1674,7 +1673,6 @@ function logout() {
     const modal = document.getElementById('logoutModal');
     const confirmBtn = document.getElementById('confirmLogoutBtn');
     const cancelBtn = document.getElementById('cancelLogoutBtn');
-    const closeBtn = document.getElementById('closeLogoutModalBtn');
 
     modal.style.display = 'flex';
 
@@ -1694,13 +1692,11 @@ function logout() {
     const cleanup = () => {
         confirmBtn.removeEventListener('click', handleConfirm);
         cancelBtn.removeEventListener('click', handleCancel);
-        if (closeBtn) closeBtn.removeEventListener('click', handleCancel);
         modal.onclick = null;
     };
 
     confirmBtn.addEventListener('click', handleConfirm);
     cancelBtn.addEventListener('click', handleCancel);
-    if (closeBtn) closeBtn.addEventListener('click', handleCancel);
 
     modal.onclick = function(e) {
         if (e.target === modal) handleCancel();
