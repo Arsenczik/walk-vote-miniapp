@@ -1180,6 +1180,48 @@ body {
     0%   { filter: blur(8px); }
     100% { filter: blur(0); }
 }
+        /* Контейнер для плавающих кнопок архива (подсказка + основная) */
+.archive-controls {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 100; /* поверх всего */
+}
+
+/* Кнопка-подсказка (стрелка вверх) */
+.archive-hint-fab {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: #1a1a1a;
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #aaa;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.archive-hint-fab:active {
+    background: #fff;
+    color: #000;
+    border-color: #fff;
+}
+
+/* Кнопка сворачивания архива (в шапке) */
+.collapse-archive-btn {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
     </style>
 </head>
 <body>
@@ -1346,12 +1388,12 @@ body {
 
    <!-- 7. ЭКРАН АРХИВА -->
     <div id="archiveScreen" style="display: none;">
-        <div class="screen-header">
-            <button class="back-arrow" onclick="showScreen('eventsScreen')">←</button>
-            <div class="title-wrapper">
-                <h1 class="screen-title">Архив</h1>
-            </div>
-        </div>
+       <div class="screen-header">
+    <button class="collapse-archive-btn" id="collapseArchiveBtn" onclick="closeArchive()">🔽</button>
+    <div class="title-wrapper">
+        <h1 class="screen-title">Архив</h1>
+    </div>
+</div>
         <div class="events-grid" id="archiveGrid" style="padding: 0 12px; overflow-y: auto; flex: 1;"><p>Загрузка...</p></div>
     </div>
 <!-- ОКНО ПОДТВЕРЖДЕНИЯ ВЫХОДА (СТИЛЬНОЕ) -->
@@ -1366,8 +1408,10 @@ body {
     </div>
 </div>
 
-<button class="archive-fab" id="archiveFab" onclick="showScreen('archiveScreen')" style="display: none;">📦</button>
- <div class="create-form" id="createForm" style="display: none;">
+<div class="archive-controls" id="archiveControls" style="display: none;">
+    <button class="archive-hint-fab" id="archiveHintFab" onclick="openArchive()">🔼</button>
+    <button class="archive-fab" id="archiveFab" onclick="toggleArchive()">📦</button>
+</div>
     <div class="form-card" id="formCard">
         <!-- Шаг 1: Название и описание -->
         <div class="form-step active" id="step1">
@@ -1552,8 +1596,21 @@ function showScreenFinal(id, skipAnimation) {
     }
 
     if (id === 'loginScreen') { startFallingEmojis(); setRandomPlaceholder(); } else stopFallingEmojis();
-    document.getElementById('archiveFab').style.display = (id === 'eventsScreen') ? 'flex' : 'none';
+   const archiveControls = document.getElementById('archiveControls');
+const archiveFab = document.getElementById('archiveFab');
+const archiveHintFab = document.getElementById('archiveHintFab');
 
+if (id === 'eventsScreen') {
+    archiveControls.style.display = 'flex';
+    archiveFab.textContent = '📦';
+    archiveHintFab.style.display = 'flex';
+} else if (id === 'archiveScreen') {
+    archiveControls.style.display = 'flex';
+    archiveFab.textContent = '🔽';          // стрелка вниз, показываем возможность свернуть
+    archiveHintFab.style.display = 'none';  // подсказку прячем, т.к. архив уже открыт
+} else {
+    archiveControls.style.display = 'none';
+}
     if (id === 'eventsScreen') loadEvents();
     if (id === 'profileScreen') loadProfileScreen();
     if (id === 'statsScreen') loadStatistics();
@@ -2527,6 +2584,25 @@ function resetAchievements() {
 // ═══════════════════════════════════════
 let archiveAnimFrame = null;
 let archiveAnimActive = false;
+
+    function toggleArchive() {
+    const archive = document.getElementById('archiveScreen');
+    if (archive && archive.style.display === 'flex') {
+        // архив открыт – закрываем
+        closeArchive();
+    } else {
+        // архив закрыт – открываем
+        openArchive();
+    }
+}
+
+function openArchive() {
+    showScreen('archiveScreen');
+}
+
+function closeArchive() {
+    showScreen('eventsScreen');
+}
 
 function animateArchiveOpen() {
     const archive = document.getElementById('archiveScreen');
