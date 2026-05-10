@@ -1283,6 +1283,16 @@ body {
         </div>
         <div class="events-grid" id="archiveGrid" style="padding: 0 12px; overflow-y: auto; flex: 1;"><p>Загрузка...</p></div>
     </div>
+    <!-- ОКНО ПОДТВЕРЖДЕНИЯ ВЫХОДА -->
+    <div class="modal-overlay" id="logoutModal" style="display: none;">
+        <div class="modal-card" style="max-width: 320px; padding: 24px; text-align: center;">
+            <p style="font-size: 16px; font-weight: 600; margin: 0 0 20px 0; color: #fff;">Ты уверен, что хочешь выйти из аккаунта?</p>
+            <div style="display: flex; gap: 10px;">
+                <button id="confirmLogoutBtn" style="flex: 1; padding: 14px; background: #fff; color: #000; border: none; border-radius: 14px; font-weight: 700; font-size: 16px; cursor: pointer;">Выйти</button>
+                <button id="cancelLogoutBtn" style="flex: 1; padding: 14px; background: transparent; border: 1px solid #333; border-radius: 14px; color: #ccc; font-size: 16px; font-weight: 600; cursor: pointer;">Отмена</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <button class="archive-fab" id="archiveFab" onclick="showScreen('archiveScreen')" style="display: none;">📦</button>
@@ -1602,10 +1612,44 @@ async function loadProfileScreen() {
     }
 }
     function logout() {
+    const modal = document.getElementById('logoutModal');
+    const confirmBtn = document.getElementById('confirmLogoutBtn');
+    const cancelBtn = document.getElementById('cancelLogoutBtn');
+
+    // Показываем окно
+    modal.style.display = 'flex';
+
+    // Обработчик для кнопки "Выйти"
+    const handleConfirm = () => {
         ['userName','userId','userEmoji'].forEach(k => localStorage.removeItem(k));
         userName = 'Гость'; userEmoji = '👤'; USER_NAMES = {};
+        modal.style.display = 'none';
         showScreen('loginScreen');
-    }
+        // Удаляем обработчики, чтобы избежать утечек памяти
+        confirmBtn.removeEventListener('click', handleConfirm);
+        cancelBtn.removeEventListener('click', handleCancel);
+    };
+
+    // Обработчик для кнопки "Отмена"
+    const handleCancel = () => {
+        modal.style.display = 'none';
+        confirmBtn.removeEventListener('click', handleConfirm);
+        cancelBtn.removeEventListener('click', handleCancel);
+    };
+
+    // Привязываем обработчики
+    confirmBtn.addEventListener('click', handleConfirm);
+    cancelBtn.addEventListener('click', handleCancel);
+
+    // Закрытие по клику на фон (оверлей)
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            confirmBtn.removeEventListener('click', handleConfirm);
+            cancelBtn.removeEventListener('click', handleCancel);
+        }
+    };
+}
     function initUser() {
         let savedName = localStorage.getItem('userName');
         if (savedName) {
