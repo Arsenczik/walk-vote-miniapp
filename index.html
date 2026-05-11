@@ -1214,6 +1214,11 @@ body {
         .archive-fab, .archive-hint-fab {
     transition: transform 0.2s, opacity 0.2s;
 }
+        #archiveGrid {
+    flex: 0 1 auto;   /* не растягиваться */
+    align-self: flex-start; /* не тянуться по высоте родителя */
+    max-height: none; /* убрать возможное ограничение */
+}
 
     </style>
 </head>
