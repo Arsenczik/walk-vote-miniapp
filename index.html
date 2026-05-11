@@ -1241,6 +1241,13 @@ body {
     margin-right: -12px;
     width: auto;
 }
+        .screen-slide-out {
+    animation: slideOutRight 0.4s cubic-bezier(0.6, 0, 1, 0.7) forwards;
+}
+@keyframes slideOutRight {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(100%); }
+}
     </style>
 </head>
 <body>
@@ -1618,7 +1625,30 @@ function showScreen(id) {
         return;
     }
 
-    // Обычное переключение
+// Возврат в главное меню с анимацией slide-out
+    if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includes(currentVisible)) {
+        const currentEl = document.getElementById(currentVisible);
+        const menu = document.getElementById('mainMenu');
+        if (!currentEl || !menu) return;
+
+        // Показываем меню сразу (оно будет под уезжающим экраном)
+        menu.style.display = 'flex';
+        document.body.classList.add('no-scroll');
+
+        // Запускаем анимацию ухода текущего экрана вправо
+        currentEl.classList.add('screen-slide-out');
+        currentEl.addEventListener('animationend', function handler() {
+            currentEl.removeEventListener('animationend', handler);
+            currentEl.classList.remove('screen-slide-out');
+            currentEl.style.display = 'none';
+            // Убираем кнопки архива, если они были
+            document.getElementById('archiveControls').style.display = 'none';
+        });
+
+        return;
+    }
+
+    // Обычное переключение (для остальных случаев)
     showScreenFinal(id, false, currentVisible);
 }
 
