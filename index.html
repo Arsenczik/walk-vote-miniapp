@@ -1380,6 +1380,7 @@ body {
     </div>
 
    <!-- 7. ЭКРАН АРХИВА -->
+    <div id="archiveOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:55; opacity:0; transition:opacity 0.35s; pointer-events:none;"></div>
     <div id="archiveScreen" style="display: none;">
        <div class="screen-header">
     <div></div>   <!-- пустая ячейка для симметрии сетки -->
@@ -1572,9 +1573,17 @@ function showScreen(id) {
 
    // Открытие архива с анимацией
     if (id === 'archiveScreen' && currentVisible !== 'archiveScreen') {
-        if (archiveAnimFrame) cancelAnimationFrame(archiveAnimFrame);
-        animateArchiveOpen();
+    if (archiveAnimFrame) cancelAnimationFrame(archiveAnimFrame);
+    animateArchiveOpen();
 
+    const overlay = document.getElementById('archiveOverlay');
+    if (overlay) {
+        overlay.style.display = 'block';
+        requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+    }
+
+    // ... (обновление иконок, которое уже есть)
+}
         // Меняем иконки на открытую папку и стрелку вниз
         const fab = document.getElementById('archiveFab');
         const hint = document.getElementById('archiveHintFab');
@@ -2639,6 +2648,7 @@ function animateArchiveOpen() {
     
     archive.style.display = 'flex';
     archive.style.willChange = 'transform, opacity, filter';
+    archive.style.boxShadow = '0 0 30px rgba(255, 255, 255, 0.12)';
 
     // Получаем размеры и позицию кнопки Архива
     const fabRect = fab.getBoundingClientRect();
@@ -2713,6 +2723,7 @@ function animateArchiveOpen() {
             archive.style.filter = '';
             archive.style.transformOrigin = '';
             archive.style.willChange = '';
+            archive.style.boxShadow = '';
             archiveAnimActive = false;
             loadArchive();
         }
@@ -2740,7 +2751,7 @@ function animateArchiveClose(callback) {
     archive.style.willChange = 'transform, filter, opacity';
 
     const startTime = performance.now();
-    const duration = 250; // чуть быстрее при закрытии
+    const duration = 420;   // было 250, стало медленнее
 
     function step(timestamp) {
         if (!archiveAnimActive) return;
