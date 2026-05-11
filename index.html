@@ -1215,11 +1215,12 @@ body {
     transition: transform 0.2s, opacity 0.2s;
 }
         #archiveGrid {
-    flex: 0 1 auto;   /* не растягиваться */
-    align-self: flex-start; /* не тянуться по высоте родителя */
-    max-height: none; /* убрать возможное ограничение */
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    box-sizing: border-box;
 }
-
+       
     </style>
 </head>
 <body>
