@@ -1563,14 +1563,15 @@ function showScreen(id) {
             setButtonText(hint, '▲');
             hint.style.display = 'flex';
         }
-        animateArchiveClose(() => {
-            // После сворачивания архива просто скрываем его
-            document.getElementById('archiveScreen').style.display = 'none';
-            // и обновляем состояние кнопок (уже сделано выше, но можно оставить)
-        });
-        return;
+       animateArchiveClose(() => {
+    // После сворачивания архива скрываем его и затемнение
+    document.getElementById('archiveScreen').style.display = 'none';
+    const overlay = document.getElementById('archiveOverlay');
+    if (overlay) {
+        overlay.style.opacity = '0';
+        overlay.style.display = 'none';
     }
-
+});
   // Открытие архива с анимацией
     if (id === 'archiveScreen' && currentVisible !== 'archiveScreen') {
         if (archiveAnimFrame) cancelAnimationFrame(archiveAnimFrame);
