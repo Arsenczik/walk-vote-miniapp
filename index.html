@@ -1624,8 +1624,8 @@ function showScreen(id) {
 
         // JS-анимация slide-out: 36ms, до 11ms ease-in, потом ease-out
         const start = performance.now();
-       const duration = 72;   // было 36
-        const switchTime = 22; // было 11
+       const duration = 144;
+        const switchTime = 44;
         currentEl.style.zIndex = '10';
         currentEl.style.transform = 'translateX(0)';
         function step(now) {
@@ -1677,8 +1677,8 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
         target.style.zIndex = '10';
         // JS-анимация slide-in: 46ms, до 8ms ease-in, потом ease-out
         const start = performance.now();
-        const duration = 92;   // было 46
-        const switchTime = 16; // было 8
+       const duration = 184;
+        const switchTime = 32;
         target.style.transform = 'translateX(100%)';
         function step(now) {
             const elapsed = now - start;
