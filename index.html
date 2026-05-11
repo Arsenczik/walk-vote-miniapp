@@ -1621,19 +1621,40 @@ function showScreen(id) {
         return;
     }
 
-// Возврат в главное меню (тест без анимации)
+// Возврат в главное меню с JS‑анимацией slide‑out (0.4s, плавное замедление)
     if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includes(currentVisible)) {
         const currentEl = document.getElementById(currentVisible);
         const menu = document.getElementById('mainMenu');
         if (!currentEl || !menu) return;
 
-        // Скрываем все экраны, показываем меню
-        ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
-            document.getElementById(s).style.display = 'none';
-        });
+        // Меню сразу показываем под уезжающим экраном
         menu.style.display = 'flex';
         document.body.classList.add('no-scroll');
-        document.getElementById('archiveControls').style.display = 'none';
+
+        // Настройка анимации
+        currentEl.style.zIndex = '10';
+        currentEl.style.transform = 'translateX(0)';
+        const start = performance.now();
+        const duration = 400; // мс
+
+        function step(now) {
+            const elapsed = now - start;
+            let t = Math.min(elapsed / duration, 1);
+            // Кривая: быстрое начало, плавное замедление (cubic-bezier 0.2,0.9,0.3,1)
+            const progress = 1 - Math.pow(1 - t, 3);  // ease-out cubic для плавного торможения
+            // Применяем смещение
+            currentEl.style.transform = `translateX(${progress * 100}%)`;
+            if (t < 1) {
+                requestAnimationFrame(step);
+            } else {
+                // Анимация закончена – скрываем экран и сбрасываем стили
+                currentEl.style.display = 'none';
+                currentEl.style.transform = '';
+                currentEl.style.zIndex = '';
+                document.getElementById('archiveControls').style.display = 'none';
+            }
+        }
+        requestAnimationFrame(step);
         return;
     }
 
