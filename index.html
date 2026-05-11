@@ -1687,9 +1687,11 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
     target.style.display = isFlex ? 'flex' : 'block';
 
     // Анимация выезда справа (кроме архива)
-    if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
-        target.style.zIndex = '10'; // поднять над меню на время анимации
+if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
+        target.style.zIndex = '10';
+        // запускаем параллельную анимацию кнопок архива (только при slide-in)
         if (id === 'eventsScreen') {
+            const archiveControls = document.getElementById('archiveControls');
             archiveControls.classList.add('archive-controls-slide-in');
             archiveControls.style.opacity = '1';
             archiveControls.style.pointerEvents = 'auto';
@@ -1698,10 +1700,10 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
         target.addEventListener('animationend', function handler() {
             target.removeEventListener('animationend', handler);
             target.classList.remove('screen-slide-in');
-            target.style.zIndex = ''; // вернуть стандартное значение
+            document.getElementById('archiveControls').classList.remove('archive-controls-slide-in');
+            target.style.zIndex = '';
             if (prevScreen === 'mainMenu') {
                 document.getElementById('mainMenu').style.display = 'none';
-                archiveControls.classList.remove('archive-controls-slide-in');
             }
         });
     }
