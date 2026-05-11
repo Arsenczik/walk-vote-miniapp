@@ -1651,6 +1651,7 @@ function showScreen(id) {
             }
         }
         requestAnimationFrame(step);
+        return;
     }
 
     // Обычное переключение (для остальных случаев)
@@ -1679,7 +1680,6 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
         const duration = 46;
         const switchTime = 8; // ms
         target.style.transform = 'translateX(100%)';
-        target.style.display = 'flex'; // убедимся, что видим
         function step(now) {
             const elapsed = now - start;
             let progress = Math.min(elapsed / duration, 1);
@@ -1706,7 +1706,6 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
             }
         }
         requestAnimationFrame(step);
-        return;
     }
     // Блокировка скролла для меню
     if (id === 'mainMenu') {
