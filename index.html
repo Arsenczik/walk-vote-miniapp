@@ -1638,10 +1638,12 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
 
     // Анимация выезда справа (кроме архива)
     if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
+        target.style.zIndex = '10'; // поднять над меню на время анимации
         target.classList.add('screen-slide-in');
         target.addEventListener('animationend', function handler() {
             target.removeEventListener('animationend', handler);
             target.classList.remove('screen-slide-in');
+            target.style.zIndex = ''; // вернуть стандартное значение
             if (prevScreen === 'mainMenu') {
                 document.getElementById('mainMenu').style.display = 'none';
             }
