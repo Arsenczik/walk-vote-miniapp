@@ -1619,13 +1619,15 @@ function showScreen(id) {
     }
 
     // Обычное переключение
-    showScreenFinal(id, false);
+    showScreenFinal(id, false, currentVisible);
 }
 
-function showScreenFinal(id, skipAnimation) {
-    ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
+function showScreenFinal(id, skipAnimation, prevScreen = '') {
+   const screens = ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'];
+    for (const s of screens) {
+        if (s === 'mainMenu' && prevScreen === 'mainMenu') continue; // не скрываем меню, если переходим с него
         document.getElementById(s).style.display = 'none';
-    });
+    }
     
     document.getElementById('createForm').style.display = 'none';
     
@@ -1640,9 +1642,11 @@ function showScreenFinal(id, skipAnimation) {
         target.addEventListener('animationend', function handler() {
             target.removeEventListener('animationend', handler);
             target.classList.remove('screen-slide-in');
+            if (prevScreen === 'mainMenu') {
+                document.getElementById('mainMenu').style.display = 'none';
+            }
         });
     }
-
     // Блокировка скролла для меню
     if (id === 'mainMenu') {
         document.body.classList.add('no-scroll');
