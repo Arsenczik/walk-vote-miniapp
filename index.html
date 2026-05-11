@@ -1253,6 +1253,13 @@ body {
         .archive-controls-slide-in {
     animation: slideInRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
 }
+        .archive-controls-slide-in {
+    animation: slideInRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+
+.archive-controls-slide-out {
+    animation: slideOutRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
     </style>
 </head>
 <body>
@@ -1654,6 +1661,11 @@ function showScreen(id) {
             // Применяем смещение
             currentEl.style.transform = `translateX(${progress * 100}%)`;
             if (t < 1) {
+                // Запускаем анимацию выезда кнопок архива
+        const ac = document.getElementById('archiveControls');
+        if (ac && currentVisible === 'eventsScreen') {
+            ac.classList.add('archive-controls-slide-out');
+        }
                 requestAnimationFrame(step);
             } else {
                 // Анимация закончена – скрываем экран и сбрасываем стили
@@ -1661,6 +1673,7 @@ function showScreen(id) {
                 currentEl.style.transform = '';
                 currentEl.style.zIndex = '';
                document.getElementById('archiveControls').style.opacity = '0';
+                ac.classList.remove('archive-controls-slide-out');
 document.getElementById('archiveControls').style.pointerEvents = 'none';
             }
         }
@@ -1689,17 +1702,19 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
     // Анимация выезда справа (кроме архива)
 if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
         target.style.zIndex = '10';
-        // запускаем параллельную анимацию кнопок архива (только при slide-in)
-        if (id === 'eventsScreen') {
-            const archiveControls = document.getElementById('archiveControls');
-            archiveControls.classList.add('archive-controls-slide-in');
-            archiveControls.style.opacity = '1';
-            archiveControls.style.pointerEvents = 'auto';
+      if (id === 'eventsScreen') {
+            const ac = document.getElementById('archiveControls');
+            ac.classList.add('archive-controls-slide-in');
+            ac.style.opacity = '1';
+            ac.style.pointerEvents = 'auto';
         }
         target.classList.add('screen-slide-in');
         target.addEventListener('animationend', function handler() {
             target.removeEventListener('animationend', handler);
             target.classList.remove('screen-slide-in');
+            if (id === 'eventsScreen') {
+                document.getElementById('archiveControls').classList.remove('archive-controls-slide-in');
+            }
             document.getElementById('archiveControls').classList.remove('archive-controls-slide-in');
             target.style.zIndex = '';
             if (prevScreen === 'mainMenu') {
