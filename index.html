@@ -576,29 +576,7 @@
     background: #000;
     color: #fff;
     flex-direction: column;
-    /* overflow-y НЕ нужен, скролл будет у #archiveGrid */
-}
-
-#archiveGrid {
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
-    box-sizing: border-box;
-    flex: 1;                       /* занимает всю высоту под шапкой */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;       /* ← центрирует содержимое по вертикали */
-    overflow-y: auto;              /* ← скролл, когда контент выше контейнера */
-    padding: 16px 12px;            /* отступы */
-}
-
-#archiveContentWrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;   /* ← центрирует #archiveGrid по вертикали */
-    overflow-y: auto;          /* ← скролл, если контент не влезает */
-    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
 }
         .delete-event-btn {
     width: 100%;
@@ -846,11 +824,12 @@ body {
     overscroll-behavior-y: contain;    /* эластичность с чёрным фоном */
 }
         /* Внутренний скролл для контентных экранов */
+#archiveScreen,
 #statsScreen {
     overflow-y: auto;
 }
         /* Экраны с контентом занимают весь body */
-#eventsScreen, #statsScreen, #loginScreen, #onboardingScreen {
+#eventsScreen, #archiveScreen, #statsScreen, #loginScreen, #onboardingScreen {
     position: absolute;
     top: 0;
     left: 0;
@@ -1235,17 +1214,12 @@ body {
         .archive-fab, .archive-hint-fab {
     transition: transform 0.2s, opacity 0.2s;
 }
-    #archiveGrid {
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
-    box-sizing: border-box;
-    flex: 1 1 auto;               /* занимает всё доступное пространство по высоте */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;      /* вертикальное центрирование, пока контента мало */
-    overflow-y: auto;             /* скролл, если контент превышает высоту */
-    padding: 16px 12px;           /* дублируем отступы, чтобы не зависеть от инлайн-стиля */
+      #archiveGrid {
+    width: 100% !important;
+    max-width: 500px !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+    flex: none !important;          /* отключаем всякое flex-растяжение */
 }
        #archiveGrid .event-card {
     margin-bottom: 4px;
@@ -1429,17 +1403,16 @@ body {
     </div>
 
    <!-- 7. ЭКРАН АРХИВА -->
+    <div id="archiveOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:55; opacity:0; transition:opacity 0.35s; pointer-events:none;"></div>
     <div id="archiveScreen" style="display: none;">
-   <div class="screen-header">
-      <div></div>
-      <div class="title-wrapper">
-         <h1 class="screen-title">Архив</h1>
-      </div>
-   </div>
-   <div class="events-grid" id="archiveGrid" style="padding: 16px 12px; flex: 1; overflow-y: auto;">
-      <p>Загрузка...</p>
-   </div>
+       <div class="screen-header">
+    <div></div>   <!-- пустая ячейка для симметрии сетки -->
+    <div class="title-wrapper">
+        <h1 class="screen-title">Архив</h1>
+    </div>
 </div>
+<div class="events-grid" id="archiveGrid" style="padding: 16px 12px; overflow-y: auto;"><p>Загрузка...</p></div>
+    </div>
 <!-- ОКНО ПОДТВЕРЖДЕНИЯ ВЫХОДА (СТИЛЬНОЕ) -->
     <div class="modal-overlay" id="logoutModal" style="display: none;">
         <div class="modal-card logout-modal-card">
