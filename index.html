@@ -1621,28 +1621,19 @@ function showScreen(id) {
         return;
     }
 
-// Возврат в главное меню с анимацией slide-out
+// Возврат в главное меню (тест без анимации)
     if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includes(currentVisible)) {
         const currentEl = document.getElementById(currentVisible);
         const menu = document.getElementById('mainMenu');
         if (!currentEl || !menu) return;
 
-        // Показываем меню сразу (оно будет под уезжающим экраном)
+        // Скрываем все экраны, показываем меню
+        ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'].forEach(s => {
+            document.getElementById(s).style.display = 'none';
+        });
         menu.style.display = 'flex';
         document.body.classList.add('no-scroll');
-
-        // Запускаем анимацию ухода текущего экрана вправо
-        currentEl.style.zIndex = '10';  // поверх меню
-        currentEl.classList.add('screen-slide-out');
-        currentEl.addEventListener('animationend', function handler() {
-            currentEl.removeEventListener('animationend', handler);
-            currentEl.classList.remove('screen-slide-out');
-            currentEl.style.zIndex = '';
-            currentEl.style.display = 'none';
-            // Убираем кнопки архива, если они были
-            document.getElementById('archiveControls').style.display = 'none';
-        });
-
+        document.getElementById('archiveControls').style.display = 'none';
         return;
     }
 
