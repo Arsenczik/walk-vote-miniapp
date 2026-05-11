@@ -1146,7 +1146,7 @@ body {
 }
         /* Анимация выезда справа (События, Профиль, Статистика) */
 .screen-slide-in {
-    animation: slideInRight 0.32s ease-in-out forwards;
+    animation: slideInRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
 }
 
 @keyframes slideInRight {
@@ -1241,9 +1241,9 @@ body {
     margin-right: -12px;
     width: auto;
 }
- .screen-slide-out {
-    animation: slideOutRight 0.32s ease-in-out forwards;
-}
+.screen-slide-in {
+    animation: slideInRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+    
 @keyframes slideOutRight {
     0% { transform: translateX(0); }
     100% { transform: translateX(100%); }
