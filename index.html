@@ -1558,9 +1558,9 @@ function showScreen(id) {
         // и меняем иконки обратно, пока архив ещё виден
         const fab = document.getElementById('archiveFab');
         const hint = document.getElementById('archiveHintFab');
-        setButtonText(fab, '📂');
+        setButtonText(fab, '📁');
         if (hint) {
-            setButtonText(hint, '▼');
+            setButtonText(hint, '▲');
             hint.style.display = 'flex';
         }
         animateArchiveClose(() => {
@@ -1571,19 +1571,17 @@ function showScreen(id) {
         return;
     }
 
-   // Открытие архива с анимацией
+  // Открытие архива с анимацией
     if (id === 'archiveScreen' && currentVisible !== 'archiveScreen') {
-    if (archiveAnimFrame) cancelAnimationFrame(archiveAnimFrame);
-    animateArchiveOpen();
+        if (archiveAnimFrame) cancelAnimationFrame(archiveAnimFrame);
+        animateArchiveOpen();
 
-    const overlay = document.getElementById('archiveOverlay');
-    if (overlay) {
-        overlay.style.display = 'block';
-        requestAnimationFrame(() => { overlay.style.opacity = '1'; });
-    }
+        const overlay = document.getElementById('archiveOverlay');
+        if (overlay) {
+            overlay.style.display = 'block';
+            requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+        }
 
-    // ... (обновление иконок, которое уже есть)
-}
         // Меняем иконки на открытую папку и стрелку вниз
         const fab = document.getElementById('archiveFab');
         const hint = document.getElementById('archiveHintFab');
