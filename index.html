@@ -1572,6 +1572,8 @@ function showScreen(id) {
         overlay.style.display = 'none';
     }
 });
+      return;
+  }
   // Открытие архива с анимацией
     if (id === 'archiveScreen' && currentVisible !== 'archiveScreen') {
         if (archiveAnimFrame) cancelAnimationFrame(archiveAnimFrame);
