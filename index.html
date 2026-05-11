@@ -1144,16 +1144,6 @@ body {
     flex-direction: column;
     flex: 1;
 }
-        /* Анимация выезда справа (События, Профиль, Статистика) */
-.screen-slide-in {
-    animation: slideInRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
-}
-
-@keyframes slideInRight {
-    0%   { transform: translateX(100%); opacity: 1; }
-    100% { transform: translateX(0); opacity: 1; }
-}
-
 /* Лёгкий блюр для анимации архива */
 .archive-blur {
     animation: archiveBlurIn 0.35s ease-out forwards;
@@ -1240,13 +1230,6 @@ body {
     margin-left: -12px;
     margin-right: -12px;
     width: auto;
-}
- .screen-slide-out {
-    animation: slideOutRight 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-}
-@keyframes slideOutRight {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(100%); }
 }
     </style>
 </head>
@@ -1563,6 +1546,10 @@ body {
     let selectedLat = null, selectedLng = null;
     let map = null, marker = null;
 
+    // Функции плавности
+function easeInQuad(t) { return t * t; }
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
     function setButtonText(el, newText) {
     if (!el) return;
     el.style.opacity = '0';
@@ -1631,22 +1618,39 @@ function showScreen(id) {
         const menu = document.getElementById('mainMenu');
         if (!currentEl || !menu) return;
 
-        // Показываем меню сразу (оно будет под уезжающим экраном)
+        // Показываем меню сразу
         menu.style.display = 'flex';
         document.body.classList.add('no-scroll');
 
-        // Запускаем анимацию ухода текущего экрана вправо
-        currentEl.style.zIndex = '10';  // поверх меню
-        currentEl.classList.add('screen-slide-out');
-        currentEl.addEventListener('animationend', function handler() {
-            currentEl.removeEventListener('animationend', handler);
-            currentEl.classList.remove('screen-slide-out');
-            currentEl.style.zIndex = '';
-            currentEl.style.display = 'none';
-            // Убираем кнопки архива, если они были
-            document.getElementById('archiveControls').style.display = 'none';
-        });
-
+        // JS-анимация slide-out: 36ms, до 11ms ease-in, потом ease-out
+        const start = performance.now();
+        const duration = 36;
+        const switchTime = 11; // ms
+        currentEl.style.zIndex = '10';
+        currentEl.style.transform = 'translateX(0)';
+        function step(now) {
+            const elapsed = now - start;
+            let progress = Math.min(elapsed / duration, 1);
+            if (elapsed < switchTime) {
+                const t = elapsed / switchTime;
+                progress = easeInQuad(t) * (switchTime / duration);
+            } else {
+                const baseProgress = switchTime / duration;
+                const remaining = 1 - baseProgress;
+                const t = (elapsed - switchTime) / (duration - switchTime);
+                progress = baseProgress + easeOutCubic(t) * remaining;
+            }
+            currentEl.style.transform = `translateX(${progress * 100}%)`;
+            if (elapsed < duration) {
+                requestAnimationFrame(step);
+            } else {
+                currentEl.style.transform = '';
+                currentEl.style.zIndex = '';
+                currentEl.style.display = 'none';
+                document.getElementById('archiveControls').style.display = 'none';
+            }
+        }
+        requestAnimationFrame(step);
         return;
     }
 
@@ -1669,17 +1673,41 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
     target.style.display = isFlex ? 'flex' : 'block';
 
     // Анимация выезда справа (кроме архива)
-    if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
-        target.style.zIndex = '10'; // поднять над меню на время анимации
-        target.classList.add('screen-slide-in');
-        target.addEventListener('animationend', function handler() {
-            target.removeEventListener('animationend', handler);
-            target.classList.remove('screen-slide-in');
-            target.style.zIndex = ''; // вернуть стандартное значение
-            if (prevScreen === 'mainMenu') {
-                document.getElementById('mainMenu').style.display = 'none';
+   if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
+        target.style.zIndex = '10';
+        // JS-анимация slide-in: 46ms, до 8ms ease-in, потом ease-out
+        const start = performance.now();
+        const duration = 46;
+        const switchTime = 8; // ms
+        target.style.transform = 'translateX(100%)';
+        target.style.display = 'flex'; // убедимся, что видим
+        function step(now) {
+            const elapsed = now - start;
+            let progress = Math.min(elapsed / duration, 1);
+            if (elapsed < switchTime) {
+                // Ease-in до 8ms
+                const t = elapsed / switchTime;
+                progress = easeInQuad(t) * (switchTime / duration);
+            } else {
+                // После 8ms: прогресс от switchTime/duration до 1 с ease-out
+                const baseProgress = switchTime / duration;
+                const remaining = 1 - baseProgress;
+                const t = (elapsed - switchTime) / (duration - switchTime);
+                progress = baseProgress + easeOutCubic(t) * remaining;
             }
-        });
+            target.style.transform = `translateX(${(1 - progress) * 100}%)`;
+            if (elapsed < duration) {
+                requestAnimationFrame(step);
+            } else {
+                target.style.transform = '';
+                target.style.zIndex = '';
+                if (prevScreen === 'mainMenu') {
+                    document.getElementById('mainMenu').style.display = 'none';
+                }
+            }
+        }
+        requestAnimationFrame(step);
+        return;
     }
     // Блокировка скролла для меню
     if (id === 'mainMenu') {
