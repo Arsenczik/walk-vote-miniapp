@@ -1214,12 +1214,17 @@ body {
         .archive-fab, .archive-hint-fab {
     transition: transform 0.2s, opacity 0.2s;
 }
-      #archiveGrid {
-    width: 100% !important;
-    max-width: 500px !important;
-    margin: 0 auto !important;
-    box-sizing: border-box !important;
-    flex: none !important;          /* отключаем всякое flex-растяжение */
+    #archiveGrid {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    flex: 1 1 auto;               /* занимает всё доступное пространство по высоте */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;      /* вертикальное центрирование, пока контента мало */
+    overflow-y: auto;             /* скролл, если контент превышает высоту */
+    padding: 16px 12px;           /* дублируем отступы, чтобы не зависеть от инлайн-стиля */
 }
        #archiveGrid .event-card {
     margin-bottom: 4px;
@@ -1411,7 +1416,7 @@ body {
         <h1 class="screen-title">Архив</h1>
     </div>
 </div>
-<div class="events-grid" id="archiveGrid" style="padding: 16px 12px; overflow-y: auto;"><p>Загрузка...</p></div>
+<div class="events-grid" id="archiveGrid" style="overflow-y: auto;"><p>Загрузка...</p></div>
     </div>
 <!-- ОКНО ПОДТВЕРЖДЕНИЯ ВЫХОДА (СТИЛЬНОЕ) -->
     <div class="modal-overlay" id="logoutModal" style="display: none;">
