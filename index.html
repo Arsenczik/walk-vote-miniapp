@@ -576,7 +576,23 @@
     background: #000;
     color: #fff;
     flex-direction: column;
-    overflow-y: auto;
+}
+
+#archiveContentWrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;   /* ← центрирует #archiveGrid по вертикали */
+    overflow-y: auto;          /* ← скролл, если контент не влезает */
+    -webkit-overflow-scrolling: touch;
+}
+
+#archiveGrid {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    flex: 0 0 auto;           /* не растягивается, иначе центрирование сломается */
 }
         .delete-event-btn {
     width: 100%;
@@ -824,12 +840,11 @@ body {
     overscroll-behavior-y: contain;    /* эластичность с чёрным фоном */
 }
         /* Внутренний скролл для контентных экранов */
-#archiveScreen,
 #statsScreen {
     overflow-y: auto;
 }
         /* Экраны с контентом занимают весь body */
-#eventsScreen, #archiveScreen, #statsScreen, #loginScreen, #onboardingScreen {
+#eventsScreen, #statsScreen, #loginScreen, #onboardingScreen {
     position: absolute;
     top: 0;
     left: 0;
@@ -1408,16 +1423,17 @@ body {
     </div>
 
    <!-- 7. ЭКРАН АРХИВА -->
-    <div id="archiveOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:55; opacity:0; transition:opacity 0.35s; pointer-events:none;"></div>
     <div id="archiveScreen" style="display: none;">
-       <div class="screen-header">
-    <div></div>   <!-- пустая ячейка для симметрии сетки -->
-    <div class="title-wrapper">
-        <h1 class="screen-title">Архив</h1>
-    </div>
+   <div class="screen-header">
+      <div></div>
+      <div class="title-wrapper">
+         <h1 class="screen-title">Архив</h1>
+      </div>
+   </div>
+   <div id="archiveContentWrapper" style="flex: 1; display: flex; flex-direction: column; justify-content: center; overflow-y: auto;">
+      <div class="events-grid" id="archiveGrid" style="padding: 16px 12px;"><p>Загрузка...</p></div>
+   </div>
 </div>
-<div class="events-grid" id="archiveGrid" style="overflow-y: auto;"><p>Загрузка...</p></div>
-    </div>
 <!-- ОКНО ПОДТВЕРЖДЕНИЯ ВЫХОДА (СТИЛЬНОЕ) -->
     <div class="modal-overlay" id="logoutModal" style="display: none;">
         <div class="modal-card logout-modal-card">
