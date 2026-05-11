@@ -2754,7 +2754,9 @@ function animateArchiveClose(callback) {
         const elapsed = timestamp - startTime;
         const t = Math.min(elapsed / duration, 1);
         const progress = 1 - Math.pow(1 - t, 3);
-        if (overlay) overlay.style.opacity = `${1 - progress}`;
+        const overlayProgress = Math.min(progress / 0.5, 1);          // к середине основного прогресса overlay полностью исчезнет
+const overlayOpacity = 1 - (1 - Math.pow(1 - overlayProgress, 3)); // плавный ease-out для overlay
+if (overlay) overlay.style.opacity = overlayOpacity;
 
         const scale = 1 - progress;
         const tx = targetX * progress;
