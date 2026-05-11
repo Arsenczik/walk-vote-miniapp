@@ -1227,6 +1227,12 @@ body {
         #eventsGrid .event-card {
     margin-bottom: 4px;
 }
+        #eventsContent {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
     </style>
 </head>
 <body>
@@ -1301,7 +1307,7 @@ body {
             </div>
         </div>
         <!-- Контент событий (именно он был потерян) -->
-        <div style="padding: 16px 12px; overflow-y: auto; flex: 1;">
+        <div id="eventsContent" style="padding: 16px 12px; overflow-y: auto; flex: 1;">
             <div class="events-grid" id="eventsGrid"><p>Загрузка...</p></div>
             <button class="add-event-btn" onclick="showCreateForm()"><span class="add-icon">+</span><span>Добавить событие</span></button>
         </div>
