@@ -1160,15 +1160,17 @@ body {
     position: fixed;
     bottom: 30px;
     right: 24px;
-    display: flex;
+    display: flex;                /* всегда flex, не скрываем через display */
     align-items: center;
     gap: 10px;
     z-index: 100;
     background: transparent;
     border: none;
     padding: 0;
+    opacity: 0;                   /* по умолчанию скрыто */
+    pointer-events: none;         /* не кликабельно */
+    transition: opacity 0.3s ease; /* плавное появление/исчезновение */
 }
-
 /* Кнопка-ящик – большой эмодзи */
 .archive-fab {
     background: transparent;
@@ -1655,7 +1657,8 @@ function showScreen(id) {
                 currentEl.style.display = 'none';
                 currentEl.style.transform = '';
                 currentEl.style.zIndex = '';
-                document.getElementById('archiveControls').style.display = 'none';
+               document.getElementById('archiveControls').style.opacity = '0';
+document.getElementById('archiveControls').style.pointerEvents = 'none';
             }
         }
         requestAnimationFrame(step);
@@ -1705,18 +1708,23 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
 const archiveFab = document.getElementById('archiveFab');
 const archiveHintFab = document.getElementById('archiveHintFab');
 
-if (id === 'eventsScreen') {
-    archiveControls.style.display = 'flex';
-    setButtonText(archiveFab, '📁');
-    archiveHintFab.style.display = 'flex';
-    setButtonText(archiveHintFab, '▲');
-} else if (id === 'archiveScreen') {
-    archiveControls.style.display = 'flex';
-    setButtonText(archiveFab, '📂');
-    archiveHintFab.style.display = 'flex';
-    setButtonText(archiveHintFab, '▼');
+if (id === 'eventsScreen' || id === 'archiveScreen') {
+    // Плавно показываем
+    archiveControls.style.opacity = '1';
+    archiveControls.style.pointerEvents = 'auto';
+    
+    if (id === 'eventsScreen') {
+        setButtonText(archiveFab, '📁');
+        setButtonText(archiveHintFab, '▲');
+    } else { // archiveScreen
+        setButtonText(archiveFab, '📂');
+        setButtonText(archiveHintFab, '▼');
+    }
+    archiveHintFab.style.display = 'flex'; // на всякий случай, если был скрыт
 } else {
-    archiveControls.style.display = 'none';
+    // Плавно прячем
+    archiveControls.style.opacity = '0';
+    archiveControls.style.pointerEvents = 'none';
 }
     if (id === 'eventsScreen') loadEvents();
     if (id === 'profileScreen') loadProfileScreen();
