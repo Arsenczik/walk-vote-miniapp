@@ -1214,11 +1214,12 @@ body {
         .archive-fab, .archive-hint-fab {
     transition: transform 0.2s, opacity 0.2s;
 }
-       #archiveGrid {
+      #archiveGrid {
     width: 100% !important;
     max-width: 500px !important;
     margin: 0 auto !important;
     box-sizing: border-box !important;
+    flex: none !important;          /* отключаем всякое flex-растяжение */
 }
        
     </style>
@@ -1394,7 +1395,7 @@ body {
         <h1 class="screen-title">Архив</h1>
     </div>
 </div>
-        <div class="events-grid" id="archiveGrid" style="padding: 0 12px; overflow-y: auto; flex: 1;"><p>Загрузка...</p></div>
+        <div class="events-grid" id="archiveGrid" style="padding: 0 12px; overflow-y: auto;"><p>Загрузка...</p></div>
     </div>
 <!-- ОКНО ПОДТВЕРЖДЕНИЯ ВЫХОДА (СТИЛЬНОЕ) -->
     <div class="modal-overlay" id="logoutModal" style="display: none;">
