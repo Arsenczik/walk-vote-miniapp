@@ -325,11 +325,45 @@
     color: #fff;
 }
 
-        /* Модалка выбора эмодзи */
+ /* Оверлей выбора эмодзи – всегда существует, но скрыт через opacity и pointer-events */
 #emojiPicker {
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 200;
+    background: rgba(0, 0, 0, 0);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, background 0.25s ease;
+}
+
+/* Активное состояние – затемнённый фон, видимый, можно кликать */
+#emojiPicker.active {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.7);
+    pointer-events: auto;
+}
+
+/* Анимация появления/исчезновения карточки */
+#emojiList {
+    transform: scale(0.8);
+    filter: blur(8px);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1),
+                filter 0.3s ease,
+                opacity 0.2s ease;
+}
+
+/* Когда оверлей активен, карточка становится чёткой и нормального размера */
+#emojiPicker.active #emojiList {
+    transform: scale(1);
+    filter: blur(0);
+    opacity: 1;
 }
 
 #emojiPicker .modal-card {
@@ -1449,7 +1483,9 @@ body {
 
     <!-- МОДАЛКИ -->
     <div class="modal-overlay" id="eventModal"><div class="modal-card" id="modalContent"></div></div>
-    <div class="modal-overlay" id="emojiPicker" onclick="this.style.display='none'"><div class="modal-card" id="emojiList"></div></div>
+<div id="emojiPicker" onclick="hideEmojiPicker(event)">
+    <div class="modal-card" id="emojiList"></div>
+</div>
     <div class="modal-overlay" id="mapModal">
         <div class="modal-card" style="max-width: 95%; padding: 16px;">
             <button class="modal-close-btn" onclick="closeMapModal()">✕</button>
@@ -2528,18 +2564,34 @@ function logout() {
         document.querySelectorAll('.cat-option').forEach(o => o.classList.remove('active'));
         this.classList.add('active'); selectedCategory = this.getAttribute('data-cat');
     });
+
+    function hideEmojiPicker(e) {
+    const picker = document.getElementById('emojiPicker');
+
+    // Если передан объект события, проверяем, что клик был именно по оверлею (не по карточке)
+    if (e && e.target !== picker) return;
+
+    // Убираем активность – карточка автоматически начнёт анимацию закрытия
+    picker.classList.remove('active');
+
+    // После завершения transition (когда opacity и transform вернулись)
+    // ничего дополнительно делать не нужно, оверлей уже невидим и некликабелен
+}
+    
     // выбор эмодзи
-    function selectEmoji() {
+  function selectEmoji() {
     let picker = document.getElementById('emojiPicker');
     let list = document.getElementById('emojiList');
-    let emojis = ['😎','🐱','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🕷','🦂',
-                  '🐙','🦑','🦀','🦞','🐠','🐟','🐡','🦈','🐳','🐋','🐬','🦭','🐊','🦎','🐍','🐢','🦖','🦕','🐲','🐉','🦚','🦜','🦢','🦩','🕊','🐇','🐿','🦔','🦝','🐾',
-                  '🍏','🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🥦','🥬','🥒','🌶','🫑','🌽','🥕','🫒','🧄','🧅',
-                  '🥐','🍞','🥖','🥨','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🦴','🌭','🍔','🍟','🍕','🫓','🥪','🥙','🧆','🌮','🌯','🫔','🥗','🥘','🫕','🥫'];
-    
+    let emojis = [
+        '😎','🐱','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🕷','🦂',
+        '🐙','🦑','🦀','🦞','🐠','🐟','🐡','🦈','🐳','🐋','🐬','🦭','🐊','🦎','🐍','🐢','🦖','🦕','🐲','🐉','🦚','🦜','🦢','🦩','🕊','🐇','🐿','🦔','🦝','🐾',
+        '🍏','🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🥦','🥬','🥒','🌶','🫑','🌽','🥕','🫒','🧄','🧅',
+        '🥐','🍞','🥖','🥨','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🦴','🌭','🍔','🍟','🍕','🫓','🥪','🥙','🧆','🌮','🌯','🫔','🥗','🥘','🫕','🥫'
+    ];
+
     // Формируем содержимое модалки
     list.innerHTML = `
-        <button class="modal-close-btn" onclick="document.getElementById('emojiPicker').style.display='none'">✕</button>
+        <button class="modal-close-btn" onclick="hideEmojiPicker()">✕</button>
         <h2 style="margin-top:0; margin-bottom:16px;">Выбери аватар</h2>
         <div class="emoji-grid-wrapper">
             <div class="emoji-grid">
@@ -2547,15 +2599,17 @@ function logout() {
             </div>
         </div>
     `;
-    
-    picker.style.display = 'flex';
+
+    // Открываем пикер с анимацией
+    picker.classList.add('active');
 }
-    window.setEmoji = function(emoji) {
-        userEmoji = emoji;
-        document.getElementById('profileAvatar').textContent = emoji;
-        document.getElementById('emojiPicker').style.display = 'none';
-        localStorage.setItem('userEmoji', emoji);
-    };
+   window.setEmoji = function(emoji) {
+    userEmoji = emoji;
+    document.getElementById('profileAvatar').textContent = emoji;
+    localStorage.setItem('userEmoji', emoji);
+    hideEmojiPicker();   // плавное закрытие с анимацией
+};
+
 // 📸 Загрузка списка фото и отрисовка
 async function loadPhotos(eventId) {
     let grid = document.getElementById('photoGrid_' + eventId);
