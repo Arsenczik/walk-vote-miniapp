@@ -1830,41 +1830,47 @@ if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includ
     const menu = document.getElementById('mainMenu');
     if (!currentEl || !menu) return;
 
+    // Показываем меню и запускаем возврат из сдвинутого состояния
     menu.style.display = 'flex';
     document.body.classList.add('no-scroll');
+    menu.style.transition = 'none';
+    menu.style.transform = 'translateX(-50%)'; // начинаем из сдвинутого положения
 
-    const ac = document.getElementById('archiveControls');
-
+    // Анимация ухода текущего экрана вправо
     currentEl.style.zIndex = '10';
     currentEl.style.transform = 'translateX(0)';
-    if (ac && currentVisible === 'eventsScreen') {
-        ac.style.transform = 'translateX(0)';   // начальная позиция для кнопок
+    const ac = document.getElementById('archiveControls');
+    if (currentVisible === 'eventsScreen' && ac) {
+        ac.style.display = 'flex';
+        ac.style.transform = 'translateX(0)';
     }
 
     const start = performance.now();
     const duration = 400;
-
     function step(now) {
         const elapsed = now - start;
         let t = Math.min(elapsed / duration, 1);
         const progress = 1 - Math.pow(1 - t, 3);
         currentEl.style.transform = `translateX(${progress * 100}%)`;
 
-        if (ac && currentVisible === 'eventsScreen') {
-            ac.style.transform = `translateX(${progress * window.innerWidth}px)`;   // двигаем кнопки синхронно
+        // Синхронно возвращаем меню на место
+        menu.style.transform = `translateX(-${50 * (1 - progress)}%)`;
+
+        if (currentVisible === 'eventsScreen' && ac) {
+            ac.style.transform = `translateX(${progress * window.innerWidth}px)`;
         }
 
         if (t < 1) {
             requestAnimationFrame(step);
-     } else {
+        } else {
             currentEl.style.display = 'none';
             currentEl.style.transform = '';
             currentEl.style.zIndex = '';
-
+            menu.style.transform = ''; // сброс до исходного
             if (ac) {
-                ac.style.display = 'none';   // убираем полностью, без fade
+                ac.style.display = 'none';
                 ac.style.transform = '';
-                ac.style.opacity = '';        // сброс (можно и не надо)
+                ac.style.opacity = '0';
                 ac.style.pointerEvents = 'none';
             }
         }
@@ -1896,24 +1902,21 @@ if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id ===
     target.style.zIndex = '10';
     target.classList.add('screen-slide-in');
 
+    const menu = document.getElementById('mainMenu');
     const ac = document.getElementById('archiveControls');
     if (id === 'eventsScreen' && ac) {
-        // Мгновенно показываем кнопку (она будет выезжать, opacity можно сразу в 1)
         ac.style.display = 'flex';
         ac.style.opacity = '1';
         ac.style.pointerEvents = 'auto';
-        // Старт за экраном справа
         ac.style.transform = `translateX(${window.innerWidth}px)`;
-
-        // JS-анимация въезда кнопки, синхронно с CSS-анимацией экрана (400ms)
-        const start = performance.now();
-        const duration = 400; // мс, как у slide-in
+        // JS-анимация въезда кнопки архива
+        const startArch = performance.now();
+        const durationArch = 400;
         function animArch(now) {
-            const elapsed = now - start;
-            const t = Math.min(elapsed / duration, 1);
-            // плавное замедление (easeOutCubic)
-            const progress = 1 - Math.pow(1 - t, 3);
-            ac.style.transform = `translateX(${(1 - progress) * window.innerWidth}px)`;
+            const elapsed = now - startArch;
+            const t = Math.min(elapsed / durationArch, 1);
+            const progressArch = 1 - Math.pow(1 - t, 3);
+            ac.style.transform = `translateX(${(1 - progressArch) * window.innerWidth}px)`;
             if (t < 1) {
                 requestAnimationFrame(animArch);
             } else {
@@ -1923,15 +1926,39 @@ if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id ===
         requestAnimationFrame(animArch);
     }
 
+    // Анимация смещения меню влево на 50%
+    if (menu) {
+        menu.style.transition = 'none';
+        menu.style.transform = 'translateX(0)';
+        const startMenu = performance.now();
+        const durationMenu = 400; // синхронно с slide-in
+        function animMenu(now) {
+            const elapsed = now - startMenu;
+            const t = Math.min(elapsed / durationMenu, 1);
+            const progress = 1 - Math.pow(1 - t, 3);
+            menu.style.transform = `translateX(-${50 * progress}%)`;
+            if (t < 1) {
+                requestAnimationFrame(animMenu);
+            } else {
+                // меню остаётся сдвинутым, потом скроется в animationend
+            }
+        }
+        requestAnimationFrame(animMenu);
+    }
+
     target.addEventListener('animationend', function handler() {
         target.removeEventListener('animationend', handler);
         target.classList.remove('screen-slide-in');
         target.style.zIndex = '';
+        if (menu) {
+            menu.style.display = 'none'; // скрываем меню после анимации
+            menu.style.transform = '';   // сбрасываем transform
+        }
         if (prevScreen === 'mainMenu') {
-            document.getElementById('mainMenu').style.display = 'none';
+            // уже скрыто
         }
     });
-} 
+}
 
     // Блокировка скролла для меню
     if (id === 'mainMenu') {
