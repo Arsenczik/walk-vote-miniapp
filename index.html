@@ -1254,9 +1254,6 @@ body {
     animation: slideInRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
 }
 
-.archive-controls-slide-out {
-    animation: slideOutRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
-}
     </style>
 </head>
 <body>
@@ -1640,19 +1637,17 @@ if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includ
     const menu = document.getElementById('mainMenu');
     if (!currentEl || !menu) return;
 
-    // Меню сразу показываем под уезжающим экраном
     menu.style.display = 'flex';
     document.body.classList.add('no-scroll');
 
-    // Запускаем анимацию выезда кнопок архива (только для eventsScreen)
     const ac = document.getElementById('archiveControls');
-    if (ac && currentVisible === 'eventsScreen') {
-        ac.classList.add('archive-controls-slide-out');
-    }
 
-    // Настройка анимации экрана
     currentEl.style.zIndex = '10';
     currentEl.style.transform = 'translateX(0)';
+    if (ac && currentVisible === 'eventsScreen') {
+        ac.style.transform = 'translateX(0)';   // начальная позиция для кнопок
+    }
+
     const start = performance.now();
     const duration = 400;
 
@@ -1661,25 +1656,23 @@ if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includ
         let t = Math.min(elapsed / duration, 1);
         const progress = 1 - Math.pow(1 - t, 3);
         currentEl.style.transform = `translateX(${progress * 100}%)`;
+
+        if (ac && currentVisible === 'eventsScreen') {
+            ac.style.transform = `translateX(${progress * 100}%)`;   // двигаем кнопки синхронно
+        }
+
         if (t < 1) {
             requestAnimationFrame(step);
         } else {
-            // Анимация закончена – скрываем экран и сбрасываем всё
             currentEl.style.display = 'none';
             currentEl.style.transform = '';
             currentEl.style.zIndex = '';
 
-            // Полный сброс кнопок архива
             if (ac) {
-                ac.classList.remove('archive-controls-slide-out');
+                ac.style.transform = '';
                 ac.style.opacity = '0';
                 ac.style.pointerEvents = 'none';
-                ac.style.transform = '';
-            }
-            const hint = document.getElementById('archiveHintFab');
-            if (hint) {
-                hint.style.display = 'flex';
-                hint.style.opacity = '1';
+                // подсказку не трогаем, она внутри контейнера
             }
         }
     }
