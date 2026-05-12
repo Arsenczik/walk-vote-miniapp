@@ -1169,8 +1169,7 @@ body {
     padding: 0;
     opacity: 0;                   /* по умолчанию скрыто */
     pointer-events: none;         /* не кликабельно */
-    transition: opacity 0.3s ease; /* плавное появление/исчезновение */
-}
+   }
 /* Кнопка-ящик – большой эмодзи */
 .archive-fab {
     background: transparent;
@@ -1663,16 +1662,16 @@ if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includ
 
         if (t < 1) {
             requestAnimationFrame(step);
-        } else {
+     } else {
             currentEl.style.display = 'none';
             currentEl.style.transform = '';
             currentEl.style.zIndex = '';
 
             if (ac) {
+                ac.style.display = 'none';   // убираем полностью, без fade
                 ac.style.transform = '';
-                ac.style.opacity = '0';
+                ac.style.opacity = '';        // сброс (можно и не надо)
                 ac.style.pointerEvents = 'none';
-                // подсказку не трогаем, она внутри контейнера
             }
         }
     }
@@ -1741,6 +1740,7 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
     const archiveHintFab = document.getElementById('archiveHintFab');
 
     if (id === 'eventsScreen' || id === 'archiveScreen') {
+        archiveControls.style.display = 'flex';
         archiveControls.style.opacity = '1';
         archiveControls.style.pointerEvents = 'auto';
         if (id === 'eventsScreen') {
