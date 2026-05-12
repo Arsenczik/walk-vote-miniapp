@@ -1010,21 +1010,21 @@ body {
     max-height: 0;
     overflow: hidden;
     opacity: 0;
+    padding-top: 0;
+    box-sizing: border-box;
     transition: max-height 0.5s cubic-bezier(0.2, 0.9, 0.3, 1),
                 opacity 0.4s ease 0.1s,
-                margin-top 0.3s ease;
-    margin-top: 0;
+                padding-top 0.3s ease;
 }
 
 .collapsible-content.open {
-    max-height: 2000px;   /* достаточно для любого содержимого */
+    max-height: 2000px;
     opacity: 1;
-    margin-top: 12px;
+    padding-top: 12px;
     transition: max-height 0.7s cubic-bezier(0.2, 0.9, 0.3, 1),
                 opacity 0.5s ease 0.05s,
-                margin-top 0.3s ease;
+                padding-top 0.3s ease;
 }
-
 /* Плавный сдвиг вложенных элементов при появлении */
 .collapsible-content .profile-stats-row,
 .collapsible-content .achievement-flip-container {
