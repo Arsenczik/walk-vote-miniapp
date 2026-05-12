@@ -2851,19 +2851,19 @@ function toggleCollapsible(header) {
         section.classList.remove('open');
 
         const onTransitionEnd = () => {
-            content.style.maxHeight = '';
+            content.style.maxHeight = '';   // снимаем ограничение после закрытия (это безопасно)
             content.removeEventListener('transitionend', onTransitionEnd);
         };
         content.addEventListener('transitionend', onTransitionEnd);
     } else {
-        // Открытие: добавляем класс → задаём реальную высоту
+        // Открытие: сначала добавляем класс, затем даём точную высоту
         content.classList.add('open');
         section.classList.add('open');
-        content.style.maxHeight = content.scrollHeight + 'px';
+        const fullHeight = content.scrollHeight + 'px';
+        content.style.maxHeight = fullHeight;
 
+        // Не сбрасываем max-height после анимации – чтобы не было рывка
         const onTransitionEnd = () => {
-            // После завершения убираем inline max-height, чтобы контент мог меняться дальше
-            content.style.maxHeight = '';
             content.removeEventListener('transitionend', onTransitionEnd);
         };
         content.addEventListener('transitionend', onTransitionEnd);
