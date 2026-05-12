@@ -2836,17 +2836,37 @@ function resetAchievements() {
     menu.addEventListener('touchend', end);
     menu.addEventListener('touchcancel', end);
 })();
-  function toggleCollapsible(header) {
-    const section = header.parentElement;             // .collapsible-section
-    const content = header.nextElementSibling;        // .collapsible-content
+function toggleCollapsible(header) {
+    const section = header.parentElement;          // .collapsible-section
+    const content = header.nextElementSibling;     // .collapsible-content
     const isOpen = content.classList.contains('open');
 
     if (isOpen) {
+        // Закрытие: фиксируем текущую высоту → анимируем к 0
+        content.style.maxHeight = content.scrollHeight + 'px';
+        requestAnimationFrame(() => {
+            content.style.maxHeight = '0px';
+        });
         content.classList.remove('open');
         section.classList.remove('open');
+
+        const onTransitionEnd = () => {
+            content.style.maxHeight = '';
+            content.removeEventListener('transitionend', onTransitionEnd);
+        };
+        content.addEventListener('transitionend', onTransitionEnd);
     } else {
+        // Открытие: добавляем класс → задаём реальную высоту
         content.classList.add('open');
         section.classList.add('open');
+        content.style.maxHeight = content.scrollHeight + 'px';
+
+        const onTransitionEnd = () => {
+            // После завершения убираем inline max-height, чтобы контент мог меняться дальше
+            content.style.maxHeight = '';
+            content.removeEventListener('transitionend', onTransitionEnd);
+        };
+        content.addEventListener('transitionend', onTransitionEnd);
     }
 }
     // ═══════════════════════════════════════
