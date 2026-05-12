@@ -1567,6 +1567,87 @@ body {
     let loginEmojiInterval = null;
     let selectedLat = null, selectedLng = null;
     let map = null, marker = null;
+    // Хранилище известных ачивок (для выявления новых)
+let knownAchievements = JSON.parse(localStorage.getItem('knownAchievements') || '[]');
+let achievementsPollInterval = null;
+
+    function showAchievementNotification(emoji, title, desc) {
+    // Если не на главном меню – перебрасываем туда
+    const currentScreen = ['onboardingScreen','loginScreen','mainMenu','eventsScreen','profileScreen','statsScreen','archiveScreen']
+        .find(id => document.getElementById(id).style.display !== 'none');
+    if (currentScreen !== 'mainMenu') {
+        showScreen('mainMenu');
+        // Даём меню чуть отобразиться, затем показываем уведомление
+        setTimeout(() => {
+            showAchievementToast(emoji, title, desc);
+        }, 100);
+    } else {
+        showAchievementToast(emoji, title, desc);
+    }
+}
+
+function showAchievementToast(emoji, title, desc) {
+    // Создаём toast
+    const toast = document.createElement('div');
+    toast.className = 'achievement-toast';
+    toast.innerHTML = `
+        <div class="achiev-icon">${emoji}</div>
+        <div class="achiev-title">${title}</div>
+        <div class="achiev-text">${desc || ''}</div>
+    `;
+    document.body.appendChild(toast);
+    // Запускаем салюты (если ещё не активны)
+    celebrateAchievement();
+    // Удаляем toast через 3 секунды
+    setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+    }, 3000);
+}
+
+    
+function checkNewAchievements(achievementsArray) {
+    if (!achievementsArray || !achievementsArray.length) return;
+    const newAchievements = achievementsArray.filter(a => {
+        // Идентифицируем по комбинации эмодзи + название
+        return !knownAchievements.some(k => k.emoji === a.emoji && k.name === a.name);
+    });
+    if (newAchievements.length === 0) return;
+
+    // Показываем уведомления для всех новых (можно последовательно, но пока покажем только первую)
+    // Для нескольких лучше показать одно с количеством или по очереди.
+    const latest = newAchievements[newAchievements.length - 1];
+    showAchievementNotification(latest.emoji, latest.name, latest.description || '');
+
+    // Обновляем список известных (добавляем все новые)
+    newAchievements.forEach(a => {
+        if (!knownAchievements.some(k => k.emoji === a.emoji && k.name === a.name)) {
+            knownAchievements.push({ emoji: a.emoji, name: a.name });
+        }
+    });
+    localStorage.setItem('knownAchievements', JSON.stringify(knownAchievements));
+}
+
+    async function pollNewAchievements() {
+    try {
+        const res = await fetch('/api/profile/' + USER_ID);
+        const data = await res.json();
+        if (data && data.achievements) {
+            checkNewAchievements(data.achievements);
+        }
+    } catch(e) {}
+}
+
+function startAchievementsPolling() {
+    if (achievementsPollInterval) return;
+    achievementsPollInterval = setInterval(pollNewAchievements, 15000); // 15 секунд
+}
+
+function stopAchievementsPolling() {
+    if (achievementsPollInterval) {
+        clearInterval(achievementsPollInterval);
+        achievementsPollInterval = null;
+    }
+}
 
     function setButtonText(el, newText) {
     if (!el) return;
@@ -1742,6 +1823,10 @@ if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id ===
     // Блокировка скролла для меню
     if (id === 'mainMenu') {
         document.body.classList.add('no-scroll');
+        if (!achievementsPollInterval) {
+            startAchievementsPolling();
+            pollNewAchievements();   // первая проверка при показе меню
+        }
     } else {
         document.body.classList.remove('no-scroll');
     }
@@ -1803,6 +1888,9 @@ async function loadProfileScreen() {
         const data = await res.json();
         document.getElementById('profileCreated').textContent = data.stats.created;
         document.getElementById('profileAttended').textContent = data.stats.attended;
+        if (data.achievements) {
+            checkNewAchievements(data.achievements);
+        }
 
         const listContainer = document.getElementById('achievementsList');
         listContainer.innerHTML = '';
@@ -1982,6 +2070,10 @@ function logout() {
             return;
         }
         USER_NAMES[USER_ID] = userName;
+        // Сразу проверим новые ачивки (асинхронно, без задержки меню)
+    fetch('/api/profile/' + USER_ID).then(res => res.json()).then(data => {
+        if (data && data.achievements) checkNewAchievements(data.achievements);
+    }).catch(() => {});
     }
 
     // --- ПАДАЮЩИЕ ЭМОДЗИ (финальная версия) ---
