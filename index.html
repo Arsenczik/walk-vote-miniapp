@@ -1999,32 +1999,8 @@ async function loadProfileScreen() {
     userName = name;
     USER_NAMES[USER_ID] = name;
 
-    // Приветственное уведомление (первый вход)
-    if (!localStorage.getItem('achievement_welcome_shown')) {
-        const toast = document.createElement('div');
-        toast.className = 'achievement-toast';
-        toast.innerHTML = `
-            <div class="achiev-icon">🐪</div>
-            <div class="achiev-title">Новая ачивка!</div>
-            <div class="achiev-text">«Организованный верблюд»</div>
-        `;
-        document.body.appendChild(toast);
-        localStorage.setItem('achievement_welcome_shown', '1');
-        setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3000);
-    }
-
     initUser();
     showScreen('mainMenu');
-
-    // Запускаем салют после открытия меню (если первый вход)
-    if (localStorage.getItem('achievement_welcome_shown') === '1') {
-        // Флаг уже есть, но нам нужно запустить салют прямо сейчас
-        setTimeout(() => {
-            celebrateAchievement();
-        }, 200);
-        // Удаляем флаг, чтобы в следующий раз салют не сработал
-        localStorage.setItem('achievement_welcome_shown', '2');
-    }
 }
 function logout() {
     const modal = document.getElementById('logoutModal');
