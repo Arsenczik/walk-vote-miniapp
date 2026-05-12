@@ -1657,7 +1657,7 @@ if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includ
         currentEl.style.transform = `translateX(${progress * 100}%)`;
 
         if (ac && currentVisible === 'eventsScreen') {
-            ac.style.transform = `translateX(${progress * 100}%)`;   // двигаем кнопки синхронно
+            ac.style.transform = `translateX(${progress * window.innerWidth}px)`;   // двигаем кнопки синхронно
         }
 
         if (t < 1) {
