@@ -1253,9 +1253,6 @@ body {
         .archive-controls-slide-in {
     animation: slideInRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
 }
-        .archive-controls-slide-in {
-    animation: slideInRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
-}
 
 .archive-controls-slide-out {
     animation: slideOutRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
@@ -1638,59 +1635,57 @@ function showScreen(id) {
     }
 
 // Возврат в главное меню с JS‑анимацией slide‑out (0.4s, плавное замедление)
-    if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includes(currentVisible)) {
-        const currentEl = document.getElementById(currentVisible);
-        const menu = document.getElementById('mainMenu');
-        if (!currentEl || !menu) return;
+if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includes(currentVisible)) {
+    const currentEl = document.getElementById(currentVisible);
+    const menu = document.getElementById('mainMenu');
+    if (!currentEl || !menu) return;
 
-        // Меню сразу показываем под уезжающим экраном
-        menu.style.display = 'flex';
-        document.body.classList.add('no-scroll');
+    // Меню сразу показываем под уезжающим экраном
+    menu.style.display = 'flex';
+    document.body.classList.add('no-scroll');
 
-        // Настройка анимации
-        currentEl.style.zIndex = '10';
-        currentEl.style.transform = 'translateX(0)';
-        const start = performance.now();
-        const duration = 400; // мс
+    // Запускаем анимацию выезда кнопок архива (только для eventsScreen)
+    const ac = document.getElementById('archiveControls');
+    if (ac && currentVisible === 'eventsScreen') {
+        ac.classList.add('archive-controls-slide-out');
+    }
 
-        function step(now) {
-            const elapsed = now - start;
-            let t = Math.min(elapsed / duration, 1);
-            // Кривая: быстрое начало, плавное замедление (cubic-bezier 0.2,0.9,0.3,1)
-            const progress = 1 - Math.pow(1 - t, 3);  // ease-out cubic для плавного торможения
-            // Применяем смещение
-            currentEl.style.transform = `translateX(${progress * 100}%)`;
-            if (t < 1) {
-                // Запускаем анимацию выезда кнопок архива
-        const ac = document.getElementById('archiveControls');
-        if (ac && currentVisible === 'eventsScreen') {
-            ac.classList.add('archive-controls-slide-out');
-        }
-                requestAnimationFrame(step);
-            } else {
-                // Анимация закончена – скрываем экран и сбрасываем стили
-                currentEl.style.display = 'none';
-currentEl.style.transform = '';
-currentEl.style.zIndex = '';
+    // Настройка анимации экрана
+    currentEl.style.zIndex = '10';
+    currentEl.style.transform = 'translateX(0)';
+    const start = performance.now();
+    const duration = 400;
 
-// Полный сброс кнопок архива
-const ac = document.getElementById('archiveControls');
-ac.classList.remove('archive-controls-slide-out'); // убираем класс анимации
-ac.style.opacity = '0';
-ac.style.pointerEvents = 'none';
-ac.style.transform = '';          // сбрасываем возможные transform от анимации
-const hint = document.getElementById('archiveHintFab');
-if (hint) {
-    hint.style.display = 'flex';  // возвращаем подсказку в исходное состояние
-    hint.style.opacity = '1';     // если где-то менялась прозрачность
-}
+    function step(now) {
+        const elapsed = now - start;
+        let t = Math.min(elapsed / duration, 1);
+        const progress = 1 - Math.pow(1 - t, 3);
+        currentEl.style.transform = `translateX(${progress * 100}%)`;
+        if (t < 1) {
+            requestAnimationFrame(step);
+        } else {
+            // Анимация закончена – скрываем экран и сбрасываем всё
+            currentEl.style.display = 'none';
+            currentEl.style.transform = '';
+            currentEl.style.zIndex = '';
+
+            // Полный сброс кнопок архива
+            if (ac) {
                 ac.classList.remove('archive-controls-slide-out');
-document.getElementById('archiveControls').style.pointerEvents = 'none';
+                ac.style.opacity = '0';
+                ac.style.pointerEvents = 'none';
+                ac.style.transform = '';
+            }
+            const hint = document.getElementById('archiveHintFab');
+            if (hint) {
+                hint.style.display = 'flex';
+                hint.style.opacity = '1';
             }
         }
-        requestAnimationFrame(step);
-        return;
     }
+    requestAnimationFrame(step);
+    return;
+}
 
     // Обычное переключение (для остальных случаев)
     showScreenFinal(id, false, currentVisible);
@@ -1712,37 +1707,38 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
 
     // Анимация выезда справа (кроме архива)
 if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
-        target.style.zIndex = '10';
-      if (id === 'eventsScreen') {
-            const ac = document.getElementById('archiveControls');
-          const ac = document.getElementById('archiveControls');
-ac.classList.remove('archive-controls-slide-in', 'archive-controls-slide-out'); // очистка
-ac.style.transform = '';   // сброс
-ac.style.opacity = '0';    // начальная прозрачность перед стартом анимации
+    target.style.zIndex = '10';
+
+    if (id === 'eventsScreen') {
+        const ac = document.getElementById('archiveControls');
+        if (ac) {
+            ac.classList.remove('archive-controls-slide-in', 'archive-controls-slide-out');
+            ac.style.transform = '';
+            ac.style.opacity = '0'; // начальная прозрачность перед стартом анимации
             ac.classList.add('archive-controls-slide-in');
             ac.style.opacity = '1';
             ac.style.pointerEvents = 'auto';
         }
-        target.classList.add('screen-slide-in');
-        target.addEventListener('animationend', function handler() {
-            target.removeEventListener('animationend', handler);
-            target.classList.remove('screen-slide-in');
-            if (id === 'eventsScreen') {
-                document.getElementById('archiveControls').classList.remove('archive-controls-slide-in');
-            }
-            document.getElementById('archiveControls').classList.remove('archive-controls-slide-in');
-            target.style.zIndex = '';
-            if (prevScreen === 'mainMenu') {
-                document.getElementById('mainMenu').style.display = 'none';
-            }
-        });
     }
-    // Блокировка скролла для меню
-    if (id === 'mainMenu') {
-        document.body.classList.add('no-scroll');
-    } else {
-        document.body.classList.remove('no-scroll');
-    }
+
+    target.classList.add('screen-slide-in');
+    target.addEventListener('animationend', function handler() {
+        target.removeEventListener('animationend', handler);
+        target.classList.remove('screen-slide-in');
+        target.style.zIndex = '';
+
+        if (id === 'eventsScreen') {
+            const ac = document.getElementById('archiveControls');
+            if (ac) {
+                ac.classList.remove('archive-controls-slide-in');
+            }
+        }
+
+        if (prevScreen === 'mainMenu') {
+            document.getElementById('mainMenu').style.display = 'none';
+        }
+    });
+}
 
     if (id === 'loginScreen') { startFallingEmojis(); setRandomPlaceholder(); } else stopFallingEmojis();
    const archiveControls = document.getElementById('archiveControls');
@@ -1754,19 +1750,6 @@ if (id === 'eventsScreen' || id === 'archiveScreen') {
     archiveControls.style.opacity = '1';
     archiveControls.style.pointerEvents = 'auto';
     
-    if (id === 'eventsScreen') {
-        setButtonText(archiveFab, '📁');
-        setButtonText(archiveHintFab, '▲');
-    } else { // archiveScreen
-        setButtonText(archiveFab, '📂');
-        setButtonText(archiveHintFab, '▼');
-    }
-    archiveHintFab.style.display = 'flex'; // на всякий случай, если был скрыт
-} else {
-    // Плавно прячем
-    archiveControls.style.opacity = '0';
-    archiveControls.style.pointerEvents = 'none';
-}
     if (id === 'eventsScreen') loadEvents();
     if (id === 'profileScreen') loadProfileScreen();
     if (id === 'statsScreen') loadStatistics();
