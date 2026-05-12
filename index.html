@@ -1692,64 +1692,77 @@ if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includ
 }
 
 function showScreenFinal(id, skipAnimation, prevScreen = '') {
-   const screens = ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'];
+    const screens = ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'];
     for (const s of screens) {
-        if (s === 'mainMenu' && prevScreen === 'mainMenu') continue; // не скрываем меню, если переходим с него
+        if (s === 'mainMenu' && prevScreen === 'mainMenu') continue;
         document.getElementById(s).style.display = 'none';
     }
-    
+
     document.getElementById('createForm').style.display = 'none';
-    
+
     const target = document.getElementById(id);
     if (!target) return;
     const isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen' || id === 'archiveScreen');
     target.style.display = isFlex ? 'flex' : 'block';
 
     // Анимация выезда справа (кроме архива)
-if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
-    target.style.zIndex = '10';
-
-    if (id === 'eventsScreen') {
-        const ac = document.getElementById('archiveControls');
-        if (ac) {
-            ac.classList.remove('archive-controls-slide-in', 'archive-controls-slide-out');
-            ac.style.transform = '';
-            ac.style.opacity = '0'; // начальная прозрачность перед стартом анимации
-            ac.classList.add('archive-controls-slide-in');
-            ac.style.opacity = '1';
-            ac.style.pointerEvents = 'auto';
-        }
-    }
-
-    target.classList.add('screen-slide-in');
-    target.addEventListener('animationend', function handler() {
-        target.removeEventListener('animationend', handler);
-        target.classList.remove('screen-slide-in');
-        target.style.zIndex = '';
-
+    if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
+        target.style.zIndex = '10';
         if (id === 'eventsScreen') {
             const ac = document.getElementById('archiveControls');
             if (ac) {
-                ac.classList.remove('archive-controls-slide-in');
+                ac.classList.remove('archive-controls-slide-in', 'archive-controls-slide-out');
+                ac.style.transform = '';
+                ac.style.opacity = '0'; // начальная прозрачность
+                ac.classList.add('archive-controls-slide-in');
+                ac.style.opacity = '1';
+                ac.style.pointerEvents = 'auto';
             }
         }
+        target.classList.add('screen-slide-in');
+        target.addEventListener('animationend', function handler() {
+            target.removeEventListener('animationend', handler);
+            target.classList.remove('screen-slide-in');
+            target.style.zIndex = '';
+            if (id === 'eventsScreen') {
+                const ac = document.getElementById('archiveControls');
+                if (ac) ac.classList.remove('archive-controls-slide-in');
+            }
+            if (prevScreen === 'mainMenu') {
+                document.getElementById('mainMenu').style.display = 'none';
+            }
+        });
+    }
 
-        if (prevScreen === 'mainMenu') {
-            document.getElementById('mainMenu').style.display = 'none';
-        }
-    });
-}
+    // Блокировка скролла для меню
+    if (id === 'mainMenu') {
+        document.body.classList.add('no-scroll');
+    } else {
+        document.body.classList.remove('no-scroll');
+    }
 
     if (id === 'loginScreen') { startFallingEmojis(); setRandomPlaceholder(); } else stopFallingEmojis();
-   const archiveControls = document.getElementById('archiveControls');
-const archiveFab = document.getElementById('archiveFab');
-const archiveHintFab = document.getElementById('archiveHintFab');
 
-if (id === 'eventsScreen' || id === 'archiveScreen') {
-    // Плавно показываем
-    archiveControls.style.opacity = '1';
-    archiveControls.style.pointerEvents = 'auto';
-    
+    const archiveControls = document.getElementById('archiveControls');
+    const archiveFab = document.getElementById('archiveFab');
+    const archiveHintFab = document.getElementById('archiveHintFab');
+
+    if (id === 'eventsScreen' || id === 'archiveScreen') {
+        archiveControls.style.opacity = '1';
+        archiveControls.style.pointerEvents = 'auto';
+        if (id === 'eventsScreen') {
+            setButtonText(archiveFab, '📁');
+            setButtonText(archiveHintFab, '▲');
+        } else {
+            setButtonText(archiveFab, '📂');
+            setButtonText(archiveHintFab, '▼');
+        }
+        archiveHintFab.style.display = 'flex';
+    } else {
+        archiveControls.style.opacity = '0';
+        archiveControls.style.pointerEvents = 'none';
+    }
+
     if (id === 'eventsScreen') loadEvents();
     if (id === 'profileScreen') loadProfileScreen();
     if (id === 'statsScreen') loadStatistics();
