@@ -2592,10 +2592,10 @@ function logout() {
 }
     function openInMaps(lat, lng) { window.open(`https://maps.apple.com/?ll=${lat},${lng}&q=Точка`, '_blank'); }
 
-    // --- СТАТИСТИКА (НОВЫЙ КРАСИВЫЙ ДИЗАЙН) ---
+    // --- СТАТИСТИКА (ТОЛЬКО ЛИДЕРБОРД) ---
     async function loadStatistics() {
         let content = document.getElementById('statsContent');
-        content.innerHTML = '<div style="text-align:center; padding:40px 20px;"><div style="font-size:60px; margin-bottom:16px;">🏜️</div><p>Загрузка статистики...</p></div>';
+        content.innerHTML = '<div style="text-align:center; padding:40px 20px;"><div style="font-size:60px; margin-bottom:16px;">🏜️</div><p>Загрузка лидерборда...</p></div>';
 
         try {
             let [profileRes, leaderboardRes] = await Promise.all([
@@ -2606,68 +2606,40 @@ function logout() {
             let profile = await profileRes.json();
             let leaderboard = await leaderboardRes.json();
 
-            let totalVibes = (profile.stats?.created || 0) * 25 + (profile.stats?.attended || 0) * 15;
+            let totalVibes = profile.vibes || (profile.stats?.created || 0) * 25 + (profile.stats?.attended || 0) * 15;
 
             let html = `
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <div style="font-size: 68px; line-height: 1; margin-bottom: 8px;">🐪</div>
-                    <div style="font-size: 42px; font-weight: 800; background: linear-gradient(90deg, #fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -2px;">
-                        ${totalVibes}
+                <div style="text-align: center; margin-bottom: 40px;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 20px; font-size: 52px;">
+                        🐪
+                        <div style="font-size: 52px; font-weight: 900; background: linear-gradient(90deg, #ffd700, #fff, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -3px;">
+                            ${totalVibes}
+                        </div>
+                        🐪
                     </div>
-                    <div style="color: #888; font-size: 13px; letter-spacing: 2px; text-transform: uppercase;">вайб-очков</div>
-                </div>
-
-                <!-- Большие метрики -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px;">
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 22px; padding: 24px 16px; text-align: center; box-shadow: 0 0 20px rgba(255,255,255,0.04), inset 0 0 12px rgba(0,0,0,0.6);">
-                        <div style="font-size: 42px; font-weight: 700; color: #fff;">${profile.stats?.created || 0}</div>
-                        <div style="color: #aaa; font-size: 13px; margin-top: 6px; letter-spacing: 1px;">СОЗДАНО</div>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 22px; padding: 24px 16px; text-align: center; box-shadow: 0 0 20px rgba(255,255,255,0.04), inset 0 0 12px rgba(0,0,0,0.6);">
-                        <div style="font-size: 42px; font-weight: 700; color: #fff;">${profile.stats?.attended || 0}</div>
-                        <div style="color: #aaa; font-size: 13px; margin-top: 6px; letter-spacing: 1px;">ПОСЕЩЕНО</div>
-                    </div>
-                </div>
-
-                <!-- Ачивки -->
-                <div style="margin-bottom: 32px;">
-                    <div class="section-title" style="margin-bottom: 16px;">🏆 Твои ачивки</div>
-                    <div style="display: flex; flex-wrap: wrap; gap: 12px;">
-                        ${(profile.achievements && profile.achievements.length) ? profile.achievements.map(a => `
-                            <div onclick="this.classList.toggle('flipped')" style="perspective: 600px; width: calc(50% - 6px); cursor: pointer;">
-                                <div style="transition: transform 0.6s; transform-style: preserve-3d; position: relative; height: 110px;">
-                                    <div style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 18px; display: flex; align-items: center; justify-content: center; flex-direction: column; box-shadow: inset 0 0 12px rgba(0,0,0,0.5);">
-                                        <div style="font-size: 42px; margin-bottom: 8px;">${a.emoji}</div>
-                                        <div style="font-weight: 600; font-size: 15px; color: #ddd; text-align: center; padding: 0 12px;">${a.name}</div>
-                                    </div>
-                                    <div style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; transform: rotateY(180deg); background: #111; border: 1px solid #333; border-radius: 18px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 12px; font-size: 13px; color: #aaa;">
-                                        ${a.description || 'Крутая ачивка!'}
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('') : '<p style="color:#666; text-align:center; padding: 30px 0;">Пока нет ачивок. Ходи чаще!</p>'}
-                    </div>
+                    <div style="color: #aaa; font-size: 18px; margin-top: 8px; letter-spacing: 1px;">ТВОИ ОЧКИ</div>
                 </div>
 
                 <!-- Лидерборд -->
                 <div>
-                    <div class="section-title">🌍 ТОП КАРАВАНА</div>
-                    <div style="background: rgba(255,255,255,0.03); border-radius: 20px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
-                        ${leaderboard.slice(0, 8).map((u, i) => {
-                            const isMe = u.user && u.user.id === USER_ID;
+                    <div style="font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 20px; color: #fff;">ЛИДЕРБОРД</div>
+                    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; overflow: hidden;">
+                        ${leaderboard.slice(0, 15).map((u, i) => {
+                            const isMe = (u.user && u.user.id === USER_ID) || u.user_id === USER_ID;
+                            const name = escapeHtml(u.user?.name || u.name || 'Караванщик');
+                            const emoji = u.user?.emoji || u.emoji || '🐪';
+                            const score = u.score || u.vibes || 0;
                             return `
-                                <div style="display: flex; align-items: center; padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); ${isMe ? 'background: rgba(255,215,0,0.08);' : ''}">
-                                    <div style="width: 28px; color: #888; font-weight: 700;">#${i+1}</div>
-                                    <div style="margin-left: 12px; font-size: 26px;">${u.user?.emoji || '🐪'}</div>
-                                    <div style="flex: 1; margin-left: 14px; font-weight: 600;">${escapeHtml(u.user?.name || 'Аноним')}</div>
-                                    <div style="text-align: right;">
-                                        <div style="font-size: 18px; font-weight: 700; color: #fff;">${u.score || 0}</div>
-                                    </div>
+                                <div style="display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); ${isMe ? 'background: rgba(255,215,0,0.12);' : ''}">
+                                    <div style="width: 32px; color: #888; font-weight: 700; font-size: 18px;">#${i+1}</div>
+                                    <div style="margin-left: 12px; font-size: 32px; width: 40px; text-align: center;">${emoji}</div>
+                                    <div style="flex: 1; margin-left: 16px; font-weight: 600; font-size: 17px;">${name}</div>
+                                    <div style="font-size: 20px; font-weight: 700; color: #fff;">${score}</div>
                                 </div>
                             `;
                         }).join('')}
                     </div>
-                    ${leaderboard.length > 8 ? `<div style="text-align:center; color:#666; margin-top:12px; font-size:13px;">... и ещё ${leaderboard.length - 8} караванщиков</div>` : ''}
+                    ${leaderboard.length > 15 ? `<div style="text-align:center; color:#666; margin-top:16px; font-size:14px;">... и ещё ${leaderboard.length - 15} караванщиков</div>` : ''}
                 </div>
             `;
 
@@ -2675,9 +2647,9 @@ function logout() {
 
         } catch(e) {
             console.error(e);
-            content.innerHTML = `<div style="padding: 60px 20px; text-align: center; color: #ff6b6b;">
-                <div style="font-size: 50px; margin-bottom: 16px;">⚠️</div>
-                <p>Не удалось загрузить статистику</p>
+            content.innerHTML = `<div style="padding: 80px 20px; text-align: center; color: #ff6b6b;">
+                <div style="font-size: 60px; margin-bottom: 20px;">🐪</div>
+                <p>Не удалось загрузить лидерборд</p>
             </div>`;
         }
     }
@@ -3067,7 +3039,7 @@ function toggleCollapsible(header) {
 let archiveAnimFrame = null;
 let archiveAnimActive = false;
 
-    function toggleArchive() {
+function toggleArchive() {
     const archive = document.getElementById('archiveScreen');
     if (archive && archive.style.display === 'flex') {
         // архив открыт – закрываем
