@@ -3143,52 +3143,41 @@ function animateArchiveClose(callback) {
     const overlay = document.getElementById('archiveOverlay');
 
     archive.style.transform = '';
-    archive.style.filter = 'blur(0)';
     archive.style.transformOrigin = 'center center';
-    archive.style.willChange = 'transform, filter, opacity';
+    archive.style.willChange = 'transform, opacity';
+    archive.style.transition = 'none';
 
     const startTime = performance.now();
-    const duration = 420;   // было 250, стало медленнее
+    const duration = 350;
 
     function step(timestamp) {
-        if (!archiveAnimActive) return;
         const elapsed = timestamp - startTime;
-        const t = Math.min(elapsed / duration, 1);
+        let t = Math.min(elapsed / duration, 1);
         const progress = 1 - Math.pow(1 - t, 3);
-        const overlayProgress = Math.min(progress / 0.5, 1);          // к середине основного прогресса overlay полностью исчезнет
-const overlayOpacity = 1 - (1 - Math.pow(1 - overlayProgress, 3)); // плавный ease-out для overlay
-if (overlay) overlay.style.opacity = overlayOpacity;
 
         const scale = 1 - progress;
         const tx = targetX * progress;
         const ty = targetY * progress;
 
         archive.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-        archive.style.filter = `blur(${8 * progress}px)`;
         archive.style.opacity = `${1 - progress}`;
+        if (overlay) overlay.style.opacity = `${1 - progress}`;
 
         if (t < 1) {
-            archiveAnimFrame = requestAnimationFrame(step);
+            requestAnimationFrame(step);
         } else {
-           // Сброс стилей архива
-archive.style.transform = '';
-archive.style.filter = '';
-archive.style.opacity = '';
-archive.style.transformOrigin = '';
-archive.style.willChange = '';
-archive.style.boxShadow = '';
-archive.style.display = 'none';
-if (overlay) {
-    overlay.style.opacity = '0';
-    overlay.style.display = 'none';
-}
-archiveAnimActive = false;
-if (callback) callback();
+            archive.style.display = 'none';
+            archive.style.transform = '';
+            archive.style.opacity = '';
+            if (overlay) {
+                overlay.style.opacity = '0';
+                overlay.style.display = 'none';
+            }
+            if (callback) callback();
         }
     }
 
-    archiveAnimActive = true;
-    archiveAnimFrame = requestAnimationFrame(step);
+    requestAnimationFrame(step);
 }
 </script>
 </body>
