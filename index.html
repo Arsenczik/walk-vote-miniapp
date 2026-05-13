@@ -1,67 +1,117 @@
-    async function loadStatistics() {
-        let content = document.getElementById('statsContent');
-        content.innerHTML = '<div style="text-align:center; padding:40px 20px;"><div style="font-size:60px; margin-bottom:16px;">🏜️</div><p>Загрузка лидерборда...</p></div>';
-
-        try {
-            let [profileRes, leaderboardRes] = await Promise.all([
-                fetch('/api/profile/' + USER_ID),
-                fetch('/api/leaderboard')
-            ]);
-
-            let profile = await profileRes.json();
-            let leaderboard = await leaderboardRes.json();
-
-            let totalVibes = profile.vibes || (profile.stats?.created || 0) * 25 + (profile.stats?.attended || 0) * 15;
-
-            let html = `
-                <div class="stats-header" style="text-align: center; margin-bottom: 40px;">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 12px;">
-                        <div style="font-size: 58px; transform: scaleX(-1);">🐪</div>
-                        <div style="font-size: 72px; font-weight: 900; background: linear-gradient(90deg, #ffd700, #ffffff, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -4px; line-height: 1;">
-                            ${totalVibes}
-                        </div>
-                        <div style="font-size: 58px;">🐪</div>
-                    </div>
-                    <div style="color: #ddd; font-size: 17px; letter-spacing: 2px; text-transform: uppercase; font-weight: 600;">Твои очки</div>
-                </div>
-
-                <!-- Лидерборд -->
-                <div>
-                    <div class="section-title" style="text-align: center; margin-bottom: 24px; font-size: 22px; letter-spacing: 1px;">ЛИДЕРБОРД</div>
-                    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 24px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
-                        ${leaderboard.slice(0, 15).map((u, i) => {
-                            const isMe = (u.user && (u.user.id === USER_ID || u.user_id === USER_ID)) || u.id === USER_ID;
-                            const name = escapeHtml(u.user?.name || u.name || 'Караванщик');
-                            const emoji = u.user?.emoji || u.emoji || '🐪';
-                            const score = u.score || u.vibes || 0;
-
-                            return `
-                                <div style="display: flex; align-items: center; padding: 18px 22px; border-bottom: 1px solid rgba(255,255,255,0.08); ${isMe ? 'background: rgba(255, 215, 0, 0.15);' : ''}">
-                                    <div style="min-width: 36px; color: #ffd700; font-weight: 700; font-size: 19px;">#${i+1}</div>
-                                    <div style="margin-left: 18px; font-size: 36px; width: 48px; text-align: center; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
-                                        ${emoji}
-                                    </div>
-                                    <div style="flex: 1; margin-left: 16px;">
-                                        <div style="font-weight: 600; font-size: 17.5px; color: #fff;">${name}</div>
-                                    </div>
-                                    <div style="text-align: right; font-size: 22px; font-weight: 700; color: #ffd700;">
-                                        ${score}
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                    ${leaderboard.length > 15 ? `<div style="text-align:center; color:#777; margin-top:20px; font-size:14px;">... и ещё ${leaderboard.length - 15} караванщиков</div>` : ''}
-                </div>
-            `;
-
-            content.innerHTML = html;
-
-        } catch(e) {
-            console.error(e);
-            content.innerHTML = `<div style="padding: 80px 20px; text-align: center; color: #ff6b6b;">
-                <div style="font-size: 60px; margin-bottom: 16px;">🐪</div>
-                <p>Не удалось загрузить лидерборд</p>
-            </div>`;
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Караван</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body {
+            background: #0a0a0a;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
         }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+        #statsScreen {
+            padding: 20px;
+        }
+        .stats-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .leaderboard-container {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 24px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="statsScreen">
+            <h1 style="text-align: center; margin: 20px 0 40px;">Караван Сахара</h1>
+            <div id="statsContent"></div>
+        </div>
+    </div>
+
+<script>
+let USER_ID = 1; // placeholder
+
+function escapeHtml(unsafe) {
+    return unsafe.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">").replace(/"/g, """).replace(/'/g, "&#039;");
+}
+
+async function loadStatistics() {
+    let content = document.getElementById('statsContent');
+    content.innerHTML = '<div style="text-align:center; padding:80px 20px;"><div style="font-size:80px; margin-bottom:20px;">🏜️</div><p>Загрузка лидерборда...</p></div>';
+
+    try {
+        let [profileRes, leaderboardRes] = await Promise.all([
+            fetch('/api/profile/' + USER_ID),
+            fetch('/api/leaderboard')
+        ]);
+
+        let profile = await profileRes.json();
+        let leaderboard = await leaderboardRes.json();
+
+        let totalVibes = profile.vibes || 420;
+
+        let html = `
+            <div class="stats-header">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 30px; margin-bottom: 16px;">
+                    <div style="font-size: 68px; transform: scaleX(-1);">🐪</div>
+                    <div style="font-size: 88px; font-weight: 900; background: linear-gradient(90deg, #ffd700, #fff, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -8px;">
+                        ${totalVibes}
+                    </div>
+                    <div style="font-size: 68px;">🐪</div>
+                </div>
+                <div style="color: #ddd; font-size: 20px; letter-spacing: 3px; text-transform: uppercase; font-weight: 700;">ТВОИ ОЧКИ</div>
+            </div>
+
+            <div>
+                <div style="text-align: center; font-size: 23px; letter-spacing: 2px; margin-bottom: 24px; color: #ffd700;">ЛИДЕРБОРД</div>
+                <div class="leaderboard-container">
+                    ${leaderboard.slice(0, 15).map((u, i) => {
+                        const isMe = (u.user_id === USER_ID || u.id === USER_ID);
+                        const name = escapeHtml(u.name || u.user?.name || 'Караванщик');
+                        const emoji = u.emoji || u.user?.emoji || '🐪';
+                        const score = u.vibes || u.score || 0;
+                        return `
+                            <div style="display: flex; align-items: center; padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.1); ${isMe ? 'background: rgba(255,215,0,0.2);' : ''}">
+                                <div style="min-width: 40px; color: #ffd700; font-weight: 700; font-size: 21px;">#${i+1}</div>
+                                <div style="font-size: 42px; margin: 0 20px; width: 52px; text-align: center;">${emoji}</div>
+                                <div style="flex: 1; font-size: 18px; font-weight: 600;">${name}</div>
+                                <div style="font-size: 26px; font-weight: 700; color: #ffd700;">${score}</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+
+        content.innerHTML = html;
+
+    } catch(e) {
+        console.error(e);
+        content.innerHTML = `<div style="text-align:center; padding:100px 20px; color:#ff6b6b;">
+            <div style="font-size:80px;margin-bottom:24px;">🐪</div>
+            <p>Не удалось загрузить лидерборд</p>
+        </div>`;
     }
+}
+
+// Запуск
+loadStatistics();
+</script>
+</body>
+</html>
