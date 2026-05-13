@@ -1781,25 +1781,37 @@ function showScreen(id) {
         }
     });
 
-  if (currentVisible === 'archiveScreen' && id !== 'archiveScreen') {
-        if (archiveAnimFrame) cancelAnimationFrame(archiveAnimFrame);
-        archiveAnimActive = true;
-
-        // Сначала показываем целевой экран (eventsScreen) под архивом
-        document.getElementById('eventsScreen').style.display = 'flex';
-        // и меняем иконки обратно, пока архив ещё виден
-        const fab = document.getElementById('archiveFab');
-        const hint = document.getElementById('archiveHintFab');
-        setButtonText(fab, '📁');
-        if (hint) {
-            setButtonText(hint, '▲');
-            hint.style.display = 'flex';
+if (currentVisible === 'archiveScreen' && id !== 'archiveScreen') {
+    if (archiveAnimFrame) cancelAnimationFrame(archiveAnimFrame);
+    archiveAnimActive = true;
+    // Меняем иконки обратно
+    const fab = document.getElementById('archiveFab');
+    const hint = document.getElementById('archiveHintFab');
+    setButtonText(fab, '📁');
+    if (hint) {
+        setButtonText(hint, '▲');
+        hint.style.display = 'flex';
+    }
+    // Закрываем архив с анимацией, после чего показываем нужный экран
+    animateArchiveClose(() => {
+        // Сбрасываем стили экрана событий перед показом
+        const eventsScreen = document.getElementById('eventsScreen');
+        if (eventsScreen) {
+            eventsScreen.style.transform = '';
+            eventsScreen.style.transition = '';
+            eventsScreen.style.opacity = '';
+            eventsScreen.style.position = '';
+            eventsScreen.style.top = '';
+            eventsScreen.style.left = '';
+            eventsScreen.style.width = '';
+            eventsScreen.style.height = '';
+            eventsScreen.style.zIndex = '';
         }
-     animateArchiveClose(() => {
-            // архив сам скроется, затемнение уберётся внутри анимации
-        });
-      return;
-  }
+        // Показываем целевой экран (обычно eventsScreen) с анимацией
+        showScreenFinal(id, false);
+    });
+    return;
+}
   // Открытие архива с анимацией
     if (id === 'archiveScreen' && currentVisible !== 'archiveScreen') {
         if (archiveAnimFrame) cancelAnimationFrame(archiveAnimFrame);
@@ -3019,6 +3031,9 @@ function closeArchive() {
 }
 
 function animateArchiveOpen() {
+    // Скрываем экран событий, пока открыт архив
+const eventsScreen = document.getElementById('eventsScreen');
+if (eventsScreen) eventsScreen.style.display = 'none';
     const archive = document.getElementById('archiveScreen');
     const fab = document.querySelector('.archive-fab');
     if (!archive || !fab) return showScreenFinal('archiveScreen', true);
@@ -3104,6 +3119,9 @@ function animateArchiveOpen() {
             archive.style.boxShadow = '';
             archiveAnimActive = false;
             loadArchive();
+            // Убедимся, что экран событий всё ещё скрыт
+const eventsScreenAfter = document.getElementById('eventsScreen');
+if (eventsScreenAfter) eventsScreenAfter.style.display = 'none';
         }
     }
 
@@ -3152,18 +3170,20 @@ if (overlay) overlay.style.opacity = overlayOpacity;
         if (t < 1) {
             archiveAnimFrame = requestAnimationFrame(step);
         } else {
-            archive.style.display = 'none';
-            archive.style.transform = '';
-            archive.style.filter = '';
-            archive.style.opacity = '';
-            archive.style.transformOrigin = '';
-            archive.style.willChange = '';
-            if (overlay) {
-                overlay.style.opacity='0';
-                overlay.style.display='none';
-            }
-            archiveAnimActive = false;
-            if (callback) callback();
+           // Сброс стилей архива
+archive.style.transform = '';
+archive.style.filter = '';
+archive.style.opacity = '';
+archive.style.transformOrigin = '';
+archive.style.willChange = '';
+archive.style.boxShadow = '';
+archive.style.display = 'none';
+if (overlay) {
+    overlay.style.opacity = '0';
+    overlay.style.display = 'none';
+}
+archiveAnimActive = false;
+if (callback) callback();
         }
     }
 
