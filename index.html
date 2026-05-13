@@ -1911,7 +1911,7 @@ if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id ===
         ac.style.transform = `translateX(${window.innerWidth}px)`;
         // JS-анимация въезда кнопки архива
         const startArch = performance.now();
-        const durationArch = 550;
+        const durationArch = 400;
         function animArch(now) {
             const elapsed = now - startArch;
             const t = Math.min(elapsed / durationArch, 1);
