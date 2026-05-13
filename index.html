@@ -1418,6 +1418,10 @@ body {
     pointer-events: none;
     mix-blend-mode: overlay;
 }
+        /* Анимация возврата overscroll */
+.rubber-band-transition {
+    transition: transform 0.35s cubic-bezier(0.15, 0.85, 0.35, 1.05) !important;
+}
     </style>
 </head>
 <body>
@@ -3195,6 +3199,73 @@ function animateArchiveClose(callback) {
 
     requestAnimationFrame(step);
 }
+    // === Overscroll «резинка» для экранов События, Профиль, Статистика ===
+function enableRubberBand(selector) {
+    const container = document.querySelector(selector);
+    if (!container) return;
+
+    let scrollContent = container; // сам контейнер скроллится
+    let startY = 0, currentTranslate = 0, startScrollTop = 0, isOverscrolling = false;
+    let maxDrag = 80; // максимальное растяжение (px)
+    let friction = 0.55; // сопротивление
+
+    function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+    }
+
+    function onTouchStart(e) {
+        if (e.touches.length !== 1) return;
+        startY = e.touches[0].clientY;
+        startScrollTop = scrollContent.scrollTop;
+        currentTranslate = 0;
+        isOverscrolling = false;
+        scrollContent.classList.remove('rubber-band-transition');
+    }
+
+    function onTouchMove(e) {
+        if (e.touches.length !== 1) return;
+        const deltaY = e.touches[0].clientY - startY;
+        const atTop = scrollContent.scrollTop <= 1;
+        const atBottom = scrollContent.scrollTop + scrollContent.clientHeight >= scrollContent.scrollHeight - 1;
+
+        if ((deltaY > 0 && atTop) || (deltaY < 0 && atBottom)) {
+            // overscroll
+            e.preventDefault();
+            let drag = deltaY * friction;
+            drag = clamp(drag, -maxDrag, maxDrag);
+            currentTranslate = drag;
+            scrollContent.style.transform = `translateY(${currentTranslate}px)`;
+            isOverscrolling = true;
+        } else {
+            if (isOverscrolling) {
+                // возвращаем в исходное положение
+                scrollContent.style.transform = '';
+                isOverscrolling = false;
+            }
+        }
+    }
+
+    function onTouchEnd() {
+        if (!isOverscrolling) return;
+        scrollContent.classList.add('rubber-band-transition');
+        scrollContent.style.transform = '';
+        setTimeout(() => {
+            scrollContent.classList.remove('rubber-band-transition');
+        }, 400);
+        isOverscrolling = false;
+    }
+
+    container.addEventListener('touchstart', onTouchStart, { passive: false });
+    container.addEventListener('touchmove', onTouchMove, { passive: false });
+    container.addEventListener('touchend', onTouchEnd);
+}
+
+// Активируем для трёх экранов (события, профиль, статистика)
+document.addEventListener('DOMContentLoaded', () => {
+    enableRubberBand('#eventsScreen');
+    enableRubberBand('#profileScreen');
+    enableRubberBand('#statsScreen');
+});
 </script>
 </body>
 </html>
