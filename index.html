@@ -888,7 +888,7 @@ body {
     min-height: 100vh;          /* занимает весь экран */
     background: #000;
     color: #fff;
-    position: relative; /* для sticky */
+    position: fixed;
     transform: translate3d(100%, 0, 0);
     will-change: transform;
     backface-visibility: hidden;
@@ -900,7 +900,7 @@ body {
     min-height: 100vh;
     background: #000;
     color: #fff;
-    position: relative;
+    position: flex;
     transform: translate3d(100%, 0, 0);
     will-change: transform;
     backface-visibility: hidden;
@@ -1351,29 +1351,40 @@ body {
     margin: 0 auto;
     box-sizing: border-box;
 }
-        /* === ИСПРАВЛЕННАЯ АНИМАЦИЯ БЕЗ ЩЕЛЕЙ === */
         .screen-slide-in {
-            animation: slideInRight3D 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
-            z-index: 50 !important; /* Поверх всего */
-        }
+    animation: slideInRight3D 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+    z-index: 50 !important;
+    transform: translate3d(100vw, 0, 0) !important; /* ← 100vw вместо 100% */
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    translate: 0 0; /* ← сброс для Safari */
+}
 
-        @keyframes slideInRight3D {
-            0%   { transform: translate3d(100%, 0, 0); }
-            100% { transform: translate3d(0, 0, 0); }
-        }
+@keyframes slideInRight3D {
+    0%   { 
+        transform: translate3d(100vw, 0, 0); 
+        opacity: 1;
+    }
+    100% { 
+        transform: translate3d(0, 0, 0); 
+        opacity: 1;
+    }
+}
 
-        /* Фикс шва для iOS */
-        .screen-slide-in::after {
-            content: '';
-            position: absolute;
-            left: -1px;
-            top: 0;
-            width: 1px;
-            height: 100%;
-            background: #000; /* Цвет фона */
-            z-index: 2;
-        }
-
+/* Фикс шва - делаем шире */
+.screen-slide-in::before,
+.screen-slide-in::after {
+    content: '';
+    position: absolute;
+    left: -2px;           /* ← шире */
+    top: 0;
+    width: 4px;           /* ← шире */
+    height: 100%;
+    background: #000;
+    z-index: 3;
+    pointer-events: none;
+}
 .screen-slide-out {
     animation: slideOutRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
 }
@@ -1902,7 +1913,7 @@ if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includ
 }
 
     // Обычное переключение (для остальных случаев)
-    showScreenFinal(id, false, currentVisible);
+    (id, false, currentVisible);
 }
 
 function showScreenFinal(id, skipAnimation, prevScreen = '') {
@@ -1919,52 +1930,56 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
     const isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen' || id === 'archiveScreen');
     target.style.display = isFlex ? 'flex' : 'block';
 
-    if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
-        // 1. Сбрасываем в начальную позицию с 3D-трансформацией
-        target.style.transform = 'translate3d(100%, 0, 0)';
+       if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
+        // 1. СБРОС: принудительно ставим в начальную позицию
+        target.style.display = isFlex ? 'flex' : 'block';
+        target.style.transform = 'translate3d(100vw, 0, 0)';
         target.style.zIndex = '50';
         target.style.willChange = 'transform';
+        target.style.backfaceVisibility = 'hidden';
+        target.style.webkitBackfaceVisibility = 'hidden';
+        
+        // Форсируем reflow (браузер обязан применить стили)
+        void target.offsetWidth;
 
-        // 2. Запускаем анимацию в следующем кадре
+        // 2. Запускаем анимацию в СЛЕДУЮЩЕМ кадре
         requestAnimationFrame(() => {
-            target.classList.add('screen-slide-in');
-            
-            // Параллельно сдвигаем меню
-            const menu = document.getElementById('mainMenu');
-            if (menu) {
-                menu.style.transform = 'translate3d(-50%, 0, 0)';
-                menu.style.willChange = 'transform';
-            }
-
-            // Кнопка архива
-            const ac = document.getElementById('archiveControls');
-            if (id === 'eventsScreen' && ac) {
-                ac.style.display = 'flex';
-                ac.style.opacity = '1';
-                ac.style.pointerEvents = 'auto';
-                ac.style.transform = 'translate3d(100vw, 0, 0)';
-                ac.style.willChange = 'transform';
+            requestAnimationFrame(() => {
+                target.classList.add('screen-slide-in');
                 
-                const startArch = performance.now();
-                const durationArch = 400;
-                function animArch(now) {
-                    const elapsed = now - startArch;
-                    const t = Math.min(elapsed / durationArch, 1);
-                    const progressArch = 1 - Math.pow(1 - t, 3);
-                    ac.style.transform = `translate3d(${(1 - progressArch) * 100}vw, 0, 0)`;
-                    if (t < 1) requestAnimationFrame(animArch);
-                    else { ac.style.transform = ''; ac.style.willChange = ''; }
+                const menu = document.getElementById('mainMenu');
+                if (menu) {
+                    menu.style.transform = 'translate3d(-50%, 0, 0)';
+                    menu.style.willChange = 'transform';
                 }
-                requestAnimationFrame(animArch);
-            }
+
+                const ac = document.getElementById('archiveControls');
+                if (id === 'eventsScreen' && ac) {
+                    ac.style.display = 'flex';
+                    ac.style.opacity = '1';
+                    ac.style.pointerEvents = 'auto';
+                    ac.style.transform = 'translate3d(100vw, 0, 0)';
+                    
+                    requestAnimationFrame(() => {
+                        ac.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1)';
+                        ac.style.transform = 'translate3d(0, 0, 0)';
+                        setTimeout(() => {
+                            ac.style.transition = '';
+                            ac.style.transform = '';
+                            ac.style.willChange = '';
+                        }, 400);
+                    });
+                }
+            });
         });
 
-        // 3. Очистка после завершения
+        // 3. Очистка
         const onAnimEnd = () => {
             target.classList.remove('screen-slide-in');
-            target.style.transform = 'translate3d(0, 0, 0)'; 
+            target.style.transform = 'translate3d(0, 0, 0)';
             target.style.willChange = '';
-            target.style.zIndex = '';
+            target.style.backfaceVisibility = '';
+            target.style.webkitBackfaceVisibility = '';
             
             const menu = document.getElementById('mainMenu');
             if (menu) {
@@ -1975,6 +1990,8 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
             target.removeEventListener('animationend', onAnimEnd);
         };
         target.addEventListener('animationend', onAnimEnd);
+        
+        return; // ← ВАЖНО: выходим, чтобы не сработал код ниже
     }
 
     // Блокировка скролла для меню
