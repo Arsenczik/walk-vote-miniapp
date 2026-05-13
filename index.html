@@ -3126,10 +3126,10 @@ function animateArchiveClose(callback) {
     archive.style.willChange = 'transform, opacity';
     archive.style.transition = 'none';
 
-    // Начинаем возврат прозрачности экрана событий к 1
+    // Устанавливаем начальную прозрачность экрана событий (0.5, как после открытия)
     if (eventsScreen) {
         eventsScreen.style.transition = 'opacity 0.35s ease';
-        eventsScreen.style.opacity = '1';
+        eventsScreen.style.opacity = '0.5';
     }
 
     const startTime = performance.now();
@@ -3138,7 +3138,7 @@ function animateArchiveClose(callback) {
     function step(timestamp) {
         const elapsed = timestamp - startTime;
         let t = Math.min(elapsed / duration, 1);
-        const progress = 1 - Math.pow(1 - t, 3);
+        const progress = 1 - Math.pow(1 - t, 3);  // ease-out
 
         const scale = 1 - progress;
         const tx = targetX * progress;
@@ -3148,22 +3148,29 @@ function animateArchiveClose(callback) {
         archive.style.opacity = `${1 - progress}`;
         if (overlay) overlay.style.opacity = `${1 - progress}`;
 
+        // Плавно возвращаем прозрачность экрана событий от 0.5 до 1
+        if (eventsScreen) {
+            const newOpacity = 0.5 + 0.5 * progress;   // от 0.5 до 1.0
+            eventsScreen.style.opacity = newOpacity;
+        }
+
         if (t < 1) {
             requestAnimationFrame(step);
-       } else {
-    archive.style.display = 'none';
-    archive.style.transform = '';
-    archive.style.opacity = '';
-    if (overlay) {
-        overlay.style.opacity = '0';
-        overlay.style.display = 'none';
-    }
-    // Возвращаем opacity экрана событий к 1, но не меняем display
-    if (eventsScreen) {
-        eventsScreen.style.opacity = '1';
-    }
-    if (callback) callback();
-}
+        } else {
+            // Завершение анимации
+            archive.style.display = 'none';
+            archive.style.transform = '';
+            archive.style.opacity = '';
+            if (overlay) {
+                overlay.style.opacity = '0';
+                overlay.style.display = 'none';
+            }
+            if (eventsScreen) {
+                eventsScreen.style.opacity = '1';
+                eventsScreen.style.transition = '';   // сброс временного transition
+            }
+            if (callback) callback();
+        }
     }
 
     requestAnimationFrame(step);
