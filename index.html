@@ -863,7 +863,7 @@ body {
     overflow-y: auto;
 }
         /* Экраны с контентом занимают весь body */
-#eventsScreen, #archiveScreen, #statsScreen, #loginScreen, #onboardingScreen {
+ #archiveScreen, #loginScreen, #onboardingScreen {
     position: absolute;
     top: 0;
     left: 0;
@@ -888,8 +888,11 @@ body {
     min-height: 100vh;          /* занимает весь экран */
     background: #000;
     color: #fff;
-    overflow-y: auto;           /* скролл внутри профиля */
-    position: relative;         /* для sticky */
+    position: relative; /* для sticky */
+    transform: translate3d(100%, 0, 0);
+    will-change: transform;
+    backface-visibility: hidden;
+    overflow: hidden;
 }
         #statsScreen {
     display: none;
@@ -898,6 +901,9 @@ body {
     background: #000;
     color: #fff;
     position: relative;
+    transform: translate3d(100%, 0, 0);
+    will-change: transform;
+    backface-visibility: hidden;
     overflow: hidden;
 }
 #eventsScreen {
@@ -907,6 +913,9 @@ body {
     background: #000;
     color: #fff;
     position: relative;
+    transform: translate3d(100%, 0, 0);
+    will-change: transform;
+    backface-visibility: hidden;
     overflow: hidden;
 }
         
@@ -1344,13 +1353,28 @@ body {
     margin-right: -12px;
     width: auto;
 }
-.screen-slide-in {
-    animation: slideInRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
-}
-        @keyframes slideInRight {
-    0%   { transform: translateX(100%); opacity: 1; }
-    100% { transform: translateX(0); opacity: 1; }
-}
+        /* === ИСПРАВЛЕННАЯ АНИМАЦИЯ БЕЗ ЩЕЛЕЙ === */
+        .screen-slide-in {
+            animation: slideInRight3D 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+            z-index: 50 !important; /* Поверх всего */
+        }
+
+        @keyframes slideInRight3D {
+            0%   { transform: translate3d(100%, 0, 0); }
+            100% { transform: translate3d(0, 0, 0); }
+        }
+
+        /* Фикс шва для iOS */
+        .screen-slide-in::after {
+            content: '';
+            position: absolute;
+            left: -1px;
+            top: 0;
+            width: 1px;
+            height: 100%;
+            background: #000; /* Цвет фона */
+            z-index: 2;
+        }
 
 .screen-slide-out {
     animation: slideOutRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
@@ -1897,68 +1921,63 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
     const isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen' || id === 'archiveScreen');
     target.style.display = isFlex ? 'flex' : 'block';
 
-    // Анимация выезда справа (кроме архива)
-if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
-    target.style.zIndex = '10';
-    target.classList.add('screen-slide-in');
+    if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
+        // 1. Сбрасываем в начальную позицию с 3D-трансформацией
+        target.style.transform = 'translate3d(100%, 0, 0)';
+        target.style.zIndex = '50';
+        target.style.willChange = 'transform';
 
-    const menu = document.getElementById('mainMenu');
-    const ac = document.getElementById('archiveControls');
-    if (id === 'eventsScreen' && ac) {
-        ac.style.display = 'flex';
-        ac.style.opacity = '1';
-        ac.style.pointerEvents = 'auto';
-        ac.style.transform = `translateX(${window.innerWidth}px)`;
-        // JS-анимация въезда кнопки архива
-        const startArch = performance.now();
-        const durationArch = 400;
-        function animArch(now) {
-            const elapsed = now - startArch;
-            const t = Math.min(elapsed / durationArch, 1);
-            const progressArch = 1 - Math.pow(1 - t, 3);
-            ac.style.transform = `translateX(${(1 - progressArch) * window.innerWidth}px)`;
-            if (t < 1) {
+        // 2. Запускаем анимацию в следующем кадре
+        requestAnimationFrame(() => {
+            target.classList.add('screen-slide-in');
+            
+            // Параллельно сдвигаем меню
+            const menu = document.getElementById('mainMenu');
+            if (menu) {
+                menu.style.transform = 'translate3d(-50%, 0, 0)';
+                menu.style.willChange = 'transform';
+            }
+
+            // Кнопка архива
+            const ac = document.getElementById('archiveControls');
+            if (id === 'eventsScreen' && ac) {
+                ac.style.display = 'flex';
+                ac.style.opacity = '1';
+                ac.style.pointerEvents = 'auto';
+                ac.style.transform = 'translate3d(100vw, 0, 0)';
+                ac.style.willChange = 'transform';
+                
+                const startArch = performance.now();
+                const durationArch = 400;
+                function animArch(now) {
+                    const elapsed = now - startArch;
+                    const t = Math.min(elapsed / durationArch, 1);
+                    const progressArch = 1 - Math.pow(1 - t, 3);
+                    ac.style.transform = `translate3d(${(1 - progressArch) * 100}vw, 0, 0)`;
+                    if (t < 1) requestAnimationFrame(animArch);
+                    else { ac.style.transform = ''; ac.style.willChange = ''; }
+                }
                 requestAnimationFrame(animArch);
-            } else {
-                ac.style.transform = '';
             }
-        }
-        requestAnimationFrame(animArch);
-    }
+        });
 
-    // Анимация смещения меню влево на 50%
-    if (menu) {
-        menu.style.transition = 'none';
-        menu.style.transform = 'translateX(0)';
-        const startMenu = performance.now();
-        const durationMenu = 400; // синхронно с slide-in
-        function animMenu(now) {
-            const elapsed = now - startMenu;
-            const t = Math.min(elapsed / durationMenu, 1);
-            const progress = 1 - Math.pow(1 - t, 3);
-            menu.style.transform = `translateX(-${50 * progress}%)`;
-            if (t < 1) {
-                requestAnimationFrame(animMenu);
-            } else {
-                // меню остаётся сдвинутым, потом скроется в animationend
+        // 3. Очистка после завершения
+        const onAnimEnd = () => {
+            target.classList.remove('screen-slide-in');
+            target.style.transform = 'translate3d(0, 0, 0)'; 
+            target.style.willChange = '';
+            target.style.zIndex = '';
+            
+            const menu = document.getElementById('mainMenu');
+            if (menu) {
+                menu.style.display = 'none';
+                menu.style.transform = '';
+                menu.style.willChange = '';
             }
-        }
-        requestAnimationFrame(animMenu);
+            target.removeEventListener('animationend', onAnimEnd);
+        };
+        target.addEventListener('animationend', onAnimEnd);
     }
-
-    target.addEventListener('animationend', function handler() {
-        target.removeEventListener('animationend', handler);
-        target.classList.remove('screen-slide-in');
-        target.style.zIndex = '';
-        if (menu) {
-            menu.style.display = 'none'; // скрываем меню после анимации
-            menu.style.transform = '';   // сбрасываем transform
-        }
-        if (prevScreen === 'mainMenu') {
-            // уже скрыто
-        }
-    });
-}
 
     // Блокировка скролла для меню
     if (id === 'mainMenu') {
