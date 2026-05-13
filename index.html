@@ -1900,6 +1900,7 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
     // Анимация выезда справа (кроме архива)
 if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
     target.style.zIndex = '10';
+    target.style.background = '#000';   // гарантирует непрозрачность, чтобы меню не просвечивало
     target.classList.add('screen-slide-in');
 
     const menu = document.getElementById('mainMenu');
@@ -1950,6 +1951,7 @@ if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id ===
         target.removeEventListener('animationend', handler);
         target.classList.remove('screen-slide-in');
         target.style.zIndex = '';
+        target.style.background = '';   // сброс, чтобы не влиять на будущее
         if (menu) {
             menu.style.display = 'none'; // скрываем меню после анимации
             menu.style.transform = '';   // сбрасываем transform
