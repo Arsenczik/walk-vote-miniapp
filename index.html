@@ -1376,7 +1376,48 @@ body {
     margin: 0;
     padding: 0;
 }
+/* Премиум-оверлей для затемнения фона при открытии архива */
+#archiveOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 55;
+    pointer-events: none;               /* чтобы не блокировать кнопку архива */
+    opacity: 0;
+    transition: opacity 0.38s cubic-bezier(0.34, 1.2, 0.64, 1); /* лёгкий overshoot при открытии */
+    background: radial-gradient(circle at 50% 30%, rgba(25, 35, 30, 0.85) 0%, rgba(8, 18, 14, 0.96) 100%);
+    backdrop-filter: blur(6px);          /* размытие фона */
+    -webkit-backdrop-filter: blur(6px);
+}
 
+/* Виньетка (затемнение по краям) и шумовая текстура */
+#archiveOverlay::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.5) 100%);
+    pointer-events: none;
+}
+
+#archiveOverlay::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 180px;
+    opacity: 0.25;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+}
     </style>
 </head>
 <body>
@@ -3029,19 +3070,19 @@ function closeArchive() {
 
 function animateArchiveOpen() {
     const archive = document.getElementById('archiveScreen');
-    const eventsScreen = document.getElementById('eventsScreen');
+    const overlay = document.getElementById('archiveOverlay');
     const fab = document.querySelector('.archive-fab');
     if (!archive || !fab) return showScreenFinal('archiveScreen', true);
 
-    // Показываем экран событий, если он был скрыт, и задаём начальную прозрачность 1
-if (eventsScreen) {
-    // Убедимся, что экран видим и имеет правильную ориентацию
-    eventsScreen.style.display = 'flex';
-    eventsScreen.style.flexDirection = 'column';
-    eventsScreen.style.opacity = '1';
-    eventsScreen.style.transition = 'opacity 0.35s ease';
-}
+    // Показываем оверлей и запускаем CSS-переход затемнения
+    if (overlay) {
+        overlay.style.display = 'block';
+        // Форсируем reflow для плавного старта
+        overlay.getBoundingClientRect();
+        overlay.style.opacity = '1';
+    }
 
+    // Остальная анимация архива (сохраняем как есть)
     archive.style.display = 'flex';
     archive.style.willChange = 'transform, opacity';
     archive.style.boxShadow = '0 0 30px rgba(255, 255, 255, 0.12)';
@@ -3083,11 +3124,6 @@ if (eventsScreen) {
         archive.style.opacity = opacity;
         archive.style.filter = `blur(${blurValue}px)`;
 
-        // Плавно уменьшаем прозрачность экрана событий до 0.5
-        if (eventsScreen) {
-            eventsScreen.style.opacity = `${1 - progress * 0.5}`; // от 1 до 0.5
-        }
-
         if (t < 1) {
             requestAnimationFrame(step);
         } else {
@@ -3099,9 +3135,6 @@ if (eventsScreen) {
             archive.style.transformOrigin = '';
             archive.style.willChange = '';
             archive.style.boxShadow = '';
-            if (eventsScreen) {
-                eventsScreen.style.opacity = '0.5'; // фиксируем половинную прозрачность
-            }
             loadArchive();
         }
     }
@@ -3110,34 +3143,34 @@ if (eventsScreen) {
 }
 function animateArchiveClose(callback) {
     const archive = document.getElementById('archiveScreen');
-    const eventsScreen = document.getElementById('eventsScreen');
+    const overlay = document.getElementById('archiveOverlay');
     const fab = document.querySelector('.archive-fab');
     if (!archive || !fab) {
         if (callback) callback();
         return;
     }
 
+    // Начинаем скрывать оверлей – плавно уменьшаем opacity
+    if (overlay) {
+        overlay.style.opacity = '0';
+    }
+
     const fabRect = fab.getBoundingClientRect();
     const targetX = fabRect.left + fabRect.width / 2;
     const targetY = fabRect.top + fabRect.height / 2;
-    const overlay = document.getElementById('archiveOverlay');
+    const overlayElem = overlay; // локальное имя
 
     archive.style.transformOrigin = 'center center';
     archive.style.willChange = 'transform, opacity';
     archive.style.transition = 'none';
 
-    // Запускаем равномерное (linear) увеличение прозрачности экрана событий
-    if (eventsScreen) {
-    eventsScreen.style.transition = 'opacity 0.25s ease-out';
-    eventsScreen.style.opacity = '1';
-}
     const startTime = performance.now();
     const duration = 350;
 
     function step(timestamp) {
         const elapsed = timestamp - startTime;
         let t = Math.min(elapsed / duration, 1);
-        const progress = 1 - Math.pow(1 - t, 3);  // ease-out для архива
+        const progress = 1 - Math.pow(1 - t, 3);
 
         const scale = 1 - progress;
         const tx = targetX * progress;
@@ -3145,7 +3178,6 @@ function animateArchiveClose(callback) {
 
         archive.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
         archive.style.opacity = `${1 - progress}`;
-        if (overlay) overlay.style.opacity = `${1 - progress}`;
 
         if (t < 1) {
             requestAnimationFrame(step);
@@ -3153,15 +3185,9 @@ function animateArchiveClose(callback) {
             archive.style.display = 'none';
             archive.style.transform = '';
             archive.style.opacity = '';
-            if (overlay) {
-                overlay.style.opacity = '0';
-                overlay.style.display = 'none';
-            }
-            // Через 0.35с прозрачность уже 1, сбрасываем transition
-            if (eventsScreen) {
-                setTimeout(() => {
-                    eventsScreen.style.transition = '';
-                }, 50);
+            // Скрываем оверлей после завершения анимации (но opacity уже 0)
+            if (overlayElem) {
+                overlayElem.style.display = 'none';
             }
             if (callback) callback();
         }
