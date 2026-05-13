@@ -1344,6 +1344,9 @@ body {
     margin: 0 auto;
     box-sizing: border-box;
 }
+        #eventsContent, #profileScreen .profile-content, #statsContent {
+    min-height: 101%; /* чтобы всегда был небольшой скролл, если контент пуст */
+}
     
 .screen-slide-in {
     animation: slideInRight 0.5s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
@@ -3199,47 +3202,57 @@ function animateArchiveClose(callback) {
 
     requestAnimationFrame(step);
 }
-    // === Overscroll «резинка» для экранов События, Профиль, Статистика ===
+// === Улучшенный overscroll «резинка» для любых экранов (включая короткий контент) ===
 function enableRubberBand(selector) {
     const container = document.querySelector(selector);
     if (!container) return;
 
-    let scrollContent = container; // сам контейнер скроллится
-    let startY = 0, currentTranslate = 0, startScrollTop = 0, isOverscrolling = false;
-    let maxDrag = 80; // максимальное растяжение (px)
-    let friction = 0.55; // сопротивление
+    let startY = 0, currentTranslate = 0, startScrollTop = 0;
+    let isOverscrolling = false;
+    let isShortContent = false; // флаг для короткого контента
+    const maxDrag = 70;         // максимальное растяжение (px)
+    const friction = 0.6;       // сопротивление
 
     function clamp(value, min, max) {
         return Math.min(max, Math.max(min, value));
     }
 
+    function checkIfShortContent() {
+        // Если контент помещается без скролла
+        return container.scrollHeight <= container.clientHeight + 2;
+    }
+
     function onTouchStart(e) {
         if (e.touches.length !== 1) return;
         startY = e.touches[0].clientY;
-        startScrollTop = scrollContent.scrollTop;
+        startScrollTop = container.scrollTop;
         currentTranslate = 0;
         isOverscrolling = false;
-        scrollContent.classList.remove('rubber-band-transition');
+        isShortContent = checkIfShortContent();
+        container.classList.remove('rubber-band-transition');
     }
 
     function onTouchMove(e) {
         if (e.touches.length !== 1) return;
         const deltaY = e.touches[0].clientY - startY;
-        const atTop = scrollContent.scrollTop <= 1;
-        const atBottom = scrollContent.scrollTop + scrollContent.clientHeight >= scrollContent.scrollHeight - 1;
+        const atTop = container.scrollTop <= 1;
+        const atBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 1;
 
-        if ((deltaY > 0 && atTop) || (deltaY < 0 && atBottom)) {
-            // overscroll
+        // Условие для включения overscroll:
+        // - либо контент короткий (всегда overscroll)
+        // - либо длинный и достигнут верх или низ
+        const canOverscroll = isShortContent || (deltaY > 0 && atTop) || (deltaY < 0 && atBottom);
+
+        if (canOverscroll) {
             e.preventDefault();
             let drag = deltaY * friction;
             drag = clamp(drag, -maxDrag, maxDrag);
             currentTranslate = drag;
-            scrollContent.style.transform = `translateY(${currentTranslate}px)`;
+            container.style.transform = `translateY(${currentTranslate}px)`;
             isOverscrolling = true;
         } else {
             if (isOverscrolling) {
-                // возвращаем в исходное положение
-                scrollContent.style.transform = '';
+                container.style.transform = '';
                 isOverscrolling = false;
             }
         }
@@ -3247,10 +3260,10 @@ function enableRubberBand(selector) {
 
     function onTouchEnd() {
         if (!isOverscrolling) return;
-        scrollContent.classList.add('rubber-band-transition');
-        scrollContent.style.transform = '';
+        container.classList.add('rubber-band-transition');
+        container.style.transform = '';
         setTimeout(() => {
-            scrollContent.classList.remove('rubber-band-transition');
+            container.classList.remove('rubber-band-transition');
         }, 400);
         isOverscrolling = false;
     }
