@@ -1345,7 +1345,7 @@ body {
     width: auto;
 }
 .screen-slide-in {
-    animation: slideInRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+    animation: slideInRight 0.55s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
 }
         @keyframes slideInRight {
     0%   { transform: translateX(100%); opacity: 1; }
@@ -1911,7 +1911,7 @@ if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id ===
         ac.style.transform = `translateX(${window.innerWidth}px)`;
         // JS-анимация въезда кнопки архива
         const startArch = performance.now();
-        const durationArch = 400;
+        const durationArch = 550;
         function animArch(now) {
             const elapsed = now - startArch;
             const t = Math.min(elapsed / durationArch, 1);
@@ -1931,7 +1931,7 @@ if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id ===
         menu.style.transition = 'none';
         menu.style.transform = 'translateX(0)';
         const startMenu = performance.now();
-        const durationMenu = 400; // синхронно с slide-in
+        const durationMenu = 550; // синхронно с slide-in
         function animMenu(now) {
             const elapsed = now - startMenu;
             const t = Math.min(elapsed / durationMenu, 1);
