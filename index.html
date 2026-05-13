@@ -18,20 +18,7 @@
         #onboardingScreen, #loginScreen, #mainMenu, #eventsScreen, #profileScreen, #statsScreen {
     display: none;
 }
-#eventsScreen {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    overflow-y: auto;
-    margin: 0;
-    padding: 0;
-    flex-direction: column;   /* ← добавить */
-    transition: opacity 0.35s ease;
-}
+
 
         /* --- Онбординг --- */
         #onboardingScreen { flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; text-align: center; }
@@ -876,7 +863,7 @@ body {
     overflow-y: auto;
 }
         /* Экраны с контентом занимают весь body */
-#archiveScreen, #statsScreen, #loginScreen, #onboardingScreen {
+#eventsScreen, #archiveScreen, #statsScreen, #loginScreen, #onboardingScreen {
     position: absolute;
     top: 0;
     left: 0;
@@ -913,7 +900,15 @@ body {
     position: relative;
     overflow: hidden;
 }
-
+#eventsScreen {
+    display: none;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #000;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
         
 .profile-header {
     position: sticky;
@@ -1344,12 +1339,13 @@ body {
     margin: 0 auto;
     box-sizing: border-box;
 }
-        #eventsContent, #profileScreen .profile-content, #statsContent {
-    min-height: 101%; /* чтобы всегда был небольшой скролл, если контент пуст */
+        #eventsScreen {
+    margin-left: -12px;
+    margin-right: -12px;
+    width: auto;
 }
-    
 .screen-slide-in {
-    animation: slideInRight 0.5s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+    animation: slideInRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
 }
         @keyframes slideInRight {
     0%   { transform: translateX(100%); opacity: 1; }
@@ -1367,64 +1363,7 @@ body {
         .archive-controls-slide-in {
     animation: slideInRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
 }
-      #profileScreen, #statsScreen {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    overflow-y: auto;
-    margin: 0;
-    padding: 0;
-}
-/* Премиум-оверлей для затемнения фона при открытии архива */
-#archiveOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 55;
-    pointer-events: none;               /* чтобы не блокировать кнопку архива */
-    opacity: 0;
-    transition: opacity 0.38s cubic-bezier(0.34, 1.2, 0.64, 1); /* лёгкий overshoot при открытии */
-    background: radial-gradient(circle at 50% 30%, rgba(25, 35, 30, 0.85) 0%, rgba(8, 18, 14, 0.96) 100%);
-    backdrop-filter: blur(6px);          /* размытие фона */
-    -webkit-backdrop-filter: blur(6px);
-}
 
-/* Виньетка (затемнение по краям) и шумовая текстура */
-#archiveOverlay::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.5) 100%);
-    pointer-events: none;
-}
-
-#archiveOverlay::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
-    background-repeat: repeat;
-    background-size: 180px;
-    opacity: 0.25;
-    pointer-events: none;
-    mix-blend-mode: overlay;
-}
-        /* Анимация возврата overscroll */
-.rubber-band-transition {
-    transition: transform 0.35s cubic-bezier(0.15, 0.85, 0.35, 1.05) !important;
-}
     </style>
 </head>
 <body>
@@ -1842,21 +1781,25 @@ function showScreen(id) {
         }
     });
 
-if (currentVisible === 'archiveScreen' && id !== 'archiveScreen') {
-    if (archiveAnimFrame) cancelAnimationFrame(archiveAnimFrame);
-    archiveAnimActive = true;
-    const fab = document.getElementById('archiveFab');
-    const hint = document.getElementById('archiveHintFab');
-    setButtonText(fab, '📁');
-    if (hint) {
-        setButtonText(hint, '▲');
-        hint.style.display = 'flex';
-    }
-    animateArchiveClose(() => {
-        showScreenFinal(id, true);
-    });
-    return;
-}
+  if (currentVisible === 'archiveScreen' && id !== 'archiveScreen') {
+        if (archiveAnimFrame) cancelAnimationFrame(archiveAnimFrame);
+        archiveAnimActive = true;
+
+        // Сначала показываем целевой экран (eventsScreen) под архивом
+        document.getElementById('eventsScreen').style.display = 'flex';
+        // и меняем иконки обратно, пока архив ещё виден
+        const fab = document.getElementById('archiveFab');
+        const hint = document.getElementById('archiveHintFab');
+        setButtonText(fab, '📁');
+        if (hint) {
+            setButtonText(hint, '▲');
+            hint.style.display = 'flex';
+        }
+     animateArchiveClose(() => {
+            // архив сам скроется, затемнение уберётся внутри анимации
+        });
+      return;
+  }
   // Открытие архива с анимацией
     if (id === 'archiveScreen' && currentVisible !== 'archiveScreen') {
         if (archiveAnimFrame) cancelAnimationFrame(archiveAnimFrame);
@@ -1957,7 +1900,6 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
     // Анимация выезда справа (кроме архива)
 if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
     target.style.zIndex = '10';
-    target.style.background = '#000';   // гарантирует непрозрачность, чтобы меню не просвечивало
     target.classList.add('screen-slide-in');
 
     const menu = document.getElementById('mainMenu');
@@ -1989,7 +1931,7 @@ if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id ===
         menu.style.transition = 'none';
         menu.style.transform = 'translateX(0)';
         const startMenu = performance.now();
-        const durationMenu = 500; // синхронно с slide-in
+        const durationMenu = 400; // синхронно с slide-in
         function animMenu(now) {
             const elapsed = now - startMenu;
             const t = Math.min(elapsed / durationMenu, 1);
@@ -2008,7 +1950,6 @@ if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id ===
         target.removeEventListener('animationend', handler);
         target.classList.remove('screen-slide-in');
         target.style.zIndex = '';
-        target.style.background = '';   // сброс, чтобы не влиять на будущее
         if (menu) {
             menu.style.display = 'none'; // скрываем меню после анимации
             menu.style.transform = '';   // сбрасываем transform
@@ -3077,29 +3018,22 @@ function closeArchive() {
 
 function animateArchiveOpen() {
     const archive = document.getElementById('archiveScreen');
-    const overlay = document.getElementById('archiveOverlay');
     const fab = document.querySelector('.archive-fab');
     if (!archive || !fab) return showScreenFinal('archiveScreen', true);
 
-    // Показываем оверлей и запускаем CSS-переход затемнения
-    if (overlay) {
-        overlay.style.display = 'block';
-        // Форсируем reflow для плавного старта
-        overlay.getBoundingClientRect();
-        overlay.style.opacity = '1';
-    }
-
-    // Остальная анимация архива (сохраняем как есть)
+    
     archive.style.display = 'flex';
-    archive.style.willChange = 'transform, opacity';
+    archive.style.willChange = 'transform, opacity, filter';
     archive.style.boxShadow = '0 0 30px rgba(255, 255, 255, 0.12)';
 
+    // Получаем размеры и позицию кнопки Архива
     const fabRect = fab.getBoundingClientRect();
-    const originX = fabRect.left + fabRect.width / 2;
-    const originY = fabRect.top + fabRect.height / 2;
+    const originX = fabRect.left + fabRect.width / 2;   // центр кнопки по X
+    const originY = fabRect.top + fabRect.height / 2;    // центр кнопки по Y
     const fabWidth = fabRect.width;
     const fabHeight = fabRect.height;
 
+    // Начальное состояние: размер как у кнопки, прозрачность 30%, лёгкий блюр
     archive.style.transformOrigin = `${originX}px ${originY}px`;
     archive.style.transform = `translate(${originX}px, ${originY}px) scale(0)`;
     archive.style.width = `${fabWidth}px`;
@@ -3107,22 +3041,45 @@ function animateArchiveOpen() {
     archive.style.opacity = '0.3';
     archive.style.filter = 'blur(4px)';
 
+    // Форсируем перерасчёт стилей
     archive.getBoundingClientRect();
 
     const startTime = performance.now();
-    const duration = 380;
+    const duration = 380; // чуть больше для мягкости
 
     function step(timestamp) {
+        if (!archiveAnimActive) {
+            // Если анимацию прервали – сбрасываем
+            archive.style.width = '';
+            archive.style.height = '';
+            archive.style.opacity = '';
+            archive.style.filter = '';
+            archive.style.transform = '';
+            archive.style.transformOrigin = '';
+            archive.style.willChange = '';
+            return;
+        }
+
         const elapsed = timestamp - startTime;
-        let t = Math.min(elapsed / duration, 1);
+        const t = Math.min(elapsed / duration, 1);
+        // ease-out
         const progress = 1 - Math.pow(1 - t, 3);
 
+        // Масштаб: от 0 → 1
         const scale = progress;
+
+        // Смещение: плавно уходим от translate(originX, originY) к translate(0,0)
         const tx = originX * (1 - progress);
         const ty = originY * (1 - progress);
+
+        // Размер: начинаем с размеров кнопки, заканчиваем на 100%
         const currentW = fabWidth + (window.innerWidth - fabWidth) * progress;
         const currentH = fabHeight + (window.innerHeight - fabHeight) * progress;
+
+        // Прозрачность: резко поднимается до 1 за первые 20% времени
         const opacity = t < 0.2 ? 0.3 + (t / 0.2) * 0.7 : 1;
+
+        // Блюр: уменьшается от 4px до 0
         const blurValue = 4 * (1 - progress);
 
         archive.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
@@ -3132,8 +3089,9 @@ function animateArchiveOpen() {
         archive.style.filter = `blur(${blurValue}px)`;
 
         if (t < 1) {
-            requestAnimationFrame(step);
+            archiveAnimFrame = requestAnimationFrame(step);
         } else {
+            // Финальное состояние — возвращаем всё на место
             archive.style.transform = '';
             archive.style.width = '';
             archive.style.height = '';
@@ -3142,143 +3100,74 @@ function animateArchiveOpen() {
             archive.style.transformOrigin = '';
             archive.style.willChange = '';
             archive.style.boxShadow = '';
+            archiveAnimActive = false;
             loadArchive();
         }
     }
 
-    requestAnimationFrame(step);
+    archiveAnimActive = true;
+    archiveAnimFrame = requestAnimationFrame(step);
 }
+
 function animateArchiveClose(callback) {
     const archive = document.getElementById('archiveScreen');
-    const overlay = document.getElementById('archiveOverlay');
     const fab = document.querySelector('.archive-fab');
     if (!archive || !fab) {
         if (callback) callback();
         return;
     }
 
-    // Начинаем скрывать оверлей – плавно уменьшаем opacity
-    if (overlay) {
-        overlay.style.opacity = '0';
-    }
-
     const fabRect = fab.getBoundingClientRect();
     const targetX = fabRect.left + fabRect.width / 2;
     const targetY = fabRect.top + fabRect.height / 2;
-    const overlayElem = overlay; // локальное имя
+    const overlay = document.getElementById('archiveOverlay');
 
+    archive.style.transform = '';
+    archive.style.filter = 'blur(0)';
     archive.style.transformOrigin = 'center center';
-    archive.style.willChange = 'transform, opacity';
-    archive.style.transition = 'none';
+    archive.style.willChange = 'transform, filter, opacity';
 
     const startTime = performance.now();
-    const duration = 350;
+    const duration = 420;   // было 250, стало медленнее
 
     function step(timestamp) {
+        if (!archiveAnimActive) return;
         const elapsed = timestamp - startTime;
-        let t = Math.min(elapsed / duration, 1);
+        const t = Math.min(elapsed / duration, 1);
         const progress = 1 - Math.pow(1 - t, 3);
+        const overlayProgress = Math.min(progress / 0.5, 1);          // к середине основного прогресса overlay полностью исчезнет
+const overlayOpacity = 1 - (1 - Math.pow(1 - overlayProgress, 3)); // плавный ease-out для overlay
+if (overlay) overlay.style.opacity = overlayOpacity;
 
         const scale = 1 - progress;
         const tx = targetX * progress;
         const ty = targetY * progress;
 
         archive.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+        archive.style.filter = `blur(${8 * progress}px)`;
         archive.style.opacity = `${1 - progress}`;
 
         if (t < 1) {
-            requestAnimationFrame(step);
+            archiveAnimFrame = requestAnimationFrame(step);
         } else {
             archive.style.display = 'none';
             archive.style.transform = '';
+            archive.style.filter = '';
             archive.style.opacity = '';
-            // Скрываем оверлей после завершения анимации (но opacity уже 0)
-            if (overlayElem) {
-                overlayElem.style.display = 'none';
+            archive.style.transformOrigin = '';
+            archive.style.willChange = '';
+            if (overlay) {
+                overlay.style.opacity='0';
+                overlay.style.display='none';
             }
+            archiveAnimActive = false;
             if (callback) callback();
         }
     }
 
-    requestAnimationFrame(step);
+    archiveAnimActive = true;
+    archiveAnimFrame = requestAnimationFrame(step);
 }
-// === Улучшенный overscroll «резинка» для любых экранов (включая короткий контент) ===
-function enableRubberBand(selector) {
-    const container = document.querySelector(selector);
-    if (!container) return;
-
-    let startY = 0, currentTranslate = 0, startScrollTop = 0;
-    let isOverscrolling = false;
-    let isShortContent = false; // флаг для короткого контента
-    const maxDrag = 70;         // максимальное растяжение (px)
-    const friction = 0.6;       // сопротивление
-
-    function clamp(value, min, max) {
-        return Math.min(max, Math.max(min, value));
-    }
-
-    function checkIfShortContent() {
-        // Если контент помещается без скролла
-        return container.scrollHeight <= container.clientHeight + 2;
-    }
-
-    function onTouchStart(e) {
-        if (e.touches.length !== 1) return;
-        startY = e.touches[0].clientY;
-        startScrollTop = container.scrollTop;
-        currentTranslate = 0;
-        isOverscrolling = false;
-        isShortContent = checkIfShortContent();
-        container.classList.remove('rubber-band-transition');
-    }
-
-    function onTouchMove(e) {
-        if (e.touches.length !== 1) return;
-        const deltaY = e.touches[0].clientY - startY;
-        const atTop = container.scrollTop <= 1;
-        const atBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 1;
-
-        // Условие для включения overscroll:
-        // - либо контент короткий (всегда overscroll)
-        // - либо длинный и достигнут верх или низ
-        const canOverscroll = isShortContent || (deltaY > 0 && atTop) || (deltaY < 0 && atBottom);
-
-        if (canOverscroll) {
-            e.preventDefault();
-            let drag = deltaY * friction;
-            drag = clamp(drag, -maxDrag, maxDrag);
-            currentTranslate = drag;
-            container.style.transform = `translateY(${currentTranslate}px)`;
-            isOverscrolling = true;
-        } else {
-            if (isOverscrolling) {
-                container.style.transform = '';
-                isOverscrolling = false;
-            }
-        }
-    }
-
-    function onTouchEnd() {
-        if (!isOverscrolling) return;
-        container.classList.add('rubber-band-transition');
-        container.style.transform = '';
-        setTimeout(() => {
-            container.classList.remove('rubber-band-transition');
-        }, 400);
-        isOverscrolling = false;
-    }
-
-    container.addEventListener('touchstart', onTouchStart, { passive: false });
-    container.addEventListener('touchmove', onTouchMove, { passive: false });
-    container.addEventListener('touchend', onTouchEnd);
-}
-
-// Активируем для трёх экранов (события, профиль, статистика)
-document.addEventListener('DOMContentLoaded', () => {
-    enableRubberBand('#eventsScreen');
-    enableRubberBand('#profileScreen');
-    enableRubberBand('#statsScreen');
-});
 </script>
 </body>
 </html>
