@@ -1351,7 +1351,7 @@ body {
         .archive-controls-slide-in {
     animation: slideInRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
 }
-       #eventsScreen, #profileScreen, #statsScreen {
+      #profileScreen, #statsScreen {
     display: none;
     position: fixed;
     top: 0;
@@ -1364,6 +1364,19 @@ body {
     padding: 0;
 }
 
+        #eventsScreen {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    transition: opacity 0.35s ease;
+}
     </style>
 </head>
 <body>
@@ -3031,26 +3044,28 @@ function closeArchive() {
 }
 
 function animateArchiveOpen() {
-    // Скрываем экран событий, пока открыт архив
-const eventsScreen = document.getElementById('eventsScreen');
-if (eventsScreen) eventsScreen.style.display = 'none';
     const archive = document.getElementById('archiveScreen');
+    const eventsScreen = document.getElementById('eventsScreen');
     const fab = document.querySelector('.archive-fab');
     if (!archive || !fab) return showScreenFinal('archiveScreen', true);
 
-    
+    // Показываем экран событий, если он был скрыт, и задаём начальную прозрачность 1
+    if (eventsScreen) {
+        eventsScreen.style.display = 'flex';
+        eventsScreen.style.opacity = '1';
+        eventsScreen.style.transition = 'opacity 0.35s ease';
+    }
+
     archive.style.display = 'flex';
-    archive.style.willChange = 'transform, opacity, filter';
+    archive.style.willChange = 'transform, opacity';
     archive.style.boxShadow = '0 0 30px rgba(255, 255, 255, 0.12)';
 
-    // Получаем размеры и позицию кнопки Архива
     const fabRect = fab.getBoundingClientRect();
-    const originX = fabRect.left + fabRect.width / 2;   // центр кнопки по X
-    const originY = fabRect.top + fabRect.height / 2;    // центр кнопки по Y
+    const originX = fabRect.left + fabRect.width / 2;
+    const originY = fabRect.top + fabRect.height / 2;
     const fabWidth = fabRect.width;
     const fabHeight = fabRect.height;
 
-    // Начальное состояние: размер как у кнопки, прозрачность 30%, лёгкий блюр
     archive.style.transformOrigin = `${originX}px ${originY}px`;
     archive.style.transform = `translate(${originX}px, ${originY}px) scale(0)`;
     archive.style.width = `${fabWidth}px`;
@@ -3058,45 +3073,22 @@ if (eventsScreen) eventsScreen.style.display = 'none';
     archive.style.opacity = '0.3';
     archive.style.filter = 'blur(4px)';
 
-    // Форсируем перерасчёт стилей
     archive.getBoundingClientRect();
 
     const startTime = performance.now();
-    const duration = 380; // чуть больше для мягкости
+    const duration = 380;
 
     function step(timestamp) {
-        if (!archiveAnimActive) {
-            // Если анимацию прервали – сбрасываем
-            archive.style.width = '';
-            archive.style.height = '';
-            archive.style.opacity = '';
-            archive.style.filter = '';
-            archive.style.transform = '';
-            archive.style.transformOrigin = '';
-            archive.style.willChange = '';
-            return;
-        }
-
         const elapsed = timestamp - startTime;
-        const t = Math.min(elapsed / duration, 1);
-        // ease-out
+        let t = Math.min(elapsed / duration, 1);
         const progress = 1 - Math.pow(1 - t, 3);
 
-        // Масштаб: от 0 → 1
         const scale = progress;
-
-        // Смещение: плавно уходим от translate(originX, originY) к translate(0,0)
         const tx = originX * (1 - progress);
         const ty = originY * (1 - progress);
-
-        // Размер: начинаем с размеров кнопки, заканчиваем на 100%
         const currentW = fabWidth + (window.innerWidth - fabWidth) * progress;
         const currentH = fabHeight + (window.innerHeight - fabHeight) * progress;
-
-        // Прозрачность: резко поднимается до 1 за первые 20% времени
         const opacity = t < 0.2 ? 0.3 + (t / 0.2) * 0.7 : 1;
-
-        // Блюр: уменьшается от 4px до 0
         const blurValue = 4 * (1 - progress);
 
         archive.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
@@ -3105,10 +3097,14 @@ if (eventsScreen) eventsScreen.style.display = 'none';
         archive.style.opacity = opacity;
         archive.style.filter = `blur(${blurValue}px)`;
 
+        // Плавно уменьшаем прозрачность экрана событий до 0.5
+        if (eventsScreen) {
+            eventsScreen.style.opacity = `${1 - progress * 0.5}`; // от 1 до 0.5
+        }
+
         if (t < 1) {
-            archiveAnimFrame = requestAnimationFrame(step);
+            requestAnimationFrame(step);
         } else {
-            // Финальное состояние — возвращаем всё на место
             archive.style.transform = '';
             archive.style.width = '';
             archive.style.height = '';
@@ -3117,20 +3113,18 @@ if (eventsScreen) eventsScreen.style.display = 'none';
             archive.style.transformOrigin = '';
             archive.style.willChange = '';
             archive.style.boxShadow = '';
-            archiveAnimActive = false;
+            if (eventsScreen) {
+                eventsScreen.style.opacity = '0.5'; // фиксируем половинную прозрачность
+            }
             loadArchive();
-            // Убедимся, что экран событий всё ещё скрыт
-const eventsScreenAfter = document.getElementById('eventsScreen');
-if (eventsScreenAfter) eventsScreenAfter.style.display = 'none';
         }
     }
 
-    archiveAnimActive = true;
-    archiveAnimFrame = requestAnimationFrame(step);
+    requestAnimationFrame(step);
 }
-
 function animateArchiveClose(callback) {
     const archive = document.getElementById('archiveScreen');
+    const eventsScreen = document.getElementById('eventsScreen');
     const fab = document.querySelector('.archive-fab');
     if (!archive || !fab) {
         if (callback) callback();
@@ -3142,10 +3136,15 @@ function animateArchiveClose(callback) {
     const targetY = fabRect.top + fabRect.height / 2;
     const overlay = document.getElementById('archiveOverlay');
 
-    archive.style.transform = '';
     archive.style.transformOrigin = 'center center';
     archive.style.willChange = 'transform, opacity';
     archive.style.transition = 'none';
+
+    // Начинаем возврат прозрачности экрана событий к 1
+    if (eventsScreen) {
+        eventsScreen.style.transition = 'opacity 0.35s ease';
+        eventsScreen.style.opacity = '1';
+    }
 
     const startTime = performance.now();
     const duration = 350;
@@ -3172,6 +3171,10 @@ function animateArchiveClose(callback) {
             if (overlay) {
                 overlay.style.opacity = '0';
                 overlay.style.display = 'none';
+            }
+            // После закрытия архива экран событий полностью видим
+            if (eventsScreen) {
+                eventsScreen.style.opacity = '1';
             }
             if (callback) callback();
         }
