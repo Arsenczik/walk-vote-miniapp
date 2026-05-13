@@ -3128,10 +3128,9 @@ function animateArchiveClose(callback) {
 
     // Запускаем равномерное (linear) увеличение прозрачности экрана событий
     if (eventsScreen) {
-        eventsScreen.style.transition = 'opacity 0.35s linear';  // линейно!
-        eventsScreen.style.opacity = '1';
-    }
-
+    eventsScreen.style.transition = 'opacity 0.25s ease-out';
+    eventsScreen.style.opacity = '1';
+}
     const startTime = performance.now();
     const duration = 350;
 
