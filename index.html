@@ -899,7 +899,7 @@ body {
     min-height: 100vh;
     background: #000;
     color: #fff;
-    position: fixed;  ← ИСПРАВЛЕНО
+    position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
@@ -917,12 +917,12 @@ body {
     min-height: 100vh;
     background: #000;
     color: #fff;
-    position: fixed;  ← ИСПРАВЛЕНО
+    position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    margin: 0;  ← УБРАНЫ ОТРИЦАТЕЛЬНЫЕ MARGIN
+    margin: 0; 
     z-index: 1;
     transform: translate3d(100%, 0, 0);
     will-change: transform;
@@ -1921,7 +1921,7 @@ if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includ
 }
 
  // Обычное переключение (для остальных случаев)
-showScreenFinal(id, false, currentVisible);  ← ДОБАВЛЕНО ИМЯ ФУНКЦИИ
+showScreenFinal(id, false, currentVisible);
 }
 
 function showScreenFinal(id, skipAnimation, prevScreen = '') {
