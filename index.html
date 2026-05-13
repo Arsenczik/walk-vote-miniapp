@@ -858,8 +858,7 @@ body {
     overscroll-behavior-y: contain;    /* эластичность с чёрным фоном */
 }
         /* Внутренний скролл для контентных экранов */
-#archiveScreen,
-#statsScreen {
+#archiveScreen {
     overflow-y: auto;
 }
         /* Экраны с контентом занимают весь body */
@@ -894,13 +893,19 @@ body {
     backface-visibility: hidden;
     overflow: hidden;
 }
-        #statsScreen {
+       #statsScreen {
     display: none;
     flex-direction: column;
     min-height: 100vh;
     background: #000;
     color: #fff;
-    position: flex;
+    position: fixed;  ← ИСПРАВЛЕНО
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    z-index: 1;
     transform: translate3d(100%, 0, 0);
     will-change: transform;
     backface-visibility: hidden;
@@ -912,14 +917,17 @@ body {
     min-height: 100vh;
     background: #000;
     color: #fff;
-    position: relative;
+    position: fixed;  ← ИСПРАВЛЕНО
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;  ← УБРАНЫ ОТРИЦАТЕЛЬНЫЕ MARGIN
+    z-index: 1;
     transform: translate3d(100%, 0, 0);
     will-change: transform;
     backface-visibility: hidden;
     overflow: hidden;
-    margin-left: -12px;
-    margin-right: -12px;
-    width: auto;
 }
         
 .profile-header {
@@ -1912,8 +1920,8 @@ if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includ
     return;
 }
 
-    // Обычное переключение (для остальных случаев)
-    (id, false, currentVisible);
+ // Обычное переключение (для остальных случаев)
+showScreenFinal(id, false, currentVisible);  ← ДОБАВЛЕНО ИМЯ ФУНКЦИИ
 }
 
 function showScreenFinal(id, skipAnimation, prevScreen = '') {
