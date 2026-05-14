@@ -1350,7 +1350,7 @@ body {
 
 .archive-controls-slide-in {
     animation: archiveSlideIn 0.45s cubic-bezier(0.2, 0.95, 0.4, 1) forwards;
-    animation-delay: 0.15s;
+    animation-delay: 0.08s;
 }
         /* Анимация выезда экрана справа */
 @keyframes slideInRight {
@@ -1874,7 +1874,7 @@ if (id === 'eventsScreen' && ac) {
     ac.style.transform = 'translateX(150%)';  // синхронно с CSS
     setTimeout(() => {
         ac.classList.add('archive-controls-slide-in');
-    }, 150);
+    }, 80);
 }
     // Просто скрываем меню, без анимации
     const menu = document.getElementById('mainMenu');
