@@ -1889,11 +1889,16 @@ if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includ
     const menu = document.getElementById('mainMenu');
     if (!currentEl || !menu) return;
 
-    // Поднимаем меню выше, делаем чёрный фон
+    // Полный сброс меню перед анимацией появления
     menu.style.display = 'flex';
     menu.style.zIndex = '30';
+    menu.style.transform = 'none';
+    menu.style.transition = '';
+    menu.style.opacity = '';
     menu.classList.add('menu-overlay');
     menu.classList.remove('menu-slide-out');
+    // Форсируем reflow
+    void menu.offsetHeight;
     menu.classList.add('menu-slide-in');
 
     // Убеждаемся, что экран уходит с правильным z-index
@@ -1918,11 +1923,13 @@ if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includ
             ac.style.opacity = '0';
             ac.style.pointerEvents = 'none';
         }
-        // Сбрасываем стили меню (фон и z-index вернутся к обычным)
+        // Полный сброс меню после анимации
         menu.style.zIndex = '';
-        menu.classList.remove('menu-overlay');
         menu.style.transform = '';
         menu.style.transition = '';
+        menu.style.opacity = '';
+        menu.classList.remove('menu-overlay');
+        menu.classList.remove('menu-slide-in');
         currentEl.removeEventListener('animationend', onBothEnd);
     };
     currentEl.addEventListener('animationend', onBothEnd);
@@ -1964,12 +1971,17 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
         }
 
 if (menu) {
+    // Полный сброс всех инлайновых стилей
     menu.style.display = 'flex';
     menu.style.zIndex = '';
-    menu.style.transform = '';
+    menu.style.transform = 'none';
     menu.style.transition = '';
+    menu.style.opacity = '';
     menu.classList.remove('menu-overlay');
+    // Принудительный reflow
     void menu.offsetHeight;
+    // Удаляем предыдущий класс анимации и добавляем новый
+    menu.classList.remove('menu-slide-in');
     menu.classList.add('menu-slide-out');
 }
         const onAnimationEnd = () => {
