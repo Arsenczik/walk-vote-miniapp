@@ -1337,13 +1337,9 @@ body {
     }
 }
 
-.screen-slide-in {
-    animation: slideInRight 0.55s cubic-bezier(0.2, 0.95, 0.4, 1) forwards;
-}
-    /* Анимация для кнопки архива с задержкой */
 @keyframes archiveSlideIn {
     0% {
-        transform: translateX(100%);
+        transform: translateX(150%);  /* дальше за правый край */
         opacity: 0;
     }
     100% {
@@ -1858,15 +1854,14 @@ if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id ===
     target.classList.add('screen-slide-in');
     
     const ac = document.getElementById('archiveControls');
- if (id === 'eventsScreen' && ac) {
+if (id === 'eventsScreen' && ac) {
     ac.style.display = 'flex';
-    ac.style.opacity = '0';           // скрыта до начала анимации
+    ac.style.opacity = '0';
     ac.style.pointerEvents = 'auto';
-    ac.style.transform = 'translateX(100%)';  // сразу за правым краем
-    // Добавляем класс с задержкой 0.15с
+    ac.style.transform = 'translateX(150%)';  // синхронно с CSS
     setTimeout(() => {
         ac.classList.add('archive-controls-slide-in');
-    }, 150);  // 150 миллисекунд = 0.15 секунд
+    }, 150);
 }
     // Просто скрываем меню, без анимации
     const menu = document.getElementById('mainMenu');
