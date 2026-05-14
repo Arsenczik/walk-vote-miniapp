@@ -662,22 +662,6 @@
     background: #000;
 }
 
-#mainMenu {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    background: transparent;
-    overflow: hidden;           /* ← скролла внутри нет */
-    z-index: 1;
-}
-
         #mainMenu canvas {
             position: absolute;
             top: 0;
@@ -1436,9 +1420,20 @@ body {
     background: #000 !important;
     z-index: 30 !important;
 }
-        #mainMenu {
-    /* ... существующие стили ... */
-    z-index: 1;          /* убедитесь, что не выше 10 */
+       #mainMenu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    background: transparent;
+    overflow: hidden;
+    z-index: 1;
     will-change: transform;
 }
     </style>
@@ -1978,13 +1973,13 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
             ac.classList.add('archive-controls-slide-in');
         }
 
-       if (menu) {
+    if (menu) {
     menu.style.display = 'flex';
-    menu.style.zIndex = '';               // сбрасываем, чтобы меню было под экраном
-    menu.classList.remove('menu-overlay'); // убираем чёрный фон, если был
+    menu.style.zIndex = '';
+    menu.classList.remove('menu-overlay');
+    void menu.offsetHeight; // принудительный reflow, гарантирует старт анимации
     menu.classList.add('menu-slide-out');
 }
-
         const onAnimationEnd = () => {
             target.classList.remove('screen-slide-in');
             target.style.zIndex = '';
