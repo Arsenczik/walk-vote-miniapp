@@ -1380,6 +1380,21 @@ body {
         opacity: 0.5;
     }
 }
+        /* Анимация закрытия экрана (уезжает вправо) */
+.screen-slide-out {
+    animation: slideOutRight 0.55s cubic-bezier(0.2, 0.95, 0.4, 1) forwards;
+}
+
+@keyframes slideOutRight {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
     </style>
 </head>
 <body>
@@ -1839,26 +1854,31 @@ function showScreen(id) {
         document.body.classList.remove('no-scroll');
         return;
     }
-// Простой возврат в главное меню без анимации
+// Возврат в главное меню с анимацией закрытия экрана
 if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includes(currentVisible)) {
     const currentEl = document.getElementById(currentVisible);
     const menu = document.getElementById('mainMenu');
     if (!currentEl || !menu) return;
     
-    // Скрываем текущий экран и показываем меню
-    currentEl.style.display = 'none';
+    // Анимация закрытия текущего экрана
+    currentEl.classList.add('screen-slide-out');
+    
+    // Меню появляется мгновенно (без анимации)
     menu.style.display = 'flex';
     
+    // Кнопка архива скрывается мгновенно
     const ac = document.getElementById('archiveControls');
     if (currentVisible === 'eventsScreen' && ac) {
-        // Полный сброс кнопки архива
         ac.style.opacity = '0';
         ac.style.pointerEvents = 'none';
-        ac.style.transform = '';
-        ac.classList.remove('archive-controls-slide-in');
-        // Не меняем display, чтобы при следующем открытии анимация сработала
-        // ac.style.display = 'flex'; // оставляем как есть
     }
+    
+    const onCloseEnd = () => {
+        currentEl.classList.remove('screen-slide-out');
+        currentEl.style.display = 'none';
+        currentEl.removeEventListener('animationend', onCloseEnd);
+    };
+    currentEl.addEventListener('animationend', onCloseEnd);
     
     document.body.classList.add('no-scroll');
     return;
