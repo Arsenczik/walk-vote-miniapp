@@ -1365,6 +1365,21 @@ body {
 .screen-slide-in {
     animation: slideInRight 0.55s cubic-bezier(0.2, 0.95, 0.4, 1) forwards;
 }
+        /* Анимация меню при открытии экрана (сдвиг влево на 50%) */
+.menu-slide-out {
+    animation: menuSlideOutLeft 0.55s cubic-bezier(0.2, 0.95, 0.4, 1) forwards;
+}
+
+@keyframes menuSlideOutLeft {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(-50%);
+        opacity: 1;
+    }
+}
     </style>
 </head>
 <body>
@@ -1883,14 +1898,19 @@ if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id ===
         }, 80);
     }
     
-    // Меню остаётся видимым, но будет скрыто после окончания анимации экрана
+    // Меню плавно уезжает влево на 50%
     const menu = document.getElementById('mainMenu');
+    if (menu) {
+        menu.style.display = 'flex';
+        menu.classList.add('menu-slide-out');
+    }
     
     const onAnimationEnd = () => {
         target.classList.remove('screen-slide-in');
         target.style.zIndex = '';
-        // После полного выезда экрана скрываем меню
+        // После окончания анимации скрываем меню
         if (menu) {
+            menu.classList.remove('menu-slide-out');
             menu.style.display = 'none';
         }
         target.removeEventListener('animationend', onAnimationEnd);
