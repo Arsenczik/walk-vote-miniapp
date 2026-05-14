@@ -1340,8 +1340,22 @@ body {
 .screen-slide-in {
     animation: slideInRight 0.55s cubic-bezier(0.2, 0.95, 0.4, 1) forwards;
 }
-        .archive-controls-slide-in {
-    animation: slideInRight 0.55s cubic-bezier(0.2, 0.95, 0.4, 1) forwards;
+      /* Анимация для кнопки архива с задержкой и плавным появлением */
+@keyframes archiveSlideIn {
+    0% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.archive-controls-slide-in {
+    animation: archiveSlideIn 0.45s cubic-bezier(0.2, 0.95, 0.4, 1) forwards;
+    animation-delay: 0.15s;
+    opacity: 0;
 }
     </style>
 </head>
