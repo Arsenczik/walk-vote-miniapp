@@ -1434,6 +1434,10 @@ body {
     position: relative;
     z-index: 10;
 }
+        .menu-overlay {
+    background: #000 !important;
+    z-index: 30 !important;
+}
     </style>
 </head>
 <body>
@@ -1893,19 +1897,21 @@ function showScreen(id) {
         document.body.classList.remove('no-scroll');
         return;
     }
-// Возврат в главное меню с новой CSS-анимацией
+// Возврат в главное меню (меню поверх, с чёрным фоном)
 if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includes(currentVisible)) {
     const currentEl = document.getElementById(currentVisible);
     const menu = document.getElementById('mainMenu');
     if (!currentEl || !menu) return;
 
-    // Поднимаем меню выше экрана
+    // Поднимаем меню выше, делаем чёрный фон
     menu.style.display = 'flex';
-    menu.style.zIndex = '20';
+    menu.style.zIndex = '30';
+    menu.classList.add('menu-overlay');
     menu.classList.remove('menu-slide-out');
     menu.classList.add('menu-slide-in');
 
-    // Запускаем анимацию закрытия текущего экрана
+    // Убеждаемся, что экран уходит с правильным z-index
+    currentEl.style.zIndex = '10';
     currentEl.classList.remove('screen-slide-in');
     currentEl.classList.add('screen-slide-out');
 
@@ -1920,11 +1926,15 @@ if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includ
     const onBothEnd = () => {
         currentEl.classList.remove('screen-slide-out');
         currentEl.style.display = 'none';
+        currentEl.style.zIndex = '';
         if (ac) {
             ac.classList.remove('archive-controls-slide-in');
             ac.style.opacity = '0';
             ac.style.pointerEvents = 'none';
         }
+        // Сбрасываем стили меню (фон и z-index вернутся к обычным)
+        menu.style.zIndex = '';
+        menu.classList.remove('menu-overlay');
         currentEl.removeEventListener('animationend', onBothEnd);
     };
     currentEl.addEventListener('animationend', onBothEnd);
@@ -1965,10 +1975,12 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
             ac.classList.add('archive-controls-slide-in');
         }
 
-        if (menu) {
-            menu.style.display = 'flex';
-            menu.classList.add('menu-slide-out');
-        }
+       if (menu) {
+    menu.style.display = 'flex';
+    menu.style.zIndex = '';               // сбрасываем, чтобы меню было под экраном
+    menu.classList.remove('menu-overlay'); // убираем чёрный фон, если был
+    menu.classList.add('menu-slide-out');
+}
 
         const onAnimationEnd = () => {
             target.classList.remove('screen-slide-in');
