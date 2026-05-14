@@ -847,7 +847,7 @@ body {
     overflow-y: auto;
 }
         /* Экраны с контентом занимают весь body */
-#eventsScreen, #archiveScreen, #statsScreen, #loginScreen, #onboardingScreen {
+#archiveScreen, #loginScreen, #onboardingScreen {
     position: absolute;
     top: 0;
     left: 0;
@@ -866,33 +866,6 @@ body {
     z-index: -1;
 }
 
-        #profileScreen {
-    display: none;
-    flex-direction: column;
-    min-height: 100vh;          /* занимает весь экран */
-    background: #000;
-    color: #fff;
-    overflow-y: auto;           /* скролл внутри профиля */
-    position: relative;         /* для sticky */
-}
-        #statsScreen {
-    display: none;
-    flex-direction: column;
-    min-height: 100vh;
-    background: #000;
-    color: #fff;
-    position: relative;
-    overflow: hidden;
-}
-#eventsScreen {
-    display: none;
-    flex-direction: column;
-    min-height: 100vh;
-    background: #000;
-    color: #fff;
-    position: relative;
-    overflow: hidden;
-}
         
 .profile-header {
     position: sticky;
@@ -1435,6 +1408,21 @@ body {
     overflow: hidden;
     z-index: 1;
     will-change: transform;
+}
+        /* Основные экраны – правильное позиционирование для анимаций */
+#eventsScreen,
+#profileScreen,
+#statsScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow-y: auto;
+    z-index: 5;               /* базовый слой, выше меню (z-index:1) */
+    display: none;
+    flex-direction: column;
 }
     </style>
 </head>
