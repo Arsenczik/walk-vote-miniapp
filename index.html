@@ -1349,8 +1349,8 @@ body {
 }
 
 .archive-controls-slide-in {
-    animation: archiveSlideIn 0.45s cubic-bezier(0.2, 0.95, 0.4, 1) forwards;
-    animation-delay: 0.08s;
+    animation: archiveSlideIn 0.38s cubic-bezier(0.25, 0.8, 0.5, 1) forwards;
+    animation-delay: 0.07s;  /* задержку тоже уменьшаем пропорционально */
 }
         /* Анимация выезда экрана справа */
 @keyframes slideInRight {
@@ -1363,11 +1363,10 @@ body {
 }
 
 .screen-slide-in {
-    animation: slideInRight 0.55s cubic-bezier(0.25, 0.8, 0.5, 1) forwards;
+    animation: slideInRight 0.48s cubic-bezier(0.25, 0.8, 0.5, 1) forwards;
 }
-    /* Анимация меню при открытии экрана (сдвиг влево + затухание) */
-.menu-slide-out {
-    animation: menuSlideOutLeft 0.55s cubic-bezier(0.25, 0.8, 0.5, 1) forwards;
+ .menu-slide-out {
+    animation: menuSlideOutLeft 0.48s cubic-bezier(0.25, 0.8, 0.5, 1) forwards;
 }
 
 @keyframes menuSlideOutLeft {
@@ -1381,9 +1380,8 @@ body {
     }
 }
         
- /* Анимация закрытия экрана (уезжает вправо) */
 .screen-slide-out {
-    animation: slideOutRight 0.65s cubic-bezier(0.25, 0.8, 0.5, 1) forwards;
+    animation: slideOutRight 0.58s cubic-bezier(0.25, 0.8, 0.5, 1) forwards;
 }
 
 @keyframes slideOutRight {
@@ -1913,8 +1911,8 @@ if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id ===
         ac.style.pointerEvents = 'auto';
         ac.style.transform = 'translateX(150%)';
         setTimeout(() => {
-            ac.classList.add('archive-controls-slide-in');
-        }, 80);
+    ac.classList.add('archive-controls-slide-in');
+}, 70);  // было 80
     }
     
     // Меню плавно уезжает влево на 50%
