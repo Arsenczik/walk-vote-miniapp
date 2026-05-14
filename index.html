@@ -1425,6 +1425,15 @@ body {
         opacity: 1;
     }
 }
+        /* При закрытии экрана меню должно быть поверх */
+.menu-slide-in {
+    position: relative;
+    z-index: 20 !important;
+}
+.screen-slide-out {
+    position: relative;
+    z-index: 10;
+}
     </style>
 </head>
 <body>
@@ -1890,8 +1899,9 @@ if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includ
     const menu = document.getElementById('mainMenu');
     if (!currentEl || !menu) return;
 
-    // Показываем меню, но скрытое (чтобы анимация началась)
+    // Поднимаем меню выше экрана
     menu.style.display = 'flex';
+    menu.style.zIndex = '20';
     menu.classList.remove('menu-slide-out');
     menu.classList.add('menu-slide-in');
 
