@@ -1872,25 +1872,27 @@ if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id ===
     target.classList.add('screen-slide-in');
     
     const ac = document.getElementById('archiveControls');
-if (id === 'eventsScreen' && ac) {
-    ac.classList.remove('archive-controls-slide-in'); // добавить эту строку
-    ac.style.display = 'flex';
-    ac.style.opacity = '0';
-    ac.style.pointerEvents = 'auto';
-    ac.style.transform = 'translateX(150%)';
-    setTimeout(() => {
-        ac.classList.add('archive-controls-slide-in');
-    }, 80);
-}
-    // Просто скрываем меню, без анимации
-    const menu = document.getElementById('mainMenu');
-    if (menu) {
-        menu.style.display = 'none';
+    if (id === 'eventsScreen' && ac) {
+        ac.classList.remove('archive-controls-slide-in');
+        ac.style.display = 'flex';
+        ac.style.opacity = '0';
+        ac.style.pointerEvents = 'auto';
+        ac.style.transform = 'translateX(150%)';
+        setTimeout(() => {
+            ac.classList.add('archive-controls-slide-in');
+        }, 80);
     }
+    
+    // Меню остаётся видимым, но будет скрыто после окончания анимации экрана
+    const menu = document.getElementById('mainMenu');
     
     const onAnimationEnd = () => {
         target.classList.remove('screen-slide-in');
         target.style.zIndex = '';
+        // После полного выезда экрана скрываем меню
+        if (menu) {
+            menu.style.display = 'none';
+        }
         target.removeEventListener('animationend', onAnimationEnd);
     };
     target.addEventListener('animationend', onAnimationEnd);
