@@ -1859,13 +1859,15 @@ if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id ===
     target.classList.add('screen-slide-in');
     
     const ac = document.getElementById('archiveControls');
-    if (id === 'eventsScreen' && ac) {
-        ac.style.display = 'flex';
-        ac.style.opacity = '1';
-        ac.style.pointerEvents = 'auto';
-        ac.classList.add('archive-controls-slide-in'); // добавляем анимацию
-    }
-    
+   if (id === 'eventsScreen' && ac) {
+    ac.style.display = 'flex';
+    ac.style.opacity = '0';        // сначала невидима
+    ac.style.pointerEvents = 'auto';
+    // Небольшая задержка перед добавлением класса, чтобы анимация точно сработала
+    setTimeout(() => {
+        ac.classList.add('archive-controls-slide-in');
+    }, 10);
+}
     // Просто скрываем меню, без анимации
     const menu = document.getElementById('mainMenu');
     if (menu) {
