@@ -1301,98 +1301,6 @@ body {
     margin-right: -12px;
     width: auto;
 }
-/* === НОВАЯ ПРЕМИУМ-АНИМАЦИЯ === */
-.screen-slide-in {
-    animation: slideInPremium 0.55s cubic-bezier(0.34, 1.3, 0.55, 1) forwards;
-}
-.screen-slide-out {
-    animation: slideOutPremium 0.55s cubic-bezier(0.34, 1.3, 0.55, 1) forwards;
-}
-@keyframes slideInPremium {
-    0% {
-        transform: translateX(100%);
-        opacity: 0;
-        filter: blur(4px);
-    }
-    60% {
-        transform: translateX(-8px);
-        opacity: 0.98;
-        filter: blur(0);
-    }
-    100% {
-        transform: translateX(0);
-        opacity: 1;
-        filter: blur(0);
-    }
-}
-@keyframes slideOutPremium {
-    0% {
-        transform: translateX(0);
-        opacity: 1;
-        filter: blur(0);
-    }
-    40% {
-        transform: translateX(-8px);
-        opacity: 0.98;
-    }
-    100% {
-        transform: translateX(100%);
-        opacity: 0;
-        filter: blur(4px);
-    }
-}
-        @keyframes menuSlideOut {
-    0% {
-        transform: translateX(0);
-        opacity: 1;
-    }
-    100% {
-        transform: translateX(-100%);
-        opacity: 0;
-    }
-}
-.menu-slide-out {
-    animation: menuSlideOut 0.45s cubic-bezier(0.2, 0.9, 0.4, 1) forwards;
-}
-@keyframes menuSlideIn {
-    0% {
-        transform: translateX(-100%);
-        opacity: 0;
-    }
-    100% {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-.menu-slide-in {
-    animation: menuSlideIn 0.45s cubic-bezier(0.2, 0.9, 0.4, 1) forwards;
-}
-.archive-controls-slide-in {
-    animation: archiveIn 0.45s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
-}
-@keyframes archiveIn {
-    0% {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    100% {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-        /* При закрытии экрана меню должно быть поверх */
-.menu-slide-in {
-    position: relative;
-    z-index: 20 !important;
-}
-.screen-slide-out {
-    position: relative;
-    z-index: 10;
-}
-        .menu-overlay {
-    background: #000 !important;
-    z-index: 30 !important;
-}
        #mainMenu {
     position: absolute;
     top: 0;
@@ -1883,57 +1791,22 @@ function showScreen(id) {
         document.body.classList.remove('no-scroll');
         return;
     }
-// Возврат в главное меню (меню поверх, с чёрным фоном)
+// Простой возврат в главное меню без анимации
 if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includes(currentVisible)) {
     const currentEl = document.getElementById(currentVisible);
     const menu = document.getElementById('mainMenu');
     if (!currentEl || !menu) return;
-
-    // Полный сброс меню перед анимацией появления
+    
+    // Просто скрываем текущий экран и показываем меню
+    currentEl.style.display = 'none';
     menu.style.display = 'flex';
-    menu.style.zIndex = '30';
-    menu.style.transform = 'none';
-    menu.style.transition = '';
-    menu.style.opacity = '';
-    menu.classList.add('menu-overlay');
-    menu.classList.remove('menu-slide-out');
-    // Форсируем reflow
-    void menu.offsetHeight;
-    menu.classList.add('menu-slide-in');
-
-    // Убеждаемся, что экран уходит с правильным z-index
-    currentEl.style.zIndex = '10';
-    currentEl.classList.remove('screen-slide-in');
-    currentEl.classList.add('screen-slide-out');
-
+    
     const ac = document.getElementById('archiveControls');
     if (currentVisible === 'eventsScreen' && ac) {
-        ac.style.display = 'flex';
-        ac.style.opacity = '1';
-        ac.style.pointerEvents = 'auto';
-        ac.classList.add('archive-controls-slide-in');
+        ac.style.opacity = '0';
+        ac.style.pointerEvents = 'none';
     }
-
-    const onBothEnd = () => {
-        currentEl.classList.remove('screen-slide-out');
-        currentEl.style.display = 'none';
-        currentEl.style.zIndex = '';
-        if (ac) {
-            ac.classList.remove('archive-controls-slide-in');
-            ac.style.opacity = '0';
-            ac.style.pointerEvents = 'none';
-        }
-        // Полный сброс меню после анимации
-        menu.style.zIndex = '';
-        menu.style.transform = '';
-        menu.style.transition = '';
-        menu.style.opacity = '';
-        menu.classList.remove('menu-overlay');
-        menu.classList.remove('menu-slide-in');
-        currentEl.removeEventListener('animationend', onBothEnd);
-    };
-    currentEl.addEventListener('animationend', onBothEnd);
-
+    
     document.body.classList.add('no-scroll');
     return;
 }
@@ -1942,7 +1815,7 @@ if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includ
     showScreenFinal(id, false, currentVisible);
 }
 
-function showScreenFinal(id, skipAnimation, prevScreen = '') {
+function showScreenFinal(id, prevScreen = '') {
     const screens = ['onboardingScreen', 'loginScreen', 'mainMenu', 'eventsScreen', 'profileScreen', 'statsScreen', 'archiveScreen'];
     for (const s of screens) {
         if (s === 'mainMenu' && prevScreen === 'mainMenu') continue;
@@ -1955,47 +1828,23 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
     const isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen' || id === 'archiveScreen');
     target.style.display = isFlex ? 'flex' : 'block';
 
-    // Анимация открытия для eventsScreen, profileScreen, statsScreen
-    if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
-        target.style.zIndex = '10';
-        target.classList.add('screen-slide-in');
-
-        const menu = document.getElementById('mainMenu');
-        const ac = document.getElementById('archiveControls');
-
-        if (id === 'eventsScreen' && ac) {
-            ac.style.display = 'flex';
-            ac.style.opacity = '1';
-            ac.style.pointerEvents = 'auto';
-            ac.classList.add('archive-controls-slide-in');
-        }
-
-if (menu) {
-    // Полный сброс всех инлайновых стилей
-    menu.style.display = 'flex';
-    menu.style.zIndex = '';
-    menu.style.transform = 'none';
-    menu.style.transition = '';
-    menu.style.opacity = '';
-    menu.classList.remove('menu-overlay');
-    // Принудительный reflow
-    void menu.offsetHeight;
-    // Удаляем предыдущий класс анимации и добавляем новый
-    menu.classList.remove('menu-slide-in');
-    menu.classList.add('menu-slide-out');
-}
-        const onAnimationEnd = () => {
-            target.classList.remove('screen-slide-in');
-            target.style.zIndex = '';
-            if (ac) ac.classList.remove('archive-controls-slide-in');
-            if (menu) {
-                menu.classList.remove('menu-slide-out');
-                menu.style.display = 'none';
-            }
-            target.removeEventListener('animationend', onAnimationEnd);
-        };
-        target.addEventListener('animationend', onAnimationEnd);
+// Простое открытие экрана без анимации
+if (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen') {
+    target.style.zIndex = '10';
+    // Показываем меню (если нужно) или просто ничего не делаем
+    const menu = document.getElementById('mainMenu');
+    const ac = document.getElementById('archiveControls');
+    
+    if (id === 'eventsScreen' && ac) {
+        ac.style.display = 'flex';
+        ac.style.opacity = '1';
+        ac.style.pointerEvents = 'auto';
     }
+    
+    if (menu) {
+        menu.style.display = 'none'; // просто скрываем меню
+    }
+}
 
     // Блокировка скролла для меню
     if (id === 'mainMenu') {
