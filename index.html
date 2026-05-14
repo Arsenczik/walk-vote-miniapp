@@ -1830,14 +1830,19 @@ if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includ
     const menu = document.getElementById('mainMenu');
     if (!currentEl || !menu) return;
     
-    // Просто скрываем текущий экран и показываем меню
+    // Скрываем текущий экран и показываем меню
     currentEl.style.display = 'none';
     menu.style.display = 'flex';
     
     const ac = document.getElementById('archiveControls');
     if (currentVisible === 'eventsScreen' && ac) {
+        // Полный сброс кнопки архива
         ac.style.opacity = '0';
         ac.style.pointerEvents = 'none';
+        ac.style.transform = '';
+        ac.classList.remove('archive-controls-slide-in');
+        // Не меняем display, чтобы при следующем открытии анимация сработала
+        // ac.style.display = 'flex'; // оставляем как есть
     }
     
     document.body.classList.add('no-scroll');
@@ -1868,10 +1873,11 @@ if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id ===
     
     const ac = document.getElementById('archiveControls');
 if (id === 'eventsScreen' && ac) {
+    ac.classList.remove('archive-controls-slide-in'); // добавить эту строку
     ac.style.display = 'flex';
     ac.style.opacity = '0';
     ac.style.pointerEvents = 'auto';
-    ac.style.transform = 'translateX(150%)';  // синхронно с CSS
+    ac.style.transform = 'translateX(150%)';
     setTimeout(() => {
         ac.classList.add('archive-controls-slide-in');
     }, 80);
