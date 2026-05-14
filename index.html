@@ -1344,25 +1344,6 @@ body {
     margin-right: -12px;
     width: auto;
 }
-.screen-slide-in {
-    animation: slideInRight 0.55s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
-}
-        @keyframes slideInRight {
-    0%   { transform: translateX(100%); opacity: 1; }
-    100% { transform: translateX(0); opacity: 1; }
-}
-
-.screen-slide-out {
-    animation: slideOutRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
-}
-
-@keyframes slideOutRight {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(100%); }
-}
-        .archive-controls-slide-in {
-    animation: slideInRight 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
-}
 
     </style>
 </head>
@@ -1823,59 +1804,42 @@ function showScreen(id) {
         document.body.classList.remove('no-scroll');
         return;
     }
-
-// Возврат в главное меню с JS‑анимацией slide‑out (0.4s, плавное замедление)
+// Возврат в главное меню с новой CSS-анимацией
 if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includes(currentVisible)) {
     const currentEl = document.getElementById(currentVisible);
     const menu = document.getElementById('mainMenu');
     if (!currentEl || !menu) return;
 
-    // Показываем меню и запускаем возврат из сдвинутого состояния
+    // Показываем меню, но скрытое (чтобы анимация началась)
     menu.style.display = 'flex';
-    document.body.classList.add('no-scroll');
-    menu.style.transition = 'none';
-    menu.style.transform = 'translateX(-50%)'; // начинаем из сдвинутого положения
+    menu.classList.remove('menu-slide-out');
+    menu.classList.add('menu-slide-in');
 
-    // Анимация ухода текущего экрана вправо
-    currentEl.style.zIndex = '10';
-    currentEl.style.transform = 'translateX(0)';
+    // Запускаем анимацию закрытия текущего экрана
+    currentEl.classList.remove('screen-slide-in');
+    currentEl.classList.add('screen-slide-out');
+
     const ac = document.getElementById('archiveControls');
     if (currentVisible === 'eventsScreen' && ac) {
         ac.style.display = 'flex';
-        ac.style.transform = 'translateX(0)';
+        ac.style.opacity = '1';
+        ac.style.pointerEvents = 'auto';
+        ac.classList.add('archive-controls-slide-in');
     }
 
-    const start = performance.now();
-    const duration = 400;
-    function step(now) {
-        const elapsed = now - start;
-        let t = Math.min(elapsed / duration, 1);
-        const progress = 1 - Math.pow(1 - t, 3);
-        currentEl.style.transform = `translateX(${progress * 100}%)`;
-
-        // Синхронно возвращаем меню на место
-        menu.style.transform = `translateX(-${50 * (1 - progress)}%)`;
-
-        if (currentVisible === 'eventsScreen' && ac) {
-            ac.style.transform = `translateX(${progress * window.innerWidth}px)`;
+    const onBothEnd = () => {
+        currentEl.classList.remove('screen-slide-out');
+        currentEl.style.display = 'none';
+        if (ac) {
+            ac.classList.remove('archive-controls-slide-in');
+            ac.style.opacity = '0';
+            ac.style.pointerEvents = 'none';
         }
+        currentEl.removeEventListener('animationend', onBothEnd);
+    };
+    currentEl.addEventListener('animationend', onBothEnd);
 
-        if (t < 1) {
-            requestAnimationFrame(step);
-        } else {
-            currentEl.style.display = 'none';
-            currentEl.style.transform = '';
-            currentEl.style.zIndex = '';
-            menu.style.transform = ''; // сброс до исходного
-            if (ac) {
-                ac.style.display = 'none';
-                ac.style.transform = '';
-                ac.style.opacity = '0';
-                ac.style.pointerEvents = 'none';
-            }
-        }
-    }
-    requestAnimationFrame(step);
+    document.body.classList.add('no-scroll');
     return;
 }
 
@@ -1889,7 +1853,6 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
         if (s === 'mainMenu' && prevScreen === 'mainMenu') continue;
         document.getElementById(s).style.display = 'none';
     }
-
     document.getElementById('createForm').style.display = 'none';
 
     const target = document.getElementById(id);
@@ -1897,75 +1860,45 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
     const isFlex = (id === 'mainMenu' || id === 'onboardingScreen' || id === 'loginScreen' || id === 'profileScreen' || id === 'archiveScreen');
     target.style.display = isFlex ? 'flex' : 'block';
 
-    // Анимация выезда справа (кроме архива)
-if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
-    target.style.zIndex = '10';
-    target.classList.add('screen-slide-in');
+    // Анимация открытия для eventsScreen, profileScreen, statsScreen
+    if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id === 'statsScreen')) {
+        target.style.zIndex = '10';
+        target.classList.add('screen-slide-in');
 
-    const menu = document.getElementById('mainMenu');
-    const ac = document.getElementById('archiveControls');
-    if (id === 'eventsScreen' && ac) {
-        ac.style.display = 'flex';
-        ac.style.opacity = '1';
-        ac.style.pointerEvents = 'auto';
-        ac.style.transform = `translateX(${window.innerWidth}px)`;
-        // JS-анимация въезда кнопки архива
-        const startArch = performance.now();
-        const durationArch = 400;
-        function animArch(now) {
-            const elapsed = now - startArch;
-            const t = Math.min(elapsed / durationArch, 1);
-            const progressArch = 1 - Math.pow(1 - t, 3);
-            ac.style.transform = `translateX(${(1 - progressArch) * window.innerWidth}px)`;
-            if (t < 1) {
-                requestAnimationFrame(animArch);
-            } else {
-                ac.style.transform = '';
-            }
+        const menu = document.getElementById('mainMenu');
+        const ac = document.getElementById('archiveControls');
+
+        if (id === 'eventsScreen' && ac) {
+            ac.style.display = 'flex';
+            ac.style.opacity = '1';
+            ac.style.pointerEvents = 'auto';
+            ac.classList.add('archive-controls-slide-in');
         }
-        requestAnimationFrame(animArch);
-    }
 
-    // Анимация смещения меню влево на 50%
-    if (menu) {
-        menu.style.transition = 'none';
-        menu.style.transform = 'translateX(0)';
-        const startMenu = performance.now();
-        const durationMenu = 550; // синхронно с slide-in
-        function animMenu(now) {
-            const elapsed = now - startMenu;
-            const t = Math.min(elapsed / durationMenu, 1);
-            const progress = 1 - Math.pow(1 - t, 3);
-            menu.style.transform = `translateX(-${50 * progress}%)`;
-            if (t < 1) {
-                requestAnimationFrame(animMenu);
-            } else {
-                // меню остаётся сдвинутым, потом скроется в animationend
-            }
-        }
-        requestAnimationFrame(animMenu);
-    }
-
-    target.addEventListener('animationend', function handler() {
-        target.removeEventListener('animationend', handler);
-        target.classList.remove('screen-slide-in');
-        target.style.zIndex = '';
         if (menu) {
-            menu.style.display = 'none'; // скрываем меню после анимации
-            menu.style.transform = '';   // сбрасываем transform
+            menu.style.display = 'flex';
+            menu.classList.add('menu-slide-out');
         }
-        if (prevScreen === 'mainMenu') {
-            // уже скрыто
-        }
-    });
-}
+
+        const onAnimationEnd = () => {
+            target.classList.remove('screen-slide-in');
+            target.style.zIndex = '';
+            if (ac) ac.classList.remove('archive-controls-slide-in');
+            if (menu) {
+                menu.classList.remove('menu-slide-out');
+                menu.style.display = 'none';
+            }
+            target.removeEventListener('animationend', onAnimationEnd);
+        };
+        target.addEventListener('animationend', onAnimationEnd);
+    }
 
     // Блокировка скролла для меню
     if (id === 'mainMenu') {
         document.body.classList.add('no-scroll');
         if (!achievementsPollInterval) {
             startAchievementsPolling();
-            pollNewAchievements();   // первая проверка при показе меню
+            pollNewAchievements();
         }
     } else {
         document.body.classList.remove('no-scroll');
@@ -1997,9 +1930,7 @@ if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id ===
     if (id === 'eventsScreen') loadEvents();
     if (id === 'profileScreen') loadProfileScreen();
     if (id === 'statsScreen') loadStatistics();
-    // Архив загружается внутри animateArchiveOpen
 }
-
 function celebrateAchievement() {
     if (fireworksActive) return;
     fireworksActive = true;
