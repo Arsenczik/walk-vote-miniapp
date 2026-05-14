@@ -1921,8 +1921,8 @@ if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includ
         // Сбрасываем стили меню (фон и z-index вернутся к обычным)
         menu.style.zIndex = '';
         menu.classList.remove('menu-overlay');
-        menu.style.transform = '';      // ← сброс transform
-        menu.style.transition = '';     // ← сброс transition
+        menu.style.transform = '';
+        menu.style.transition = '';
         currentEl.removeEventListener('animationend', onBothEnd);
     };
     currentEl.addEventListener('animationend', onBothEnd);
@@ -1963,11 +1963,11 @@ function showScreenFinal(id, skipAnimation, prevScreen = '') {
             ac.classList.add('archive-controls-slide-in');
         }
 
-  if (menu) {
+if (menu) {
     menu.style.display = 'flex';
     menu.style.zIndex = '';
-    menu.style.transform = '';        // сбрасываем старый transform
-    menu.style.transition = '';       // сбрасываем возможный transition
+    menu.style.transform = '';
+    menu.style.transition = '';
     menu.classList.remove('menu-overlay');
     void menu.offsetHeight;
     menu.classList.add('menu-slide-out');
