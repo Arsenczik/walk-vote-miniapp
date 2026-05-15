@@ -1462,6 +1462,51 @@ body {
         #statsContent {
     padding: 0 !important;  /* убираем отступы, чтобы подиум был вплотную к краям */
 }
+        /* Список участников */
+.leaderboard-list {
+    margin: 30px 16px 20px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.leaderboard-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    transition: background 0.2s;
+}
+
+.leaderboard-item:last-child {
+    border-bottom: none;
+}
+
+.leaderboard-item.is-me {
+    background: rgba(255, 215, 0, 0.1);
+    border-left: 3px solid #ffd700;
+}
+
+.leaderboard-rank {
+    width: 48px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #888;
+}
+
+.leaderboard-name {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 500;
+    color: #fff;
+}
+
+.leaderboard-score {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffd700;
+}
     </style>
 </head>
 <body>
@@ -2665,20 +2710,77 @@ function logout() {
 }
     function openInMaps(lat, lng) { window.open(`https://maps.apple.com/?ll=${lat},${lng}&q=Точка`, '_blank'); }
 
- // --- СТАТИСТИКА (ЛИДЕРБОРД) — пустой пьедестал ---
+// --- СТАТИСТИКА (ЛИДЕРБОРД) — с пьедесталом и списком участников ---
 async function loadStatistics() {
     let content = document.getElementById('statsContent');
     
+    // Временные заглушки для тестирования (потом заменим на реальные данные с сервера)
+    // Представьте, что это данные от API
+    let allUsers = [
+        { name: "Алексей", score: 1250, isMe: false },
+        { name: "Мария", score: 980, isMe: false },
+        { name: "Дмитрий", score: 720, isMe: false },
+        { name: "Елена", score: 690, isMe: false },
+        { name: "Сергей", score: 650, isMe: false },
+        { name: "Анна", score: 610, isMe: false },
+        { name: "Владимир", score: 580, isMe: false },
+        { name: "Ольга", score: 540, isMe: false },
+        { name: "Павел", score: 510, isMe: false },
+        { name: "Татьяна", score: 480, isMe: false }
+    ];
+    
+    // Добавляем текущего пользователя (для теста — пусть будет на 15 месте)
+    const currentUser = { name: "Вы", score: 320, isMe: true };
+    const currentUserRank = 15;
+    
+    // Сортируем по очкам
+    allUsers.sort((a, b) => b.score - a.score);
+    
+    // Топ-10
+    const top10 = allUsers.slice(0, 10);
+    
+    // Проверяем, входит ли текущий пользователь в топ-10
+    const isInTop10 = currentUser && top10.some(u => u.isMe);
+    
     let html = `
-    <div style="display: flex; justify-content: center; align-items: center; min-height: 50vh; flex-direction: column;">
-        <div class="podium">
-            <div class="podium-step second"></div>
-            <div class="podium-step first"></div>
-            <div class="podium-step third"></div>
+        <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+            <div class="podium">
+                <div class="podium-step second"></div>
+                <div class="podium-step first"></div>
+                <div class="podium-step third"></div>
+            </div>
+            
+            <div class="leaderboard-list">
+    `;
+    
+    // Отображаем топ-10
+    top10.forEach((user, index) => {
+        const rank = index + 1;
+        const isMe = user.isMe;
+        html += `
+            <div class="leaderboard-item ${isMe ? 'is-me' : ''}">
+                <div class="leaderboard-rank">#${rank}</div>
+                <div class="leaderboard-name">${escapeHtml(user.name)}</div>
+                <div class="leaderboard-score">${user.score}</div>
+            </div>
+        `;
+    });
+    
+    // Если текущий пользователь не в топ-10, добавляем его отдельно
+    if (!isInTop10 && currentUser) {
+        html += `
+            <div class="leaderboard-item is-me" style="border-top: 1px dashed rgba(255,215,0,0.3);">
+                <div class="leaderboard-rank">#${currentUserRank}</div>
+                <div class="leaderboard-name">${escapeHtml(currentUser.name)} (вы)</div>
+                <div class="leaderboard-score">${currentUser.score}</div>
+            </div>
+        `;
+    }
+    
+    html += `
+            </div>
         </div>
-        <div style="margin-top: 30px; text-align: center; color: #666; font-size: 14px;">Остальные участники появятся позже</div>
-    </div>
-`;
+    `;
     
     content.innerHTML = html;
 }
