@@ -1511,6 +1511,20 @@ body {
     font-weight: 700;
     color: #ffd700;
 }
+        /* Декоративная линия между подиумом и списком */
+.podium-divider {
+    width: calc(100% - 32px);  /* ширина чуть больше списка (список на 16px уже экрана) */
+    max-width: 400px;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.15) 15%, 
+        rgba(255, 255, 255, 0.4) 50%, 
+        rgba(255, 255, 255, 0.15) 85%, 
+        transparent 100%);
+    margin: 12px auto;
+    border: none;
+}
     </style>
 </head>
 <body>
@@ -2752,6 +2766,8 @@ async function loadStatistics() {
                 <div class="podium-step first"></div>
                 <div class="podium-step third"></div>
             </div>
+
+            <div class="podium-divider"></div>
             
             <div class="leaderboard-list">
     `;
