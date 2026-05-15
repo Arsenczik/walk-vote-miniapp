@@ -1427,8 +1427,10 @@ body {
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    gap: 8px;
-    margin: 30px 20px 40px 20px;
+    gap: 5px;  /* было 8px */
+    margin: 30px 0 40px 0;  /* убираем боковые отступы, чтобы был вплотную к краям */
+    padding: 0;
+    width: 100%;
 }
 
 .podium-step {
@@ -1455,6 +1457,9 @@ body {
 /* 3 место (справа) — самое низкое */
 .podium-step.third {
     height: 80px;
+}
+        #statsContent {
+    padding: 0 !important;  /* убираем отступы, чтобы подиум был вплотную к краям */
 }
     </style>
 </head>
