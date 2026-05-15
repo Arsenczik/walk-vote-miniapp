@@ -1407,6 +1407,21 @@ body {
         opacity: 1;
     }
 }
+        /* Анимация скрытия кнопки архива (уезжает вправо) */
+.archive-controls-slide-out {
+    animation: archiveSlideOut 0.35s cubic-bezier(0.35, 0.7, 0.6, 0.9) forwards;
+}
+
+@keyframes archiveSlideOut {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(150%);
+        opacity: 0;
+    }
+}
     </style>
 </head>
 <body>
@@ -1866,7 +1881,7 @@ function showScreen(id) {
         document.body.classList.remove('no-scroll');
         return;
     }
-// Возврат в главное меню с анимацией закрытия экрана и возврата меню
+// Возврат в главное меню с анимацией закрытия экрана, возврата меню и скрытия кнопки архива
 if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includes(currentVisible)) {
     const currentEl = document.getElementById(currentVisible);
     const menu = document.getElementById('mainMenu');
@@ -1879,13 +1894,13 @@ if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includ
     menu.style.display = 'flex';
     menu.classList.add('menu-slide-in');
     
-    // Кнопка архива скрывается мгновенно
+    // Анимация скрытия кнопки архива (только для экрана событий)
     const ac = document.getElementById('archiveControls');
     if (currentVisible === 'eventsScreen' && ac) {
-        ac.style.opacity = '0';
-        ac.style.pointerEvents = 'none';
         ac.classList.remove('archive-controls-slide-in');
-        ac.style.transform = '';
+        ac.style.opacity = '1';  // убеждаемся, что она видима перед анимацией
+        ac.style.pointerEvents = 'auto';
+        ac.classList.add('archive-controls-slide-out');
     }
     
     const onCloseEnd = () => {
@@ -1894,6 +1909,13 @@ if (id === 'mainMenu' && ['eventsScreen', 'profileScreen', 'statsScreen'].includ
         currentEl.removeEventListener('animationend', onCloseEnd);
         // После завершения анимации меню оставляем видимым
         menu.classList.remove('menu-slide-in');
+        // Сбрасываем стили кнопки архива
+        if (ac) {
+            ac.classList.remove('archive-controls-slide-out');
+            ac.style.opacity = '0';
+            ac.style.pointerEvents = 'none';
+            ac.style.transform = '';
+        }
     };
     currentEl.addEventListener('animationend', onCloseEnd);
     
@@ -1925,15 +1947,16 @@ if (!skipAnimation && (id === 'eventsScreen' || id === 'profileScreen' || id ===
     
     const ac = document.getElementById('archiveControls');
     if (id === 'eventsScreen' && ac) {
-        ac.classList.remove('archive-controls-slide-in');
-        ac.style.display = 'flex';
-        ac.style.opacity = '0';
-        ac.style.pointerEvents = 'auto';
-        ac.style.transform = 'translateX(150%)';
-       setTimeout(() => {
-    ac.classList.add('archive-controls-slide-in');
-}, 40);
-    }
+    ac.classList.remove('archive-controls-slide-in');  // ← добавьте также удаление класса закрытия
+    ac.classList.remove('archive-controls-slide-out'); // ← добавить эту строку
+    ac.style.display = 'flex';
+    ac.style.opacity = '0';
+    ac.style.pointerEvents = 'auto';
+    ac.style.transform = 'translateX(150%)';
+    setTimeout(() => {
+        ac.classList.add('archive-controls-slide-in');
+    }, 40);
+}
     
     // Меню плавно уезжает влево на 50%
     const menu = document.getElementById('mainMenu');
