@@ -1422,7 +1422,7 @@ body {
         opacity: 0;
     }
 }
-        /* Пьедестал */
+/* Пьедестал */
 .podium {
     display: flex;
     align-items: flex-end;
@@ -1436,11 +1436,6 @@ body {
     background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 12px 12px 8px 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 16px 8px 12px 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
@@ -1460,29 +1455,6 @@ body {
 /* 3 место (справа) — самое низкое */
 .podium-step.third {
     height: 80px;
-}
-
-.podium-rank {
-    font-size: 28px;
-    font-weight: 900;
-    color: #fff;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-}
-
-.podium-name {
-    font-size: 14px;
-    font-weight: 600;
-    color: #ccc;
-    margin-top: 8px;
-    text-align: center;
-    word-break: break-word;
-    max-width: 100%;
-}
-
-.podium-score {
-    font-size: 12px;
-    color: #888;
-    margin-top: 4px;
 }
     </style>
 </head>
@@ -2687,41 +2659,15 @@ function logout() {
 }
     function openInMaps(lat, lng) { window.open(`https://maps.apple.com/?ll=${lat},${lng}&q=Точка`, '_blank'); }
 
-  // --- СТАТИСТИКА (ЛИДЕРБОРД) — версия с пьедесталом ---
+ // --- СТАТИСТИКА (ЛИДЕРБОРД) — пустой пьедестал ---
 async function loadStatistics() {
     let content = document.getElementById('statsContent');
     
-    // Временные заглушки для топ-3
-    const topThree = [
-        { rank: 1, name: 'Победитель', score: 1250 },
-        { rank: 2, name: 'Серебро', score: 980 },
-        { rank: 3, name: 'Бронза', score: 720 }
-    ];
-    
-    const first = topThree.find(u => u.rank === 1);
-    const second = topThree.find(u => u.rank === 2);
-    const third = topThree.find(u => u.rank === 3);
-    
     let html = `
         <div class="podium">
-            <!-- 2 место (слева) -->
-            <div class="podium-step second">
-                <div class="podium-rank">🥈</div>
-                <div class="podium-name">${second.name}</div>
-                <div class="podium-score">${second.score} pts</div>
-            </div>
-            <!-- 1 место (центр, самый высокий) -->
-            <div class="podium-step first">
-                <div class="podium-rank">🥇</div>
-                <div class="podium-name">${first.name}</div>
-                <div class="podium-score">${first.score} pts</div>
-            </div>
-            <!-- 3 место (справа) -->
-            <div class="podium-step third">
-                <div class="podium-rank">🥉</div>
-                <div class="podium-name">${third.name}</div>
-                <div class="podium-score">${third.score} pts</div>
-            </div>
+            <div class="podium-step second"></div>
+            <div class="podium-step first"></div>
+            <div class="podium-step third"></div>
         </div>
         
         <!-- Место для остальной таблицы лидеров -->
