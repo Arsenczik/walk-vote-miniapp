@@ -1428,10 +1428,11 @@ body {
     align-items: flex-end;
     justify-content: center;
     gap: 5px;
-    margin: 60px auto 40px auto;  /* увеличиваем верхний отступ, чтобы сдвинуть вниз */
-    padding: 0;
+    margin: 60px auto 40px auto;
+    padding: 0 5px;  /* добавляем отступы 5px слева и справа */
     width: 100%;
-    max-width: 400px;  /* ограничиваем ширину для центрирования, можно убрать если нужно на всю ширину */
+    max-width: 100%;
+    box-sizing: border-box;  /* чтобы padding не увеличивал общую ширину */
 }
 
 .podium-step {
