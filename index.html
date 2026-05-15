@@ -2710,12 +2710,11 @@ function logout() {
 }
     function openInMaps(lat, lng) { window.open(`https://maps.apple.com/?ll=${lat},${lng}&q=Точка`, '_blank'); }
 
-// --- СТАТИСТИКА (ЛИДЕРБОРД) — с пьедесталом и списком участников ---
+// --- СТАТИСТИКА (ЛИДЕРБОРД) — с пьедесталом и списком участников (с 4 места) ---
 async function loadStatistics() {
     let content = document.getElementById('statsContent');
     
     // Временные заглушки для тестирования (потом заменим на реальные данные с сервера)
-    // Представьте, что это данные от API
     let allUsers = [
         { name: "Алексей", score: 1250, isMe: false },
         { name: "Мария", score: 980, isMe: false },
@@ -2736,11 +2735,11 @@ async function loadStatistics() {
     // Сортируем по очкам
     allUsers.sort((a, b) => b.score - a.score);
     
-    // Топ-10
-    const top10 = allUsers.slice(0, 10);
+    // Берём с 4 по 10 место (индексы 3-9)
+    const top4to10 = allUsers.slice(3, 10);
     
-    // Проверяем, входит ли текущий пользователь в топ-10
-    const isInTop10 = currentUser && top10.some(u => u.isMe);
+    // Проверяем, входит ли текущий пользователь в топ-10 (с учётом что топ-3 на подиуме)
+    const isInTop10 = currentUser && allUsers.slice(0, 10).some(u => u.isMe);
     
     let html = `
         <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
@@ -2753,9 +2752,9 @@ async function loadStatistics() {
             <div class="leaderboard-list">
     `;
     
-    // Отображаем топ-10
-    top10.forEach((user, index) => {
-        const rank = index + 1;
+    // Отображаем 4-10 места (реальные номера мест: 4,5,6,7,8,9,10)
+    top4to10.forEach((user, idx) => {
+        const rank = idx + 4;  // начинаем с 4 места
         const isMe = user.isMe;
         html += `
             <div class="leaderboard-item ${isMe ? 'is-me' : ''}">
