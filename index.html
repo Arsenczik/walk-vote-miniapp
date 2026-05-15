@@ -1422,6 +1422,68 @@ body {
         opacity: 0;
     }
 }
+        /* Пьедестал */
+.podium {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 8px;
+    margin: 30px 20px 40px 20px;
+}
+
+.podium-step {
+    flex: 1;
+    background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px 12px 8px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 16px 8px 12px 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* 1 место (центр) — самое высокое */
+.podium-step.first {
+    height: 130px;
+    background: linear-gradient(180deg, #2a2a2a 0%, #111111 100%);
+    border-color: rgba(255, 215, 0, 0.3);
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* 2 место (слева) — среднее */
+.podium-step.second {
+    height: 100px;
+}
+
+/* 3 место (справа) — самое низкое */
+.podium-step.third {
+    height: 80px;
+}
+
+.podium-rank {
+    font-size: 28px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.podium-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #ccc;
+    margin-top: 8px;
+    text-align: center;
+    word-break: break-word;
+    max-width: 100%;
+}
+
+.podium-score {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+}
     </style>
 </head>
 <body>
@@ -2625,18 +2687,51 @@ function logout() {
 }
     function openInMaps(lat, lng) { window.open(`https://maps.apple.com/?ll=${lat},${lng}&q=Точка`, '_blank'); }
 
-    // --- СТАТИСТИКА (ЛИДЕРБОРД) — чистая версия для прокачки ---
+  // --- СТАТИСТИКА (ЛИДЕРБОРД) — версия с пьедесталом ---
 async function loadStatistics() {
     let content = document.getElementById('statsContent');
-    content.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; padding: 40px 20px;">
-            <div style="font-size: 72px; margin-bottom: 20px;">🏆</div>
-            <div style="font-size: 24px; font-weight: 700; margin-bottom: 12px; color: #fff;">Лидерборд</div>
-            <div style="font-size: 16px; color: #888;">Скоро здесь появится таблица лидеров</div>
+    
+    // Временные заглушки для топ-3
+    const topThree = [
+        { rank: 1, name: 'Победитель', score: 1250 },
+        { rank: 2, name: 'Серебро', score: 980 },
+        { rank: 3, name: 'Бронза', score: 720 }
+    ];
+    
+    const first = topThree.find(u => u.rank === 1);
+    const second = topThree.find(u => u.rank === 2);
+    const third = topThree.find(u => u.rank === 3);
+    
+    let html = `
+        <div class="podium">
+            <!-- 2 место (слева) -->
+            <div class="podium-step second">
+                <div class="podium-rank">🥈</div>
+                <div class="podium-name">${second.name}</div>
+                <div class="podium-score">${second.score} pts</div>
+            </div>
+            <!-- 1 место (центр, самый высокий) -->
+            <div class="podium-step first">
+                <div class="podium-rank">🥇</div>
+                <div class="podium-name">${first.name}</div>
+                <div class="podium-score">${first.score} pts</div>
+            </div>
+            <!-- 3 место (справа) -->
+            <div class="podium-step third">
+                <div class="podium-rank">🥉</div>
+                <div class="podium-name">${third.name}</div>
+                <div class="podium-score">${third.score} pts</div>
+            </div>
+        </div>
+        
+        <!-- Место для остальной таблицы лидеров -->
+        <div style="margin-top: 20px; padding: 0 16px;">
+            <div style="text-align: center; color: #666; font-size: 14px;">Остальные участники появятся позже</div>
         </div>
     `;
+    
+    content.innerHTML = html;
 }
-
     // --- УТИЛИТЫ ---
     function formatDateDay(d) { if(!d) return ''; let date=new Date(d), now=new Date(); if(date.toDateString()===now.toDateString()) return 'Сегодня'; now.setDate(now.getDate()+1); if(date.toDateString()===now.toDateString()) return 'Завтра'; return date.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'}); }
     function formatDateTime(d) { if(!d) return ''; return new Date(d).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}); }
