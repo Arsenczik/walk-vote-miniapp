@@ -1427,10 +1427,11 @@ body {
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    gap: 5px;  /* было 8px */
-    margin: 30px 0 40px 0;  /* убираем боковые отступы, чтобы был вплотную к краям */
+    gap: 5px;
+    margin: 60px auto 40px auto;  /* увеличиваем верхний отступ, чтобы сдвинуть вниз */
     padding: 0;
     width: 100%;
+    max-width: 400px;  /* ограничиваем ширину для центрирования, можно убрать если нужно на всю ширину */
 }
 
 .podium-step {
@@ -1443,7 +1444,7 @@ body {
 
 /* 1 место (центр) — самое высокое */
 .podium-step.first {
-    height: 130px;
+    height: 160px;  /* было 130px */
     background: linear-gradient(180deg, #2a2a2a 0%, #111111 100%);
     border-color: rgba(255, 215, 0, 0.3);
     box-shadow: 0 0 12px rgba(255, 215, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.08);
@@ -1451,12 +1452,12 @@ body {
 
 /* 2 место (слева) — среднее */
 .podium-step.second {
-    height: 100px;
+    height: 110px;  /* было 100px */
 }
 
 /* 3 место (справа) — самое низкое */
 .podium-step.third {
-    height: 80px;
+    height: 70px;   /* было 80px — уменьшаем, чтобы контраст был больше */
 }
         #statsContent {
     padding: 0 !important;  /* убираем отступы, чтобы подиум был вплотную к краям */
@@ -2669,17 +2670,15 @@ async function loadStatistics() {
     let content = document.getElementById('statsContent');
     
     let html = `
+    <div style="display: flex; justify-content: center; align-items: center; min-height: 50vh; flex-direction: column;">
         <div class="podium">
             <div class="podium-step second"></div>
             <div class="podium-step first"></div>
             <div class="podium-step third"></div>
         </div>
-        
-        <!-- Место для остальной таблицы лидеров -->
-        <div style="margin-top: 20px; padding: 0 16px;">
-            <div style="text-align: center; color: #666; font-size: 14px;">Остальные участники появятся позже</div>
-        </div>
-    `;
+        <div style="margin-top: 30px; text-align: center; color: #666; font-size: 14px;">Остальные участники появятся позже</div>
+    </div>
+`;
     
     content.innerHTML = html;
 }
