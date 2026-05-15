@@ -1462,13 +1462,14 @@ body {
         #statsContent {
     padding: 0 !important;  /* убираем отступы, чтобы подиум был вплотную к краям */
 }
-        /* Список участников */
+       /* Список участников */
 .leaderboard-list {
-    margin: 30px 16px 20px 16px;
+    margin: 30px 0 20px 0;  /* убираем боковые отступы (было 16px) */
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
+    border-radius: 0;  /* убираем скругление, чтобы было вплотную к краям (или оставьте скругление только сверху/снизу) */
     overflow: hidden;
+    width: 100%;
 }
 
 .leaderboard-item {
