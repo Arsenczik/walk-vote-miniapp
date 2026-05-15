@@ -1428,7 +1428,7 @@ body {
     align-items: flex-end;
     justify-content: center;
     gap: 5px;
-    margin: 60px auto 40px auto;
+    margin: 0 auto;
     padding: 0 5px;  /* добавляем отступы 5px слева и справа */
     width: 100%;
     max-width: 100%;
@@ -2746,7 +2746,7 @@ async function loadStatistics() {
     const isInTop10 = currentUser && allUsers.slice(0, 10).some(u => u.isMe);
     
     let html = `
-        <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+        <div style="display: flex; justify-content: center; align-items: center; flex-direction: column; padding-top: 20px;">
             <div class="podium">
                 <div class="podium-step second"></div>
                 <div class="podium-step first"></div>
