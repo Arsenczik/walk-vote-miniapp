@@ -2625,67 +2625,17 @@ function logout() {
 }
     function openInMaps(lat, lng) { window.open(`https://maps.apple.com/?ll=${lat},${lng}&q=Точка`, '_blank'); }
 
-    // --- СТАТИСТИКА (ТОЛЬКО ЛИДЕРБОРД) ---
-    async function loadStatistics() {
-        let content = document.getElementById('statsContent');
-        content.innerHTML = '<div style="text-align:center; padding:40px 20px;"><div style="font-size:60px; margin-bottom:16px;">🏜️</div><p>Загрузка лидерборда...</p></div>';
-
-        try {
-            let [profileRes, leaderboardRes] = await Promise.all([
-                fetch('/api/profile/' + USER_ID),
-                fetch('/api/leaderboard')
-            ]);
-
-            let profile = await profileRes.json();
-            let leaderboard = await leaderboardRes.json();
-
-            let totalVibes = profile.vibes || (profile.stats?.created || 0) * 25 + (profile.stats?.attended || 0) * 15;
-
-            let html = `
-                <div style="text-align: center; margin-bottom: 40px;">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 20px; font-size: 52px;">
-                        🐪
-                        <div style="font-size: 52px; font-weight: 900; background: linear-gradient(90deg, #ffd700, #fff, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -3px;">
-                            ${totalVibes}
-                        </div>
-                        🐪
-                    </div>
-                    <div style="color: #aaa; font-size: 18px; margin-top: 8px; letter-spacing: 1px;">ТВОИ ОЧКИ</div>
-                </div>
-
-                <!-- Лидерборд -->
-                <div>
-                    <div style="font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 20px; color: #fff;">ЛИДЕРБОРД</div>
-                    <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; overflow: hidden;">
-                        ${leaderboard.slice(0, 15).map((u, i) => {
-                            const isMe = (u.user && u.user.id === USER_ID) || u.user_id === USER_ID;
-                            const name = escapeHtml(u.user?.name || u.name || 'Караванщик');
-                            const emoji = u.user?.emoji || u.emoji || '🐪';
-                            const score = u.score || u.vibes || 0;
-                            return `
-                                <div style="display: flex; align-items: center; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); ${isMe ? 'background: rgba(255,215,0,0.12);' : ''}">
-                                    <div style="width: 32px; color: #888; font-weight: 700; font-size: 18px;">#${i+1}</div>
-                                    <div style="margin-left: 12px; font-size: 32px; width: 40px; text-align: center;">${emoji}</div>
-                                    <div style="flex: 1; margin-left: 16px; font-weight: 600; font-size: 17px;">${name}</div>
-                                    <div style="font-size: 20px; font-weight: 700; color: #fff;">${score}</div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                    ${leaderboard.length > 15 ? `<div style="text-align:center; color:#666; margin-top:16px; font-size:14px;">... и ещё ${leaderboard.length - 15} караванщиков</div>` : ''}
-                </div>
-            `;
-
-            content.innerHTML = html;
-
-        } catch(e) {
-            console.error(e);
-            content.innerHTML = `<div style="padding: 80px 20px; text-align: center; color: #ff6b6b;">
-                <div style="font-size: 60px; margin-bottom: 20px;">🐪</div>
-                <p>Не удалось загрузить лидерборд</p>
-            </div>`;
-        }
-    }
+    // --- СТАТИСТИКА (ЛИДЕРБОРД) — чистая версия для прокачки ---
+async function loadStatistics() {
+    let content = document.getElementById('statsContent');
+    content.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; padding: 40px 20px;">
+            <div style="font-size: 72px; margin-bottom: 20px;">🏆</div>
+            <div style="font-size: 24px; font-weight: 700; margin-bottom: 12px; color: #fff;">Лидерборд</div>
+            <div style="font-size: 16px; color: #888;">Скоро здесь появится таблица лидеров</div>
+        </div>
+    `;
+}
 
     // --- УТИЛИТЫ ---
     function formatDateDay(d) { if(!d) return ''; let date=new Date(d), now=new Date(); if(date.toDateString()===now.toDateString()) return 'Сегодня'; now.setDate(now.getDate()+1); if(date.toDateString()===now.toDateString()) return 'Завтра'; return date.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'}); }
