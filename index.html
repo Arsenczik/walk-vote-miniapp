@@ -1460,17 +1460,22 @@ body {
 .podium-step.third {
     height: 70px;   /* было 80px — уменьшаем, чтобы контраст был больше */
 }
-        #statsContent {
-    padding: 0 !important;  /* убираем отступы, чтобы подиум был вплотную к краям */
+      #statsContent {
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* центрируем дочерние элементы */
 }
-       /* Список участников */
+   /* Список участников */
 .leaderboard-list {
-    margin: 30px 0 20px 0;  /* убираем боковые отступы (было 16px) */
+    margin: 30px auto 20px auto;  /* auto для центрирования */
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 0;  /* убираем скругление, чтобы было вплотную к краям (или оставьте скругление только сверху/снизу) */
+    border-radius: 16px;  /* добавляем скругление для красоты */
     overflow: hidden;
-    width: 100%;
+    width: calc(100% - 16px);  /* на 16px уже, чем родительский контейнер */
+    max-width: calc(100% - 16px);
+    box-sizing: border-box;
 }
 
 .leaderboard-item {
