@@ -1465,7 +1465,7 @@ body {
 }
 /* Список участников */
 .leaderboard-list {
-    margin: 25px auto 20px auto;  /* было 7px, стало 25px */
+    margin: 0 auto 20px auto;  /* убираем верхний отступ, будет 0 */
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
@@ -1511,9 +1511,9 @@ body {
     font-weight: 700;
     color: #ffd700;
 }
-        /* Декоративная линия между подиумом и списком */
+      /* Декоративная линия между подиумом и списком */
 .podium-divider {
-    width: calc(100% - 32px);  /* ширина чуть больше списка (список на 16px уже экрана) */
+    width: calc(100% - 32px);
     max-width: 400px;
     height: 1px;
     background: linear-gradient(90deg, 
@@ -1522,7 +1522,7 @@ body {
         rgba(255, 255, 255, 0.4) 50%, 
         rgba(255, 255, 255, 0.15) 85%, 
         transparent 100%);
-    margin: 12px auto;
+    margin: 12px auto;  /* 12px сверху, 12px снизу = всего 24px промежутка */
     border: none;
 }
     </style>
