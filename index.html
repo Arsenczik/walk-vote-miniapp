@@ -1525,6 +1525,21 @@ body {
     margin: 12px auto;
     border: none;
 }
+        /* Анимация выезда снизу для 3 места */
+@keyframes slideUpFromBottom {
+    0% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.podium-step.third.animate {
+    animation: slideUpFromBottom 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+}
     </style>
 </head>
 <body>
@@ -2759,12 +2774,12 @@ async function loadStatistics() {
     // Проверяем, входит ли текущий пользователь в топ-10 (с учётом что топ-3 на подиуме)
     const isInTop10 = currentUser && allUsers.slice(0, 10).some(u => u.isMe);
     
-  let html = `
+ let html = `
     <div style="display: flex; justify-content: center; align-items: center; flex-direction: column; margin-top: 33.3vh;">
         <div class="podium">
             <div class="podium-step second"></div>
             <div class="podium-step first"></div>
-            <div class="podium-step third"></div>
+            <div class="podium-step third animate"></div>
         </div>
         
         <div class="podium-divider"></div>
