@@ -1430,6 +1430,18 @@ body {
     gap: 5px;
     margin: 0 auto;
     padding: 0 5px;
+    width: 100%;
+}
+
+        /* Контейнер для эффекта "вырастания из земли" */
+.podium-step-wrapper {
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-width: 0;  /* важно для flex-детей, чтобы они сжимались/растягивались */
 }
 
 .podium-step {
@@ -1536,16 +1548,6 @@ body {
 
 .podium-step.third.animate {
     animation: slideUpFromBottom 1s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
-}
-
-/* Контейнер для эффекта "вырастания из земли" */
-.podium-step-wrapper {
-    position: relative;
-    overflow: hidden;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
 }
 
 /* Маскирующий блок, который закрывает нижнюю часть столбика до анимации */
