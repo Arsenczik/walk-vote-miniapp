@@ -1553,13 +1553,14 @@ body {
     animation-delay: 0.17s;  /* ждём, пока экран полностью откроется */
     opacity: 0;  /* чтобы не было видно до начала анимации */
 }
-
+        
 .podium-mask {
     position: absolute;
+    top: -2px;  /* смещаем вверх на 2px, чтобы закрыть верхнюю границу */
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 100%;  /* было calc(100% - 4px), теперь 100% */
+    height: calc(100% + 2px);  /* увеличиваем высоту, чтобы компенсировать смещение */
     background: linear-gradient(180deg, transparent 0%, #000 100%);
     pointer-events: none;
     z-index: 1;
