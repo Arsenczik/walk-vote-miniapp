@@ -2759,18 +2759,18 @@ async function loadStatistics() {
     // Проверяем, входит ли текущий пользователь в топ-10 (с учётом что топ-3 на подиуме)
     const isInTop10 = currentUser && allUsers.slice(0, 10).some(u => u.isMe);
     
-    let html = `
-        <div style="display: flex; justify-content: center; align-items: center; flex-direction: column; padding-top: 20px;">
-            <div class="podium">
-                <div class="podium-step second"></div>
-                <div class="podium-step first"></div>
-                <div class="podium-step third"></div>
-            </div>
-
-            <div class="podium-divider"></div>
-            
-            <div class="leaderboard-list">
-    `;
+  let html = `
+    <div style="display: flex; justify-content: center; align-items: center; flex-direction: column; min-height: 66vh; justify-content: flex-start; padding-top: 40px;">
+        <div class="podium">
+            <div class="podium-step second"></div>
+            <div class="podium-step first"></div>
+            <div class="podium-step third"></div>
+        </div>
+        
+        <div class="podium-divider"></div>
+        
+        <div class="leaderboard-list">
+`;
     
     // Отображаем 4-10 места (реальные номера мест: 4,5,6,7,8,9,10)
     top4to10.forEach((user, idx) => {
