@@ -1535,8 +1535,13 @@ body {
     margin: 12px auto;
     border: none;
 }
-/* Анимация выезда снизу для 3 места */
-@keyframes slideUpFromBottom {
+
+.podium-step.third.animate {
+    animation: slideUpFromBottom 1s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    animation-delay: 0.17s;
+    opacity: 0;
+}
+        @keyframes slideUpFromBottom {
     0% {
         transform: translateY(100%);
         opacity: 0;
@@ -1544,21 +1549,6 @@ body {
     100% {
         transform: translateY(0);
         opacity: 1;
-    }
-}
-
-.podium-step.third.animate {
-    animation: slideUpFromBottom 1s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
-    animation-delay: 0.17s;
-    opacity: 0;                /* стартовая прозрачность, переопределяется в анимации */
-}
-
-@keyframes slideUpFromBottom {
-    0% {
-        transform: translateY(100%);
-    }
-    100% {
-        transform: translateY(0);
     }
 }
         
