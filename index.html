@@ -2867,28 +2867,21 @@ const thirdPlaceName = allUsers[2]?.name || "Игрок";
     
  let html = `
     <div style="display: flex; justify-content: center; align-items: center; flex-direction: column; margin-top: 33.3vh;">
-       <div class="podium">
-    <div class="podium-step-wrapper">
-        <div class="podium-step second"></div>
-    </div>
-    <div class="podium-step-wrapper">
-        <div class="podium-step first"></div>
-    </div>
-    <div class="podium-step-wrapper">
-    <div class="podium-step third animate">
-        <div class="podium-rank-third">3</div>
-        <div class="podium-mask"></div>
-    </div>
-</div>
-<div class="podium-step-wrapper">
-    <div class="podium-step third animate">
-        <div class="podium-rank-third">3</div>
-        <div class="podium-name-third">Игрок</div>
-        <div class="podium-name-third">${escapeHtml(thirdPlaceName)}</div>
-        <div class="podium-mask"></div>
-    </div>
-</div>
-</div>
+        <div class="podium">
+            <div class="podium-step-wrapper">
+                <div class="podium-step second"></div>
+            </div>
+            <div class="podium-step-wrapper">
+                <div class="podium-step first"></div>
+            </div>
+            <div class="podium-step-wrapper">
+                <div class="podium-step third animate">
+                    <div class="podium-rank-third">3</div>
+                    <div class="podium-name-third">${escapeHtml(thirdPlaceName)}</div>
+                    <div class="podium-mask"></div>
+                </div>
+            </div>
+        </div>
         
         <div class="podium-divider"></div>
         
