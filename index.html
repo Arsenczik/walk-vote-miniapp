@@ -1581,31 +1581,20 @@ body {
     backdrop-filter: blur(0px);  /* размытие исчезает */
     -webkit-backdrop-filter: blur(0px);
 }
-@keyframes rankSlideUp {
-    0% {
-        transform: translate(-50%, calc(-50% + 70px));  /* начинает на 70px ниже */
-        opacity: 0;
-    }
-    100% {
-        transform: translate(-50%, -50%);
-        opacity: 1;
-    }
-}
+
 /* Цифра 3 на третьем столбике */
 .podium-rank-third {
     position: absolute;
     top: 50%;
     left: 50%;
+    transform: translate(-50%, -50%);
     font-size: 28px;
     font-weight: 900;
     color: rgba(255, 255, 255, 0.85);
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     letter-spacing: 2px;
     z-index: 5;
-    /* ТЕ ЖЕ ПАРАМЕТРЫ, ЧТО И У СТОЛБИКА */
-    animation: rankSlideUp 1s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
-    animation-delay: 0.17s;
-    opacity: 0;
+    opacity: 1;
 }
     </style>
 </head>
