@@ -1596,6 +1596,38 @@ body {
     z-index: 5;
     opacity: 1;
 }
+    /* Имя над третьим столбиком */
+.podium-name-third {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ccc;
+    text-align: center;
+    white-space: nowrap;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 4px 12px;
+    border-radius: 20px;
+    backdrop-filter: blur(4px);
+    z-index: 5;
+    opacity: 0;
+    animation: nameFadeIn 0.4s ease-out forwards;
+    animation-delay: 0.85s;
+}
+
+@keyframes nameFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-5px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
     </style>
 </head>
 <body>
@@ -2829,6 +2861,9 @@ async function loadStatistics() {
     
     // Проверяем, входит ли текущий пользователь в топ-10 (с учётом что топ-3 на подиуме)
     const isInTop10 = currentUser && allUsers.slice(0, 10).some(u => u.isMe);
+
+    // Временное имя для третьего места (потом замените на реальные данные)
+const thirdPlaceName = allUsers[2]?.name || "Игрок";
     
  let html = `
     <div style="display: flex; justify-content: center; align-items: center; flex-direction: column; margin-top: 33.3vh;">
@@ -2842,6 +2877,14 @@ async function loadStatistics() {
     <div class="podium-step-wrapper">
     <div class="podium-step third animate">
         <div class="podium-rank-third">3</div>
+        <div class="podium-mask"></div>
+    </div>
+</div>
+<div class="podium-step-wrapper">
+    <div class="podium-step third animate">
+        <div class="podium-rank-third">3</div>
+        <div class="podium-name-third">Игрок</div>
+        <div class="podium-name-third">${escapeHtml(thirdPlaceName)}</div>
         <div class="podium-mask"></div>
     </div>
 </div>
