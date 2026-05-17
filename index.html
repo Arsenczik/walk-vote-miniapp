@@ -1557,26 +1557,15 @@ body {
     z-index: 5;
     opacity: 1;
 }
-        .podium-step-wrapper {
+     .podium-step-wrapper {
     position: relative;
-    overflow: hidden;        /* ← возвращаем hidden, чтобы обрезать столбик и маску */
+    overflow: hidden;
+    background: #000;        /* ← чёрный фон = земля */
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     min-width: 0;
-}
-
-.podium-mask {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;            /* закрывает весь wrapper, но мы её ограничим снизу */
-    background: #000;
-    pointer-events: none;
-    z-index: 2;
-    /* маска статична, никуда не едет */
 }
 
 .podium-name-third {
@@ -2835,7 +2824,6 @@ let html = `
     <div class="podium-step third animate">
         <div class="podium-rank-third">3</div>
     </div>
-    <div class="podium-mask"></div>
 </div>
 <div class="podium-name-third">Дмитрий</div>
 </div>
