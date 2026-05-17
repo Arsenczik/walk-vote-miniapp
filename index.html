@@ -1569,13 +1569,16 @@ body {
 }
 
 .podium-name-third {
-    position: relative;      /* вне wrapper, позиционируем относительно родителя */
-    text-align: center;
-    margin-bottom: -40px;    /* подтянем к столбику */
-    z-index: 10;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 12px;
     font-size: 14px;
     font-weight: 600;
     color: #ccc;
+    z-index: 10;
+    white-space: nowrap;
 }
     </style>
 </head>
@@ -2820,12 +2823,14 @@ let html = `
     <div class="podium-step-wrapper">
         <div class="podium-step first"></div>
     </div>
-   <div class="podium-step-wrapper">
-    <div class="podium-step third animate">
-        <div class="podium-rank-third">3</div>
+  <div class="podium-step-wrapper" style="overflow: visible; background: none;">
+    <div class="podium-name-third">Дмитрий</div>
+    <div style="overflow: hidden; background: #000; border-radius: 12px 12px 8px 8px; flex: 1; display: flex; flex-direction: column; justify-content: flex-end;">
+        <div class="podium-step third animate">
+            <div class="podium-rank-third">3</div>
+        </div>
     </div>
 </div>
-<div class="podium-name-third">Дмитрий</div>
 </div>
         
         <div class="podium-divider"></div>
