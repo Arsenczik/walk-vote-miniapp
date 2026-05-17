@@ -1596,7 +1596,7 @@ body {
     z-index: 5;
     opacity: 1;
 }
-    /* Имя над третьим столбиком */
+   /* Имя над третьим столбиком */
 .podium-name-third {
     position: absolute;
     bottom: 100%;
@@ -1612,12 +1612,12 @@ body {
     padding: 4px 12px;
     border-radius: 20px;
     backdrop-filter: blur(4px);
-    z-index: 5;
+    z-index: 10;  /* увеличили z-index */
     opacity: 0;
     animation: nameFadeIn 0.4s ease-out forwards;
     animation-delay: 0.85s;
+    pointer-events: none;
 }
-
 @keyframes nameFadeIn {
     0% {
         opacity: 0;
