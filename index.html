@@ -1433,16 +1433,6 @@ body {
     width: 100%;
 }
 
-        /* Контейнер для эффекта "вырастания из земли" */
-.podium-step-wrapper {
-    position: relative;
-    overflow: hidden;   /* ← возвращаем для анимации */
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    min-width: 0;
-}
 
 .podium-step {
     width: 100%;
@@ -1464,13 +1454,21 @@ body {
 .podium-step.second {
     height: 110px;  /* было 100px */
 }
+.podium-step-wrapper {
+    position: relative;
+    overflow: visible;        /* ← МЕНЯЕМ НА VISIBLE */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-width: 0;
+}
 
-/* 3 место (справа) — самое низкое */
 .podium-step.third {
     height: 70px;
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
     position: relative;
-    overflow: hidden;
+    overflow: hidden;         /* ← маска остаётся здесь */
 }
       #statsContent {
     padding: 0 !important;
@@ -1598,26 +1596,25 @@ body {
     opacity: 1;
 }
 .podium-name-third {
-    position: relative;       /* ← МЕНЯЕМ С ABSOLUTE НА RELATIVE */
-    order: -1;                /* ← ПОДНИМАЕМ ВЫШЕ В FLEX-ПОТОКЕ */
-    align-self: center;       /* ← ЦЕНТРИРУЕМ ПО ГОРИЗОНТАЛИ */
-    margin-bottom: -30px;     /* ← ЗАЕЗЖАЕМ НА СТОЛБИК СНИЗУ */
-    z-index: 10;
-    
+    position: absolute;
+    top: -40px;               /* над столбиком */
+    left: 50%;
+    transform: translateX(-50%);
     font-size: 14px;
-    font-weight: 600;
-    color: #ccc;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 4px 12px;
-    border-radius: 20px;
-    backdrop-filter: blur(4px);
-    
+    font-weight: 900;         /* как у цифры 3 */
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    letter-spacing: 1px;
+    z-index: 15;              /* выше маски */
     opacity: 0;
     animation: nameFadeIn 0.4s ease-out forwards;
     animation-delay: 0.85s;
     pointer-events: none;
     white-space: nowrap;
-    width: fit-content;       /* ← чтобы не растягивалось */
+    background: none;         /* убираем чёрный фон */
+    padding: 0;
+    border-radius: 0;
+    backdrop-filter: none;
 }
 @keyframes nameFadeIn {
     0% {
@@ -2878,9 +2875,9 @@ const thirdPlaceName = allUsers[2]?.name || "Игрок";
      <div class="podium-step-wrapper">
     <div class="podium-step third animate">
         <div class="podium-rank-third">3</div>
+        <div class="podium-name-third">${escapeHtml(thirdPlaceName)}</div>  <!-- имя внутри столбика -->
         <div class="podium-mask"></div>
     </div>
-    <div class="podium-name-third">${escapeHtml(thirdPlaceName)}</div>
 </div>
         </div>
         
