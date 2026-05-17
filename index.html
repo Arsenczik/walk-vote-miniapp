@@ -1548,13 +1548,12 @@ body {
 }
 
 .podium-step.third.animate {
-    animation: slideUpFromGround 1s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    animation: slideUpFromBottom 1s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
     animation-delay: 0.17s;
-    transform: translateY(100%);
-    opacity: 1;
+    opacity: 0;                /* стартовая прозрачность, переопределяется в анимации */
 }
 
-@keyframes slideUpFromGround {
+@keyframes slideUpFromBottom {
     0% {
         transform: translateY(100%);
     }
@@ -1565,20 +1564,21 @@ body {
         
 .podium-mask {
     position: absolute;
-    top: 0;
+    bottom: 0;
     left: 0;
     width: 100%;
-    height: 100%;
-    background: #000;
+    height: 50%;               /* закрывает нижнюю половину wrapper'а */
+    background: #000;           /* полностью чёрный, без прозрачности */
     pointer-events: none;
-    z-index: 2;
+    z-index: 2;                 /* выше столбика, но ниже цифры и имени */
+    border-top: 1px solid rgba(255, 255, 255, 0.12);  /* линия "земли" для наглядности */
+    /* убираем все анимации и transition */
+    transform: none;
+    transition: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
 }
-        
-.podium-step.third.animate .podium-mask {
-    transform: translateY(-100%);
-    backdrop-filter: blur(0px);  /* размытие исчезает */
-    -webkit-backdrop-filter: blur(0px);
-}
+    
 
 /* Цифра 3 на третьем столбике */
 .podium-rank-third {
