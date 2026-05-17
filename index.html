@@ -1627,6 +1627,23 @@ animation: nameSlideSync 1s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
         transform: translateX(-50%) scaleY(1.3) translateY(0);
     }
 }
+        .podium-avatar-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 48px;            /* крупный фоновый эмодзи */
+    opacity: 0.25;
+    filter: blur(3px);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.podium-name-text {
+    position: relative;
+    z-index: 1;                 /* поверх фона */
+    display: inline-block;
+}
     </style>
 </head>
 <body>
@@ -2871,7 +2888,10 @@ let html = `
         <div class="podium-step first"></div>
     </div>
   <div class="podium-step-wrapper" style="overflow: visible; background: none;">
-    <div class="podium-name-third">Дмитрий</div>
+   <div class="podium-name-third">
+    <span class="podium-avatar-bg">🐱</span>
+    <span class="podium-name-text">Дмитрий</span>
+</div>
     <div style="overflow: hidden; background: #000; border-radius: 12px 12px 8px 8px; flex: 1; display: flex; flex-direction: column; justify-content: flex-end;">
         <div class="podium-step third animate">
             <div class="podium-rank-third">3</div>
