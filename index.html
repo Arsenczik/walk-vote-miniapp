@@ -1661,6 +1661,15 @@ animation: nameSlideSync 1s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
     font-size: 16px;
     opacity: 0.9;
 }
+        .podium-score-number,
+.podium-score-paw {
+    display: inline-block;          /* чтобы transform работал */
+    transform: scaleY(0.77);       /* компенсация растяжения контейнера */
+}
+
+.podium-score-paw {
+    filter: brightness(0) invert(1); /* превращает 🐾 в белый цвет */
+}
     </style>
 </head>
 <body>
