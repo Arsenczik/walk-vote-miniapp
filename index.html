@@ -1436,11 +1436,12 @@ body {
         /* Контейнер для эффекта "вырастания из земли" */
 .podium-step-wrapper {
     position: relative;
+    overflow: hidden;   /* ← возвращаем для анимации */
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    min-width: 0;  /* важно для flex-детей, чтобы они сжимались/растягивались */
+    min-width: 0;
 }
 
 .podium-step {
@@ -1598,7 +1599,7 @@ body {
 }
 .podium-name-third {
     position: absolute;
-    bottom: calc(100% + 12px);  /* Чёткий отступ над столбиком */
+    bottom: calc(100% + 8px);  /* над всей обёрткой */
     left: 50%;
     transform: translateX(-50%);
     font-size: 14px;
@@ -1613,7 +1614,7 @@ body {
     animation: nameFadeIn 0.4s ease-out forwards;
     animation-delay: 0.85s;
     pointer-events: none;
-    white-space: nowrap;  /* Чтобы имя не переносилось */
+    white-space: nowrap;
 }
 @keyframes nameFadeIn {
     0% {
@@ -2872,12 +2873,12 @@ const thirdPlaceName = allUsers[2]?.name || "Игрок";
                 <div class="podium-step first"></div>
             </div>
             <div class="podium-step-wrapper">
-                <div class="podium-step third animate">
-                    <div class="podium-rank-third">3</div>
-                    <div class="podium-name-third">${escapeHtml(thirdPlaceName)}</div>
-                    <div class="podium-mask"></div>
-                </div>
-            </div>
+    <div class="podium-step third animate">
+        <div class="podium-rank-third">3</div>
+        <div class="podium-mask"></div>
+    </div>
+    <div class="podium-name-third">${escapeHtml(thirdPlaceName)}</div>  //<!-- ← ИМЯ ЗДЕСЬ -->//
+</div>
         </div>
         
         <div class="podium-divider"></div>
