@@ -1548,31 +1548,30 @@ body {
 }
 
 .podium-step.third.animate {
-    animation: slideUpFromBottom 1s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    animation: slideUpFromGround 1s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
     animation-delay: 0.17s;
-    opacity: 0;
+    transform: translateY(100%);
+    opacity: 1;
+}
+
+@keyframes slideUpFromGround {
+    0% {
+        transform: translateY(100%);
+    }
+    100% {
+        transform: translateY(0);
+    }
 }
         
 .podium-mask {
     position: absolute;
-    top: -6px;  /* как у вас сейчас */
-    bottom: 0;
+    top: 0;
     left: 0;
     width: 100%;
-    height: calc(100% + 6px);
-    background: linear-gradient(180deg, 
-        transparent 0%, 
-        rgba(0, 0, 0, 0.2) 30%,
-        rgba(0, 0, 0, 0.8) 70%,
-        #000 100%);
-    backdrop-filter: blur(6px);  /* размытие того, что под маской */
-    -webkit-backdrop-filter: blur(6px);
+    height: 100%;
+    background: #000;
     pointer-events: none;
-    z-index: 1;
-    transform: translateY(0);
-    transition: transform 1s cubic-bezier(0.25, 0.1, 0.25, 1), 
-                backdrop-filter 0.8s ease-out;  /* плавное исчезновение размытия */
-    transition-delay: 0.17s, 0s;  /* размытие начинает исчезать сразу */
+    z-index: 2;
 }
         
 .podium-step.third.animate .podium-mask {
