@@ -1436,7 +1436,6 @@ body {
         /* Контейнер для эффекта "вырастания из земли" */
 .podium-step-wrapper {
     position: relative;
-    overflow: hidden;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -1470,6 +1469,7 @@ body {
     height: 70px;
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
     position: relative;
+    overflow: hidden;
 }
       #statsContent {
     padding: 0 !important;
@@ -1596,27 +1596,24 @@ body {
     z-index: 5;
     opacity: 1;
 }
-   /* Имя над третьим столбиком */
 .podium-name-third {
     position: absolute;
-    bottom: 100%;
+    bottom: calc(100% + 12px);  /* Чёткий отступ над столбиком */
     left: 50%;
     transform: translateX(-50%);
-    margin-bottom: 12px;
     font-size: 14px;
     font-weight: 600;
     color: #ccc;
-    text-align: center;
-    white-space: nowrap;
     background: rgba(0, 0, 0, 0.6);
     padding: 4px 12px;
     border-radius: 20px;
     backdrop-filter: blur(4px);
-    z-index: 10;  /* увеличили z-index */
+    z-index: 10;
     opacity: 0;
     animation: nameFadeIn 0.4s ease-out forwards;
     animation-delay: 0.85s;
     pointer-events: none;
+    white-space: nowrap;  /* Чтобы имя не переносилось */
 }
 @keyframes nameFadeIn {
     0% {
