@@ -1433,16 +1433,6 @@ body {
     width: 100%;
 }
 
-.podium-step-wrapper {
-    position: relative;
-    overflow: visible;        /* ← меняем hidden на visible */
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    min-width: 0;
-}
-
 .podium-step {
     width: 100%;
     background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
@@ -1551,23 +1541,6 @@ body {
         opacity: 1;
     }
 }
-        
-.podium-mask {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 50%;               /* закрывает нижнюю половину wrapper'а */
-    background: #000;           /* полностью чёрный, без прозрачности */
-    pointer-events: none;
-    z-index: 2;                 /* выше столбика, но ниже цифры и имени */
-    border-top: 1px solid rgba(255, 255, 255, 0.12);  /* линия "земли" для наглядности */
-    /* убираем все анимации и transition */
-    transform: none;
-    transition: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-}
     
 
 /* Цифра 3 на третьем столбике */
@@ -1584,17 +1557,36 @@ body {
     z-index: 5;
     opacity: 1;
 }
-      .podium-name-third {
+        .podium-step-wrapper {
+    position: relative;
+    overflow: hidden;        /* ← возвращаем hidden, чтобы обрезать столбик и маску */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-width: 0;
+}
+
+.podium-mask {
     position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-bottom: 12px;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;            /* закрывает весь wrapper, но мы её ограничим снизу */
+    background: #000;
+    pointer-events: none;
+    z-index: 2;
+    /* маска статична, никуда не едет */
+}
+
+.podium-name-third {
+    position: relative;      /* вне wrapper, позиционируем относительно родителя */
+    text-align: center;
+    margin-bottom: -40px;    /* подтянем к столбику */
+    z-index: 10;
     font-size: 14px;
     font-weight: 600;
     color: #ccc;
-    z-index: 10;
-    white-space: nowrap;
 }
     </style>
 </head>
@@ -2839,13 +2831,13 @@ let html = `
     <div class="podium-step-wrapper">
         <div class="podium-step first"></div>
     </div>
-    <div class="podium-step-wrapper">
-        <div class="podium-name-third">Дмитрий</div>
-        <div class="podium-step third animate">
-            <div class="podium-rank-third">3</div>
-            <div class="podium-mask"></div>
-        </div>
+   <div class="podium-step-wrapper">
+    <div class="podium-step third animate">
+        <div class="podium-rank-third">3</div>
     </div>
+    <div class="podium-mask"></div>
+</div>
+<div class="podium-name-third">Дмитрий</div>
 </div>
         
         <div class="podium-divider"></div>
