@@ -1598,10 +1598,12 @@ body {
     opacity: 1;
 }
 .podium-name-third {
-    position: absolute;
-    bottom: calc(100% + 8px);  /* над всей обёрткой */
-    left: 50%;
-    transform: translateX(-50%);
+    position: relative;       /* ← МЕНЯЕМ С ABSOLUTE НА RELATIVE */
+    order: -1;                /* ← ПОДНИМАЕМ ВЫШЕ В FLEX-ПОТОКЕ */
+    align-self: center;       /* ← ЦЕНТРИРУЕМ ПО ГОРИЗОНТАЛИ */
+    margin-bottom: -30px;     /* ← ЗАЕЗЖАЕМ НА СТОЛБИК СНИЗУ */
+    z-index: 10;
+    
     font-size: 14px;
     font-weight: 600;
     color: #ccc;
@@ -1609,12 +1611,13 @@ body {
     padding: 4px 12px;
     border-radius: 20px;
     backdrop-filter: blur(4px);
-    z-index: 10;
+    
     opacity: 0;
     animation: nameFadeIn 0.4s ease-out forwards;
     animation-delay: 0.85s;
     pointer-events: none;
     white-space: nowrap;
+    width: fit-content;       /* ← чтобы не растягивалось */
 }
 @keyframes nameFadeIn {
     0% {
@@ -2872,12 +2875,12 @@ const thirdPlaceName = allUsers[2]?.name || "Игрок";
             <div class="podium-step-wrapper">
                 <div class="podium-step first"></div>
             </div>
-            <div class="podium-step-wrapper">
+     <div class="podium-step-wrapper">
     <div class="podium-step third animate">
         <div class="podium-rank-third">3</div>
         <div class="podium-mask"></div>
     </div>
-    <div class="podium-name-third">${escapeHtml(thirdPlaceName)}</div> 
+    <div class="podium-name-third">${escapeHtml(thirdPlaceName)}</div>
 </div>
         </div>
         
