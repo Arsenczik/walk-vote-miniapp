@@ -1644,6 +1644,23 @@ animation: nameSlideSync 1s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
     display: inline-block;
     font-size: 18px;
 }
+        .podium-score {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 2px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffd700;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    letter-spacing: 0.5px;
+}
+
+.podium-score-paw {
+    font-size: 16px;
+    opacity: 0.9;
+}
     </style>
 </head>
 <body>
@@ -2888,9 +2905,13 @@ let html = `
         <div class="podium-step first"></div>
     </div>
   <div class="podium-step-wrapper" style="overflow: visible; background: none;">
-   <div class="podium-name-third">
+  <div class="podium-name-third">
     <span class="podium-avatar-bg">🐱</span>
     <span class="podium-name-text">Дмитрий</span>
+    <span class="podium-score">
+        <span class="podium-score-number">710</span>
+        <span class="podium-score-paw">🐾</span>
+    </span>
 </div>
     <div style="overflow: hidden; background: #000; border-radius: 12px 12px 8px 8px; flex: 1; display: flex; flex-direction: column; justify-content: flex-end;">
         <div class="podium-step third animate">
