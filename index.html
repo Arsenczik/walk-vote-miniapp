@@ -1581,6 +1581,32 @@ body {
     backdrop-filter: blur(0px);  /* размытие исчезает */
     -webkit-backdrop-filter: blur(0px);
 }
+        @keyframes rankFadeIn {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.7);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+        /* Цифра 3 на третьем столбике */
+.podium-rank-third {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 28px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    letter-spacing: 2px;
+    z-index: 5;
+    opacity: 0;
+    animation: rankFadeIn 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    animation-delay: 0.5s;  /* появляется чуть позже начала анимации столбика */
+}
     </style>
 </head>
 <body>
@@ -2825,10 +2851,11 @@ async function loadStatistics() {
         <div class="podium-step first"></div>
     </div>
     <div class="podium-step-wrapper">
-        <div class="podium-step third animate">
-            <div class="podium-mask"></div>
-        </div>
+    <div class="podium-step third animate">
+        <div class="podium-rank-third">3</div>
+        <div class="podium-mask"></div>
     </div>
+</div>
 </div>
         
         <div class="podium-divider"></div>
