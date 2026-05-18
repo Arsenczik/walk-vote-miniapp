@@ -2978,20 +2978,19 @@ let html = `
     
     content.innerHTML = html;
 
-    // Запуск счётчика лапок
+ // Запуск счётчика лапок
 const scoreEl = document.getElementById('scoreCounter');
 if (scoreEl) {
     const targetScore = 710;
-    const duration = 1000; // 1s, как у анимации
+    const duration = 1000; // 1s
     const delay = 170; // 0.17s
-    const easing = cubicBezier(0.25, 0.1, 0.25, 1);
 
     setTimeout(() => {
         const startTime = performance.now();
         function updateCounter(currentTime) {
             const elapsed = currentTime - startTime;
             const t = Math.min(elapsed / duration, 1);
-            const progress = easing(t);
+            const progress = easeOutCubic(t);   // используем существующую функцию
             const currentValue = Math.round(progress * targetScore);
             scoreEl.textContent = currentValue;
             if (t < 1) {
