@@ -1788,15 +1788,16 @@ animation: nameSlideSync 1.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
 }
   .leaderboard-separator {
     display: flex;
-    justify-content: space-evenly;   /* равномерно по ширине */
+    justify-content: space-evenly;
     align-items: center;
     width: 100%;
-    padding: 0 16px;                /* как у элементов списка */
+    padding: 2px 16px;      /* 2px сверху и снизу */
     box-sizing: border-box;
-    margin: 12px 0 8px;
+    margin: 12px 0 8px;      /* внешние отступы пока оставим, чтобы отделить от соседей */
     opacity: 0.6;
-    font-size: 18px;                /* чуть крупнее */
+    font-size: 18px;
     user-select: none;
+    line-height: 1;
 }
     </style>
 </head>
