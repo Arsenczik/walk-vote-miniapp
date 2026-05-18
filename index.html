@@ -1786,6 +1786,16 @@ animation: nameSlideSync 1.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
 .leaderboard-item.with-gap {
     margin-top: 12px;
 }
+        .leaderboard-separator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin: 12px 0 8px;
+    opacity: 0.6;
+    font-size: 16px;
+    user-select: none;
+}
     </style>
 </head>
 <body>
@@ -3096,10 +3106,17 @@ let html = `
     `;
 });
     
- if (!isInTop10 && currentUser) {
-    const gapClass = currentUserRank > 11 ? ' with-gap' : '';
+if (!isInTop10 && currentUser) {
+    // Если ранг > 11, добавляем разделитель с котиками
+    if (currentUserRank > 11) {
+        html += `
+            <div class="leaderboard-separator">
+                <span>🐈</span><span>🐈</span><span>🐈</span>
+            </div>
+        `;
+    }
     html += `
-        <div class="leaderboard-item is-me${gapClass}" style="border-top: 1px dashed rgba(255,215,0,0.3);">
+        <div class="leaderboard-item is-me" style="border-top: 1px dashed rgba(255,215,0,0.3);">
             <div class="leaderboard-rank">#${currentUserRank}</div>
             <span class="leaderboard-icon">🐈</span>
             <div class="leaderboard-name">${escapeHtml(currentUser.name)} (вы)</div>
