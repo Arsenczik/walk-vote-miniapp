@@ -1678,6 +1678,17 @@ animation: nameSlideSync 1.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
     font-weight: 900;
     transform: scaleY(0.77);   /* компенсация растяжения, уже есть – оставь */
 }
+        .podium-medal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, calc(-50% + 52px)) scaleY(0.77);
+    font-size: 34px;
+    z-index: 0;
+    opacity: 0.9;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
+    pointer-events: none;
+}
     </style>
 </head>
 <body>
@@ -2933,6 +2944,7 @@ let html = `
     <span class="podium-score-number" id="scoreCounter">0</span>
         <span class="podium-score-paw">🐾</span>
     </span>
+    <span class="podium-medal">🥉</span>
 </div>
     <div style="overflow: hidden; background: #000; border-radius: 12px 12px 8px 8px; flex: 1; display: flex; flex-direction: column; justify-content: flex-end;">
         <div class="podium-step third animate">
