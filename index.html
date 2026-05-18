@@ -2930,9 +2930,21 @@ async function loadStatistics() {
 let html = `
     <div style="display: flex; justify-content: center; align-items: center; flex-direction: column; margin-top: 33.3vh;">
        <div class="podium">
-    <div class="podium-step-wrapper">
-        <div class="podium-step second"></div>
+    <div class="podium-step-wrapper" style="overflow: visible; background: none;">
+    <div class="podium-name-third podium-name-second">
+        <span class="podium-avatar-bg">🐱</span>
+        <span class="podium-name-text">Мария</span>
+        <span class="podium-score">
+            <span class="podium-score-number" id="scoreCounter2">0</span>
+            <span class="podium-score-paw">🐾</span>
+        </span>
     </div>
+    <div style="overflow: hidden; background: #000; border-radius: 12px 12px 8px 8px; flex: 1; display: flex; flex-direction: column; justify-content: flex-end;">
+        <div class="podium-step second podium-step-second-animate">
+            <div class="podium-rank-second">2</div>
+        </div>
+    </div>
+</div>
     <div class="podium-step-wrapper">
         <div class="podium-step first"></div>
     </div>
