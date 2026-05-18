@@ -1627,13 +1627,20 @@ animation: nameSlideSync 1.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
         transform: translateX(-50%) scaleY(1.3) translateY(0);
     }
 }
-        .podium-avatar-bg {
+       .podium-avatar-bg {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, calc(-50% - 24px)) scaleY(0.77);
-    font-size: 48px;            /* крупный фоновый эмодзи */
-    opacity: 0.5;
+    width: 60px;                   /* размер круга */
+    height: 60px;
+    background: #cd7f32;           /* медный цвет */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;               /* размер эмодзи */
+    opacity: 0.5;                  /* полупрозрачность, чтобы текст читался */
     z-index: 0;
     pointer-events: none;
 }
