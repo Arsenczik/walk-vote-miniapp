@@ -3141,6 +3141,27 @@ if (scoreEl2) {
         requestAnimationFrame(updateCounter2);
     }, delay2);
 }  
+    const scoreEl1 = document.getElementById('scoreCounter1');
+if (scoreEl1) {
+    const targetScore1 = 1250;
+    const duration1 = 2960; // 2.96s
+    const delay1 = 170;     // 0.17s
+    setTimeout(() => {
+        const startTime1 = performance.now();
+        function updateCounter1(currentTime) {
+            const elapsed = currentTime - startTime1;
+            const t = Math.min(elapsed / duration1, 1);
+            const progress = easeOutCubic(t);
+            scoreEl1.textContent = Math.round(progress * targetScore1);
+            if (t < 1) {
+                requestAnimationFrame(updateCounter1);
+            } else {
+                scoreEl1.textContent = targetScore1;
+            }
+        }
+        requestAnimationFrame(updateCounter1);
+    }, delay1);
+}
 }
     // --- УТИЛИТЫ ---
     function formatDateDay(d) { if(!d) return ''; let date=new Date(d), now=new Date(); if(date.toDateString()===now.toDateString()) return 'Сегодня'; now.setDate(now.getDate()+1); if(date.toDateString()===now.toDateString()) return 'Завтра'; return date.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'}); }
