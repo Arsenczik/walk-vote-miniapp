@@ -2064,6 +2064,10 @@ function checkNewAchievements(achievementsArray) {
     } catch(e) {}
 }
 
+    function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
+}
+
 function startAchievementsPolling() {
     if (achievementsPollInterval) return;
     achievementsPollInterval = setInterval(pollNewAchievements, 15000); // 15 секунд
@@ -2926,7 +2930,7 @@ let html = `
     <span class="podium-avatar-bg">🐱</span>
     <span class="podium-name-text">Дмитрий</span>
     <span class="podium-score">
-        <span class="podium-score-number">710</span>
+    <span class="podium-score-number" id="scoreCounter">0</span>
         <span class="podium-score-paw">🐾</span>
     </span>
 </div>
@@ -2973,6 +2977,32 @@ let html = `
     `;
     
     content.innerHTML = html;
+
+    // Запуск счётчика лапок
+const scoreEl = document.getElementById('scoreCounter');
+if (scoreEl) {
+    const targetScore = 710;
+    const duration = 1000; // 1s, как у анимации
+    const delay = 170; // 0.17s
+    const easing = cubicBezier(0.25, 0.1, 0.25, 1);
+
+    setTimeout(() => {
+        const startTime = performance.now();
+        function updateCounter(currentTime) {
+            const elapsed = currentTime - startTime;
+            const t = Math.min(elapsed / duration, 1);
+            const progress = easing(t);
+            const currentValue = Math.round(progress * targetScore);
+            scoreEl.textContent = currentValue;
+            if (t < 1) {
+                requestAnimationFrame(updateCounter);
+            } else {
+                scoreEl.textContent = targetScore;
+            }
+        }
+        requestAnimationFrame(updateCounter);
+    }, delay);
+}
 }
     // --- УТИЛИТЫ ---
     function formatDateDay(d) { if(!d) return ''; let date=new Date(d), now=new Date(); if(date.toDateString()===now.toDateString()) return 'Сегодня'; now.setDate(now.getDate()+1); if(date.toDateString()===now.toDateString()) return 'Завтра'; return date.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'}); }
