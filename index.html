@@ -1720,12 +1720,6 @@ animation: nameSlideSync 1.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
     margin-bottom: 12px;   /* такой же, как у третьего */
 }
 
-/* Анимация имени и очков второго места (синхронно со столбиком) */
-.podium-name-second {
-    animation: nameSlideSync2 1.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
-    animation-delay: 0.17s;
-}
-
 @keyframes nameSlideSync2 {
     0% {
         opacity: 0;
@@ -3073,6 +3067,27 @@ if (scoreEl) {
         requestAnimationFrame(updateCounter);
     }, delay);
 }
+  const scoreEl2 = document.getElementById('scoreCounter2');
+if (scoreEl2) {
+    const targetScore2 = 980;
+    const duration2 = 2040; // 2.04s
+    const delay2 = 170;
+    setTimeout(() => {
+        const startTime2 = performance.now();
+        function updateCounter2(currentTime) {
+            const elapsed = currentTime - startTime2;
+            const t = Math.min(elapsed / duration2, 1);
+            const progress = easeOutCubic(t);
+            scoreEl2.textContent = Math.round(progress * targetScore2);
+            if (t < 1) {
+                requestAnimationFrame(updateCounter2);
+            } else {
+                scoreEl2.textContent = targetScore2;
+            }
+        }
+        requestAnimationFrame(updateCounter2);
+    }, delay2);
+}  
 }
     // --- УТИЛИТЫ ---
     function formatDateDay(d) { if(!d) return ''; let date=new Date(d), now=new Date(); if(date.toDateString()===now.toDateString()) return 'Сегодня'; now.setDate(now.getDate()+1); if(date.toDateString()===now.toDateString()) return 'Завтра'; return date.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'short'}); }
