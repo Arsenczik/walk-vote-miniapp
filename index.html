@@ -1730,6 +1730,45 @@ animation: nameSlideSync 1.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
         transform: translateX(-50%) scaleY(1.3) translateY(0) scale(1);
     }
 }
+        /* Анимация выезда первого столбика (160px) */
+.podium-step-first-animate {
+    animation: slideUpFromBottom 2.96s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    animation-delay: 0.17s;
+    opacity: 0;
+}
+
+/* Цифра 1 на первом столбике */
+.podium-rank-first {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scaleX(1.3);
+    font-size: 28px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    letter-spacing: 2px;
+    z-index: 5;
+    opacity: 1;
+}
+
+/* Класс для первого места – анимация имени и очков */
+.podium-name-first {
+    margin-bottom: 12px;
+    animation: nameSlideSync1 2.96s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    animation-delay: 0.17s;
+}
+
+@keyframes nameSlideSync1 {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) scaleY(1.3) translateY(126px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) scaleY(1.3) translateY(0) scale(1);
+    }
+}
     </style>
 </head>
 <body>
