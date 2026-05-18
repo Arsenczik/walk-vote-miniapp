@@ -1786,14 +1786,16 @@ animation: nameSlideSync 1.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
 .leaderboard-item.with-gap {
     margin-top: 12px;
 }
-        .leaderboard-separator {
+  .leaderboard-separator {
     display: flex;
-    justify-content: center;
+    justify-content: space-evenly;   /* равномерно по ширине */
     align-items: center;
-    gap: 6px;
+    width: 100%;
+    padding: 0 16px;                /* как у элементов списка */
+    box-sizing: border-box;
     margin: 12px 0 8px;
     opacity: 0.6;
-    font-size: 16px;
+    font-size: 18px;                /* чуть крупнее */
     user-select: none;
 }
     </style>
