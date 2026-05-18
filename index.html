@@ -1791,23 +1791,24 @@ animation: nameSlideSync 1.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
     justify-content: space-evenly;
     align-items: center;
     width: 100%;
-    padding: 6px 16px;                  /* твой увеличенный padding */
+    padding: 6px 16px;
     box-sizing: border-box;
     margin: 0;
     opacity: 0.6;
     font-size: 18px;
     user-select: none;
     line-height: 1;
-    position: relative;                 /* чтобы псевдоэлемент позиционировался внутри */
+    position: relative;
     /* Впуклый эффект */
     box-shadow: 
         inset 0 2px 4px rgba(0, 0, 0, 0.6),
         inset 0 -2px 4px rgba(0, 0, 0, 0.6);
     background: rgba(255, 255, 255, 0.03);
     border-radius: 3px;
+    z-index: 2;                     /* выше строки пользователя */
 }
 
-/* Тонкие горизонтальные линии */
+/* Скрытые строки — многослойные линии */
 .leaderboard-separator::before {
     content: '';
     position: absolute;
@@ -1818,19 +1819,45 @@ animation: nameSlideSync 1.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
     background: repeating-linear-gradient(
         to bottom,
         transparent,
-        transparent 5px,               /* прозрачный промежуток 5px */
-        rgba(255, 255, 255, 0.06) 5px, /* линия 1px */
+        transparent 5px,
+        rgba(255, 255, 255, 0.06) 5px,
         rgba(255, 255, 255, 0.06) 6px
     );
     z-index: 0;
     pointer-events: none;
-    border-radius: 3px;                /* повторяем скругление */
+    border-radius: 3px;
 }
 
-/* Котики должны быть над линиями */
+/* Дополнительные строки, уходящие вниз (каскад) */
+.leaderboard-separator::after {
+    content: '';
+    position: absolute;
+    top: 100%;                     /* начинается сразу под разделителем */
+    left: 0;
+    right: 0;
+    height: 12px;                  /* высота каскада */
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.04) 0px,
+        rgba(255, 255, 255, 0.04) 1px,
+        transparent 1px,
+        transparent 4px
+    );
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* Котики поверх линий */
 .leaderboard-separator > span {
     position: relative;
-    z-index: 1;
+    z-index: 2;
+}
+        .user-row-below {
+    position: relative;
+    margin-top: -4px;        /* небольшой нахлёст под разделитель */
+    z-index: 1;             /* ниже разделителя */
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
     </style>
 </head>
@@ -3152,7 +3179,7 @@ if (!isInTop10 && currentUser) {
         `;
     }
     html += `
-    <div class="leaderboard-item" style="border-top: 1px solid rgba(255, 255, 255, 0.06);">
+    <div class="leaderboard-item user-row-below">
             <div class="leaderboard-rank">#${currentUserRank}</div>
             <span class="leaderboard-icon">🐈</span>
             <div class="leaderboard-name">${escapeHtml(currentUser.name)} (вы)</div>
