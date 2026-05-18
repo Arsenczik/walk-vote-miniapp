@@ -1691,12 +1691,12 @@ animation: nameSlideSync 1.3s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
 }
         .podium-name-second {
     animation: nameSlideSync2 2.04s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
-    animation-delay: 0.17s;
+    animation-delay: 0.35s;
 }
         /* Анимация выезда второго столбика */
 .podium-step-second-animate {
     animation: slideUpFromBottom 2.04s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
-    animation-delay: 0.17s;
+    animation-delay: 0.35s;
     opacity: 0;
 }
 
@@ -3072,7 +3072,7 @@ if (scoreEl) {
 if (scoreEl2) {
     const targetScore2 = 980;
     const duration2 = 2040; // 2.04s
-    const delay2 = 170;
+    const delay2 = 350;
     setTimeout(() => {
         const startTime2 = performance.now();
         function updateCounter2(currentTime) {
